@@ -281,3 +281,49 @@ class LifecycleTests(unittest.TestCase):
                 self.assertEqual(main(["remove", "--apply", str(plan), "--root", str(r)]), 0)
                 self.assertEqual(main(["recover", "--root", str(r)]), 0)
             self.assertFalse((r / ".s-f").exists())
+
+    def test_upgrade_crash_recovers_exact_new_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = Path(d)
+            old = _profile(r)
+            execute_plan(r, old, _save_plan(r, "integrate", old), mode="integrate")
+            new = _profile(r, version="b")
+            saved = _save_plan(r, "upgrade", new)
+            from sf import lifecycle
+            original = lifecycle._checked_effect
+            calls = []
+            def fail(root, step):
+                if calls:
+                    raise OSError("simulated interrupted upgrade")
+                calls.append(step["path"])
+                return original(root, step)
+            with patch("sf.lifecycle._checked_effect", side_effect=fail):
+                with self.assertRaises(OSError):
+                    execute_plan(r, new, saved, mode="upgrade")
+            self.assertTrue((r / JOURNAL).is_file())
+            self.assertEqual(recover(r)["status"], "completed")
+            self.assertIn("test-b", (r / ".s-f/profile.json").read_text())
+            self.assertFalse((r / JOURNAL).exists())
+
+    def test_journal_write_failure_prevents_target_effect(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = Path(d)
+            p = _profile(r)
+            saved = _save_plan(r, "integrate", p)
+            with patch("sf.lifecycle._make_journal", side_effect=OSError("disk error")):
+                with self.assertRaises(OSError):
+                    execute_plan(r, p, saved, mode="integrate")
+            self.assertFalse((r / ".s-f").exists())
+            self.assertFalse((r / "AGENTS.md").exists())
+
+    def test_plan_invalid_after_profile_changes(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = Path(d)
+            p = _profile(r)
+            saved = _save_plan(r, "integrate", p)
+            data = json.loads(p.read_text())
+            data["commands"]["check"]["argv"] = ["different", "check"]
+            p.write_text(json.dumps(data))
+            with self.assertRaises(IntegrationError):
+                execute_plan(r, p, saved, mode="integrate")
+            self.assertFalse((r / JOURNAL).exists())
