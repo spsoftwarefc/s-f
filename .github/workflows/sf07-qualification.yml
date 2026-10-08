@@ -45,15 +45,9 @@ jobs:
         run: python -m compileall -q src/sf tests tools/ci_acceptance.py
       - name: Mandatory full suite with zero allowed skips
         run: python tools/ci_acceptance.py run-suite
-      - name: CI-16 temporary merge-group required-job failure probe
-        if: ${{ github.event_name == 'merge_group' }}
-        shell: bash
-        run: exit 1
 
   windows:
     name: sf07-portability (windows-2022, py3.12)
-    # CI-16 TEMPORARY: simulate a skipped required job on merge_group only.
-    if: ${{ github.event_name != 'merge_group' }}
     runs-on: windows-2022
     timeout-minutes: 12
     env:
