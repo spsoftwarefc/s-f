@@ -350,8 +350,8 @@ class OperationsTests(unittest.TestCase):
             files[2].write_text(json.dumps(self.events))
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(args), 1)
-            self.assertEqual([p.name for p in temp.iterdir()],
-                             [p.name for p in files])
+            self.assertEqual({p.name for p in temp.iterdir()},
+                             {p.name for p in files})
 
     def test_cli_bad_input_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
