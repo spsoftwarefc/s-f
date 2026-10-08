@@ -44,6 +44,8 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--root", type=Path, required=True)
         if operation != "remove":
             command.add_argument("--profile", type=Path, required=True)
+            command.add_argument("--development-preview-unpinned", action="store_true",
+                                 help="explicitly opt into legacy, unverified preview; not a qualified installation")
             for flag in ("bundle", "trust", "lock"):
                 command.add_argument("--" + flag, type=Path, default=None,
                                      help="optional complete external-pin verified distribution binding (preview)")
@@ -162,6 +164,15 @@ def main(argv: list[str] | None = None) -> int:
         if args.command in ("integrate", "upgrade", "remove"):
             target_profile = args.profile if args.command != "remove" else None
             acknowledgement = getattr(args, "ack_manual_routing", False)
+            if args.command != "remove":
+                proof = (args.bundle, args.trust, args.lock)
+                if getattr(args, "development_preview_unpinned", False):
+                    if any(value is not None for value in proof):
+                        raise IntegrationError("unqualified preview cannot claim verified distribution")
+                elif not all(value is not None for value in proof):
+                    raise IntegrationError(
+                        "integrate/upgrade require --bundle, --trust and --lock; "
+                        "use --development-preview-unpinned only for the unqualified legacy preview")
             if args.dry_run:
                 plan = plan_lifecycle(args.command, args.root, target_profile,
                                       ack_manual=acknowledgement,
