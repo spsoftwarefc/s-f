@@ -19,7 +19,9 @@
     "docs/factory/evidence/SF-13.md",
     "src/sf/distribution.py",
     "src/sf/cli.py",
-    "tests/test_distribution.py"
+    "tests/test_distribution.py",
+    "README.md",
+    "docs/factory/PROJECT.md"
   ],
   "requirements": [
     "SF-R05",
@@ -107,5 +109,9 @@
     "Do not change settings, CI workflows, or repositories other than spsoftwarefc/s-f"
   ],
   "proofs": {},
-  "amendments": []
+  "amendments": [
+    {
+      "reason": "Integration readiness identified stale README and project-adapter package status; reconcile both with current PR #22 stack and pending merge reality before stable CI. No new runtime or authority."
+    }
+  ]
 }
