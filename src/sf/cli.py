@@ -6,6 +6,7 @@ import json
 import signal
 import sys
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __version__
@@ -16,6 +17,7 @@ from .security import SecurityError, read_policy, assess_security
 from .release import ReleasePlanError, plan_release, _load as release_load, _regular as release_regular
 from .deployment import DeploymentError, qualify_deployment
 from .operations import OperationsError, assess_operations, read_document as read_operations_document
+from .qualification import QualificationError, qualify_factory
 from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
@@ -121,8 +123,33 @@ def main(argv: list[str] | None = None) -> int:
     op_assess.add_argument("--qualification", type=Path, required=True)
     op_assess.add_argument("--policy", type=Path, required=True)
     op_assess.add_argument("--observations", type=Path, required=True)
+    factory = sub.add_parser("factory", help="cross-package offline development qualification only")
+    factory_ops = factory.add_subparsers(dest="operation", required=True)
+    factory_check = factory_ops.add_parser("qualify", help="recheck installed archive and synthetic qualification chain")
+    for param in ("target", "bundle", "trust", "lock", "release-plan", "deployment",
+                  "operations-policy", "observations"):
+        factory_check.add_argument("--" + param, type=Path, required=True)
+    factory_check.add_argument("--as-of", default=None,
+                               help="optional exact UTC timestamp YYYY-MM-DDTHH:MM:SSZ for reproducible fixtures")
     args = parser.parse_args(argv)
     try:
+        if args.command == "factory":
+            clock = None
+            if args.as_of is not None:
+                try:
+                    if not isinstance(args.as_of, str) or not args.as_of.endswith("Z"):
+                        raise ValueError("UTC Z suffix required")
+                    clock = datetime.strptime(args.as_of, "%Y-%m-%dT%H:%M:%SZ").replace(
+                        tzinfo=timezone.utc)
+                except ValueError as exc:
+                    raise QualificationError("invalid exact UTC --as-of") from exc
+            result = qualify_factory(args.target, args.bundle, args.trust, args.lock,
+                                     read_operations_document(args.release_plan),
+                                     read_operations_document(args.deployment),
+                                     read_operations_document(args.operations_policy),
+                                     read_operations_document(args.observations), now=clock)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0 if result["developmentFixturePassed"] else 1
         if args.command == "operations":
             result = assess_operations(read_operations_document(args.qualification),
                                        read_operations_document(args.policy),
@@ -244,7 +271,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (QualificationError, OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
