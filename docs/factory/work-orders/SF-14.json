@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-14",
+  "baseline": {
+    "commit": "0912c621e731b5b5b31d5a7c5e7e3acfe436bd3a",
+    "tree": "f4b263ed59e98c0cadcf94eef5c58aba53c21c26"
+  },
+  "objective": "Produce read-only, source-bound artifact/release plans that reject source, artifact, CI metadata, destination authorization, migration and recovery identity mismatches before any deployment effect.",
+  "nonGoals": [
+    "No artifact build, mutation, upload, release, deployment, migration execution, rollback or hidden network activity",
+    "No claim that a local approval pin authenticates itself, that CI metadata alone establishes independently accepted source, or that this package grants deployment authority",
+    "No additions to protected GitHub workflows, required checks, repository rulesets, or other repositories"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-14.json",
+    "docs/factory/SF14_RELEASE_PLAN.md",
+    "docs/factory/evidence/SF-14.md",
+    "src/sf/release.py",
+    "src/sf/cli.py",
+    "tests/test_release.py"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R09",
+    "SF-R11",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Release planning remains offline and declarative; a source-acceptance/approval identity supplied out of band is conditional until operator trust provisioning is independently authenticated.",
+    "Every approved migration/recovery plan is content-digest bound to the exact repository source revision; CI provider metadata remains advisory until separately verified."
+  ],
+  "obligations": [
+    {
+      "id": "source",
+      "description": "Bind a clean exact Git commit/tree, candidate CI evidence and the separately approved source acceptance identity; reject wrong source, stale CI metadata or mutable plan inputs.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "artifact",
+      "description": "Hash artifact bytes independently and reject absent, oversized, symlinked or mismatched artifact source and pin.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "destination",
+      "description": "Bind destination, operator identity, grant, expiry, and migration/recovery content digests; reject mismatched or expired authorizations.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "safety",
+      "description": "Operate offline read-only, no code execution/target writes; output never misstates release or deployment authority, with repeatable Linux/Windows results.",
+      "proofKinds": [
+        "regression-reproducer",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-13I",
+      "kind": "git-ancestor",
+      "revision": "0912c621e731b5b5b31d5a7c5e7e3acfe436bd3a",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/release.py: closed release input schemas, source and artifact digest checks, external approval identity and deterministic plan output",
+    "src/sf/cli.py: read-only sf release plan CLI, explicit input surfaces",
+    "tests/test_release.py: synthetic clean Git source, independently derived byte digests and adversarial identity/tamper/expiry fixtures",
+    "docs/factory/SF14_RELEASE_PLAN.md: trust boundary and acceptance contract"
+  ],
+  "impact": [
+    "Introduces an offline release-planning boundary; no deployment authorization, command execution or target changes",
+    "Known project-owned migration/recovery and release approval inputs stay under explicit digest and authority boundaries"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No network from release planning; GitHub provider reads only for PR status",
+    "execution": "Focused source-bound local/test fixture checks; one stable hosted PR validation, reuse run evidence"
+  },
+  "externalEffects": [
+    "No deployment, publication, installation into other repositories, release creation or settings changes",
+    "PR #25 stacked on PR #24 and held until cumulative PR #28 merge authorization",
+    "No new reviewer requirement or paid service"
+  ],
+  "proofs": {},
+  "amendments": []
+}
