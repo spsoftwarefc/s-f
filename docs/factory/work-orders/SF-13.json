@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-13",
+  "baseline": {
+    "commit": "daeb84cf10ef0e984a67f5e3c7a98a3dcb635f27",
+    "tree": "f7fedf99ccebbc098b7d016aa91e7b2978ddddab"
+  },
+  "objective": "Create reproducible versioned offline Software Factory bundles and verify bundle contents/compatibility against an independent publisher-authorized, externally provisioned digest and release identity; emit a pinned installation lock, without silent upgrades or release claims.",
+  "nonGoals": [
+    "No autonomous publication, network upload, GitHub release creation, installation into other repositories, or deployments",
+    "No self-authenticating embedded checksums or unsupported claim that a locally created trust file proves publisher identity",
+    "No bespoke cryptographic signature primitive or implied SLSA provenance certification",
+    "No weakening CI, permission, merge queue or other repository controls",
+    "No alteration of existing install/upgrade/removal behavior or target files"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-13.json",
+    "docs/factory/SF13_DISTRIBUTION.md",
+    "docs/factory/evidence/SF-13.md",
+    "src/sf/distribution.py",
+    "src/sf/cli.py",
+    "tests/test_distribution.py"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R01",
+    "SF-R03",
+    "SF-R04",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md",
+    "Use deterministic archive and trusted digest pin provisioned out of band; a matching self-embedded checksum is never authentication; signed provenance remains a separately qualifying extension."
+  ],
+  "obligations": [
+    {
+      "id": "determinism",
+      "description": "Build reproducible offline archive from clean committed Git source with exact allowed portable paths, sorted canonical manifest, explicit version/source identity and bounded contents.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "verification",
+      "description": "Reject tampered, untrusted, mismatched, corrupt, missing, duplicate, traversal, symlink, oversized and unsupported bundles; require out-of-band trusted publisher/release/digest policy.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "locking",
+      "description": "Verify version/schema compatibility, produce deterministic project-installation lock only when explicitly requested, without overwriting or auto-updating.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "portability",
+      "description": "Preserve Windows/Linux behavior; offline no-network operation and minimal dependency footprint; no implicit release/merge claim.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "integration",
+      "description": "Prepare full SF-08 through SF-13 cumulative diff and verify PR #22 required checks and merge-queue prerequisites while preserving authorization boundary.",
+      "proofKinds": [
+        "diff-review",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-12",
+      "kind": "git-ancestor",
+      "revision": "daeb84cf10ef0e984a67f5e3c7a98a3dcb635f27",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/distribution.py: deterministic archive builder, strict manifest verifier, externally trusted digest policy and lock writer",
+    "src/sf/cli.py: explicit sf distribution build/verify CLI",
+    "tests/test_distribution.py: synthetic Git repos, binary tamper, dangerous ZIP and compatibility fixtures",
+    "docs/factory/SF13_DISTRIBUTION.md: distribution trust, manual issuance and update/removal compatibility contracts"
+  ],
+  "impact": [
+    "Adds opt-in offline package verification without modifying target repository files or accepting self-signed candidate output",
+    "Archive contains only project-agnostic factory runtime/contracts and skills, never historical bot evidence",
+    "PR #22 contains full stack to main but merge execution remains separately authorized"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "None for local build and verification; single stable PR validation and required queue later",
+    "execution": "Focused offline tests, stable Linux/Windows PR acceptance once, no redundant Actions reruns"
+  },
+  "externalEffects": [
+    "User requested preparation of merge after PR #22; do not enter merge queue or merge without separate explicit go-ahead",
+    "Do not deploy, distribute publicly, install into other projects or publish releases",
+    "Do not change settings, CI workflows, or repositories other than spsoftwarefc/s-f"
+  ],
+  "proofs": {},
+  "amendments": []
+}
