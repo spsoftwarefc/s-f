@@ -18,6 +18,7 @@
     "docs/factory/evidence/SF-13I.md",
     "src/sf/distribution.py",
     "src/sf/lifecycle.py",
+    "src/sf/pinned.py",
     "src/sf/integration.py",
     "src/sf/cli.py",
     "tests/test_distribution.py",
@@ -25,7 +26,8 @@
     "tests/test_integration.py",
     "tests/test_distribution_install.py",
     "README.md",
-    "docs/factory/PROJECT.md"
+    "docs/factory/PROJECT.md",
+    "tests/test_pinned.py"
   ],
   "requirements": [
     "SF-R05",
@@ -85,7 +87,8 @@
     "src/sf/lifecycle.py: install/upgrade plan, journal and recover preconditions",
     "src/sf/cli.py: explicit installation proof flags and failure behavior",
     "src/sf/integration.py: generated-files/installed-members ownership mapping if required",
-    "tests/: identity tamper, byte equality and crash/recovery fixtures"
+    "tests/: identity tamper, byte equality and crash/recovery fixtures",
+    "src/sf/pinned.py: qualified pinned lifecycle transaction, archive byte mapping and checked recovery"
   ],
   "impact": [
     "Installation/upgrade authority boundary and persistent target bytes, but no new release or deployment authority",
@@ -103,5 +106,9 @@
     "Any test-only fixture writes must stay in isolated temporary directories"
   ],
   "proofs": {},
-  "amendments": []
+  "amendments": [
+    {
+      "reason": "Reconciliation found SF-06 generated target routing files cannot demonstrate installed portable archive-member byte equality; isolate a schema-v2 qualified pinned transaction module with explicit exact-byte members, leaving legacy SF-06 previews unqualified and requiring an explicit legacy selection."
+    }
+  ]
 }
