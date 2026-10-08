@@ -58,6 +58,7 @@ def qualifies_tests(result: unittest.TestResult, discovered: set[str]) -> bool:
         len(discovered) >= BASELINE_MINIMUM
         and REQUIRED_TEST_IDS <= discovered
         and result.testsRun >= BASELINE_MINIMUM
+        and result.testsRun == len(discovered)
         and result.wasSuccessful()
         and not result.skipped
         and not result.expectedFailures
