@@ -12,6 +12,7 @@ from . import __version__
 from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
 from .assurance import AssuranceError, read_packet, inspect_review
+from .security import SecurityError, read_policy, assess_security
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
 from .inventory import InventoryError, inventory
@@ -72,8 +73,17 @@ def main(argv: list[str] | None = None) -> int:
         assessment = sub.add_parser(name, help="source-bound offline assurance assessment (no acceptance authority)")
         assessment.add_argument("--root", type=Path, required=True)
         assessment.add_argument("--packet", type=Path, required=True)
+    security = sub.add_parser("security", help="explicit read-only security and dependency observations")
+    security_ops = security.add_subparsers(dest="operation", required=True)
+    sec = security_ops.add_parser("assess", help="assess tracked files and source-bound scanner snapshots")
+    sec.add_argument("--root", type=Path, required=True)
+    sec.add_argument("--policy", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command == "security":
+            result = assess_security(args.root, read_policy(args.policy))
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 1 if result["status"] != "observed-clear-not-certified" else 0
         if args.command in ("review", "readiness"):
             result = inspect_review(args.root, read_packet(args.packet), summary=args.command == "readiness")
             print(json.dumps(result, ensure_ascii=False, sort_keys=True))
@@ -152,7 +162,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
