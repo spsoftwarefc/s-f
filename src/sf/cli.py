@@ -15,6 +15,7 @@ from .assurance import AssuranceError, read_packet, inspect_review
 from .security import SecurityError, read_policy, assess_security
 from .release import ReleasePlanError, plan_release, _load as release_load, _regular as release_regular
 from .deployment import DeploymentError, qualify_deployment
+from .operations import OperationsError, assess_operations, read_document as read_operations_document
 from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
@@ -114,8 +115,20 @@ def main(argv: list[str] | None = None) -> int:
     qualification = deploy_ops.add_parser("qualify", help="run bounded offline fake-target fault matrix")
     qualification.add_argument("--plan", type=Path, required=True,
                                help="SF-14 offline release-plan result JSON; untrusted fixture only")
+    operations = sub.add_parser("operations", help="bounded offline observation and incident proposals")
+    operations_ops = operations.add_subparsers(dest="operation", required=True)
+    op_assess = operations_ops.add_parser("assess", help="classify source-bound offline operations evidence")
+    op_assess.add_argument("--qualification", type=Path, required=True)
+    op_assess.add_argument("--policy", type=Path, required=True)
+    op_assess.add_argument("--observations", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command == "operations":
+            result = assess_operations(read_operations_document(args.qualification),
+                                       read_operations_document(args.policy),
+                                       read_operations_document(args.observations))
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 1 if result["status"] != "healthy-observed-unverified" else 0
         if args.command == "deployment":
             source = release_regular(args.plan, 1024 * 1024, "fake-target plan")
             result = qualify_deployment(release_load(source, "fake-target plan"))
@@ -231,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
