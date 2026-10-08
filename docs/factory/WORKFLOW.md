@@ -55,7 +55,7 @@ Record an architectural choice, its rejected alternative and the condition that 
 | Visible interface | Same scenario before/after, browser/device conditions, screenshots or video plus behavior assertions | Authorization, data integrity, performance distribution or backend correctness |
 | Defect correction | Minimal reproducer at the real input/event boundary; expected result derived from the rule; corrected result | Untested callers, environments or transitions |
 | New feature | Predeclared acceptance scenarios and negative cases; baseline showing absence where useful | That the chosen requirement is itself correct |
-| State machine/accounting | Ordered event traces, conserved quantities, exact outputs, restart/race cases and mirror comparisons | Real exchange behavior or durable production implementation unless exercised |
+| State machine/accounting | Ordered event traces, conserved quantities, exact outputs, restart/race cases and mirror comparisons | Real external-system behavior or durable production implementation unless exercised |
 | Performance | Same workload and environment; baseline/candidate revisions; repetitions, distributions and measurement method | A general speedup inferred from a single timing or screenshot |
 | Documentation/instructions | Source-bound preservation/diff review, link and authority consistency, applicable integrity checks | Runtime behavior or automated enforcement of prose |
 | Security/dependency | Permission and data-flow review, concrete misuse/failure cases, dependency provenance and applicable scans | Security from an empty scanner report |
@@ -100,7 +100,7 @@ For each control, the project adapter states whether it is manual guidance, exis
 
 When creating a new repository, copy only the portable core and work-order template. Create a project adapter specifying: purpose/non-goals; requirement authority; architecture and credential boundaries; permitted development and release actions; skill locations; exact verification commands and runtime pins; risk-based proof requirements; current enforcement; resource budgets; release/recovery/monitoring owner; and first acceptance package.
 
-Inventory any existing root/nested/parent agent instructions, host adapters, hooks and unique workflows before changing them. Preserve unique rules in place first. Give every moved or consolidated rule a source-to-destination mapping; “not mentioned in the transcript” is never grounds for deletion. Do not copy old commit IDs, test counts, evidence, credentials, deployment targets or trading restrictions into an unrelated repository. References in the new adapter must resolve before claiming bootstrap complete.
+Inventory any existing root/nested/parent agent instructions, host adapters, hooks and unique workflows before changing them. Preserve unique rules in place first. Give every moved or consolidated rule a source-to-destination mapping; “not mentioned in the transcript” is never grounds for deletion. Do not copy old commit IDs, test counts, evidence, credentials, deployment targets or domain restrictions into an unrelated repository. References in the new adapter must resolve before claiming bootstrap complete.
 
 Connect the host entry points explicitly and test discovery in the intended host when available. Establish CI from the new project's toolchain and gates, not by copying another project's workflow unexamined. Start with one small representative work package. Record its proof, review outcome and unresolved enforcement gaps before scaling parallelism.
 

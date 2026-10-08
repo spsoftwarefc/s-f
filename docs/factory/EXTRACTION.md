@@ -22,11 +22,11 @@ The source repository is read-only provenance for this extraction. No source-bot
 | `docs/factory/evidence/*.json` imported from the bot | Historical/source-coupled control state; remove from the portable baseline. |
 | `tools/context_map.py` | Candidate reusable mechanic; retain only after portable tests are self-contained. |
 | `tools/test_context_map.py` | Adapt by replacing repository-coupled assertions with synthetic fixtures. |
-| `tools/check_factory_evidence.py` and `tools/test_factory_evidence.py` | Source candidate only during SF-00; either decouple or remove before baseline acceptance. No enforcement claim while coupled to absent bot contracts. |
+| `tools/check_factory_evidence.py` and `tools/test_factory_evidence.py` | Removed from active tooling in SF-00 because they were source-coupled. Portable assurance requirements are retained in `docs/research/SF00_CHECKER_REQUIREMENTS.md` for later schema/CI packages. |
 | Bot `.github/workflows/verify.yml` | Not imported. s-f installs no hosted workflow in SF-00. |
 
 ## Baseline rule
 
 Historical bot facts may remain only in provenance text that is explicitly labelled historical. They must not appear as current s-f authority, readiness, release status, routing, command requirements or evidence.
 
-The combined SF-00 stack is not accepted until PR #4 closes the remaining skill/tooling coupling. No hosted CI success is claimed for this package.
+PR #4 removes the remaining active checker/test coupling. The baseline still makes no hosted CI success claim; later packages must implement and qualify portable enforcement before such a claim is possible.
