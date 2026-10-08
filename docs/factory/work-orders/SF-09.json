@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-09",
+  "baseline": {
+    "commit": "2f0ae73ce49676d677d0071ae0ef81fbc2c86d83",
+    "tree": "961c79f8148f506383bd593ab8dcc1c233f10c22"
+  },
+  "objective": "Provide explicit bounded execution of declared project checks with source-bound, redacted local receipts and timeout/cancellation handling.",
+  "nonGoals": [
+    "No implicit project execution from inventory or profiles",
+    "No untrusted-code sandbox certification or enforced network isolation",
+    "No CI-provider verification (SF-10)",
+    "No release/deployment or external-risk command authorization",
+    "No changes to s-f CI workflows or other repositories"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-09.json",
+    "docs/factory/SF09_EXECUTION.md",
+    "docs/factory/evidence/SF-09.md",
+    "src/sf/execution.py",
+    "src/sf/cli.py",
+    "tests/test_execution.py"
+  ],
+  "requirements": [
+    "SF-R06",
+    "SF-R07",
+    "SF-R09",
+    "SF-R10",
+    "docs/factory/WORK_ORDER.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md",
+    "Execution runner is an OS process adapter, not a sandbox; external effects remain a separate authority"
+  ],
+  "obligations": [
+    {
+      "id": "command-boundary",
+      "description": "Execute only explicit profile-declared argument vectors with validated cwd, bounded risk and no shell interpolation",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "description": "Bounded stdout/stderr and runtime; timeout and cancellation terminate only owned process groups/trees where supported; errors remain errors",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "receipts",
+      "description": "Produce versioned local source/profile/command identities and redacted output hashes with honest unverified status",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "portability",
+      "description": "Preserve Linux/Windows support, handle unsupported cleanup mechanisms explicitly and document limits",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "preservation",
+      "description": "Do not modify existing profile/inventory behavior or GitHub workflows; retain project-owned authority",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-08",
+      "kind": "git-ancestor",
+      "revision": "2f0ae73ce49676d677d0071ae0ef81fbc2c86d83",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/execution.py: bounded subprocess and read-only Git observations",
+    "src/sf/cli.py: explicit sf run command and exit mapping",
+    "tests/test_execution.py: isolated synthetic project and process fixtures"
+  ],
+  "impact": [
+    "Extends CLI with explicitly requested local execution only",
+    "Does not execute discovered commands or alter install/upgrade/removal semantics",
+    "Adds no provider, credentials or mandatory hosted services"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No network for inner development; runner does not claim enforcement of declared network=false",
+    "execution": "Focused local tests, one full suite stable candidate, one PR Actions run when necessary"
+  },
+  "externalEffects": [
+    "No merge to main until PR #22 authorized boundary",
+    "No auto-merge or merge queue entry",
+    "No production or target-repository deployment",
+    "External-risk and mutating commands require later explicit authority"
+  ],
+  "proofs": {},
+  "amendments": []
+}

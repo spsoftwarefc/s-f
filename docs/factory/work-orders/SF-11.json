@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-11",
+  "baseline": {
+    "commit": "1b18eed079ce8460ba3561eaf16b9c6cac81c7cf",
+    "tree": "fff7849c940ebf2824ad86bedc5ce1baf112a04e"
+  },
+  "objective": "Add deterministic read-only, source-bound substantive review and readiness assessment using declared independent cases, actual candidate diff, negative/fault/temporal proof selectors and fail-closed control-change handling without granting acceptance or merge authority.",
+  "nonGoals": [
+    "No automatic reviewer assignment or external review service",
+    "No automatic acceptance, merge, release, deployment or GitHub Actions invocation",
+    "No network calls, arbitrary project command execution or mutation during review",
+    "No assertion that candidate-supplied proof descriptions or local results are independently attested",
+    "No replacement of existing canonical context/implementation/review skill instruction bodies"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-11.json",
+    "docs/factory/SF11_ASSURANCE.md",
+    "docs/factory/evidence/SF-11.md",
+    "src/sf/assurance.py",
+    "src/sf/cli.py",
+    "tests/test_assurance.py"
+  ],
+  "requirements": [
+    "SF-R07",
+    "SF-R08",
+    "SF-R09",
+    "SF-R11",
+    "SF-R12",
+    "docs/factory/WORK_ORDER.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md",
+    "A candidate-controlled review packet is a declared observation, never an independently authorized acceptance policy; gate/test changes always require out-of-band review."
+  ],
+  "obligations": [
+    {
+      "id": "source-diff",
+      "description": "Bind review packet to exact baseline/head/tree and tracked candidate diff; missing/undeclared changed paths and dirty inputs prevent review-ready.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "assurance-cases",
+      "description": "Select independent predeclared scenarios including negative/fault/temporal where applicable; detect absent proof, post-hoc oracle changes and missing UI proof for visible changes.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "control-review",
+      "description": "Detect changes to tests, instructions, CI, gates or contract schemas and require separate baseline-controlled control-change assessment; candidate labels cannot self-waive.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "disposition",
+      "description": "Report material findings as blockers, distinguish unknown from success; no reviewer request required and readiness never implies accepted/CI verified.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "portability",
+      "description": "Maintain Linux/Windows stdlib-only CLI and existing v1 commands without changing Actions workflows or protected repository settings.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-10",
+      "kind": "git-ancestor",
+      "revision": "1b18eed079ce8460ba3561eaf16b9c6cac81c7cf",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/assurance.py: strict review packet schema, read-only git identity/diff, source-bound case and findings gate",
+    "src/sf/cli.py: explicit sf review and sf readiness read-only entrypoints",
+    "tests/test_assurance.py: independent fixture repos, falsification and control-drift negative cases",
+    "docs/factory/SF11_ASSURANCE.md: contract, trust and proof boundaries"
+  ],
+  "impact": [
+    "Review requires declared cases and substantive observations, but never reviewer requests or review-score dependencies",
+    "Source/test/CI/policy modifications trigger explicit control-change findings",
+    "Adds no network or authority-bearing external effects; preserves other CLI operations"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No network for implementation or review; PR validation only on stable candidate.",
+    "execution": "Run focused local tests; one final native Linux/Windows PR validation, rerun only after real correction."
+  },
+  "externalEffects": [
+    "PR #20 stacked on PR #19; no merge until operator-authorized PR #22 boundary",
+    "No ruleset/Actions changes or other repository writes",
+    "No releases, deployment, reviewer requests or permission escalation"
+  ],
+  "proofs": {},
+  "amendments": []
+}
