@@ -1,6 +1,6 @@
 # s-f repository factory adapter
 
-Status (8 October 2026): SF-07 portability/required CI are merged and historically qualified. SF-08 through SF-13 are implemented as a currently unmerged PR #17–#22 stack, with PR #22 reserved for cumulative integration qualification. Distribution verification matches a separately provisioned exact digest pin; signed publisher identity, authenticated trust provisioning, enforced installation lock and production release remain unqualified.
+Status (8 October 2026): SF-00–SF-13 are incorporated through protected PR #22 at `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). Merge-group run 37801503467 passed Linux, Windows and `sf07-acceptance`. Publisher signatures, authenticated trust-pin provisioning and production release remain unqualified; the SF-13I installer binding is in the pending PR #24–#28 stack, not yet incorporated into main.
 Authority: this file configures the reusable workflow for the `spsoftwarefc/s-f` repository. It grants no authority over repositories where s-f may later be installed.
 
 ## Purpose
@@ -24,7 +24,8 @@ Build and qualify a portable, repository-local software factory that supports a 
 - PR #15 consolidated the CI-13/CI-15 source and was squash-merged by the GitHub queue to `main` at `eea5b503990e20167b2d88073f0d9e79c2990378`. PR #14 was closed as superseded, not merged separately.
 - The live Base ruleset `24705576` requires pull requests with **zero approving reviews**, three named GitHub Actions checks (Linux, Windows and `sf07-acceptance`, provider id `15368`), a squash merge queue (minimum 1), non-fast-forward/deletion protection, and no bypass actors.
 - PR #15 [successful merge-group run 37770656384](https://github.com/spsoftwarefc/s-f/actions/runs/37770656384) validated the exact mainline commit/tree. PR #16 [negative merge-group run 37772265905](https://github.com/spsoftwarefc/s-f/actions/runs/37772265905) showed a controlled Linux failure, Windows skipped job, failing acceptance, and actual queue removal with `main` unchanged. The temporary probe was restored byte-for-byte.
-- PR #16 subsequently merged at `9178dd0d6e0f0dee49d1b4f693bdf8d5f59ff2c5`, after successful real merge-group run [37773194423](https://github.com/spsoftwarefc/s-f/actions/runs/37773194423) (attempt 1). Its final tree `6d89e8fc5721a915891b91e9cd72fade41c62c4d` is the SF-08 baseline. The next planned integration boundary is cumulative PR #22; entering the merge queue requires separate explicit authorization.
+- PR #16 subsequently merged at `9178dd0d6e0f0dee49d1b4f693bdf8d5f59ff2c5`, after successful real merge-group run [37773194423](https://github.com/spsoftwarefc/s-f/actions/runs/37773194423) (attempt 1). Its final tree `6d89e8fc5721a915891b91e9cd72fade41c62c4d` is the SF-08 baseline.
+- PR #22 [protected merge-group run 37801503467](https://github.com/spsoftwarefc/s-f/actions/runs/37801503467) succeeded on integration SHA `6c82b1230046650afcf28a61d7c8da7f8d157773`, tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`; Linux, Windows and `sf07-acceptance` jobs concluded success. GitHub reports PR #22 merged at 2026-10-08 15:33:58 UTC; this exact SHA is `main` at reconciliation baseline. PRs #17–#21 were closed as incorporated, not individually merged.
 - Provider outcomes for cancelled, missing, neutral or superseded queue checks have not been separately induced. Claim only the successful integration and failed/skipped rejection actually witnessed. Documentation contracts do not replace a platform-enforced gate.
 
 ## Instruction ownership
@@ -54,10 +55,12 @@ The enforced CI-13 workflow uses separate PR and merge-group events for Linux, W
 
 Self-hosted CI is not part of SF-07 and is not placed on a production VPS by default.
 
-## Active development-factory integration
+## Incorporated baseline and pending cumulative qualification
 
-SF-08–SF-13 are implemented as sequential stacked PRs #17–#22, currently unmerged. The active work order is `docs/factory/work-orders/SF-13.json` and its source-bound evidence is `docs/factory/evidence/SF-13.md`. The exact PR #22 head and required CI checks must be observed before any integration claim; previous green PR checks cannot substitute for the `main` integration or merge-group SHA. The operator requested merge **preparation** after PR #22, not an unqualified bypass of the queue.
+SF-08–SF-13 are integrated through protected PR #22. `docs/factory/work-orders/SF-R22.json` and `docs/factory/evidence/SF-R22.md` preserve the historical post-merge reconciliation.
 
-- SF-08 — Git-history work-order start/resume; SF-09 — bounded execution receipts; SF-10 — provider-metadata CI evidence; SF-11 — read-only assurance/review; SF-12 — offline security/dependency checks; SF-13 — deterministic archive and independently pinned digest/compatibility verifier.
-- Outstanding limitations: publisher signatures and trust-file origin not authenticated by the archive verifier; SF-06 installation does not enforce the new lock; project-supplied local proof is not independent CI/acceptance evidence; the user still controls merge and deployment.
-- SF-14–SF-16 release/deployment/operations, optional SF-17/18, and SF-19 final qualification remain outside this PR. No installation into other projects, hosted orchestrator, or production deployment is authorized.
+As of 8 October 2026, **PRs #23–#27 remain stacked and unmerged**. Their implemented and PR-stage tested candidates provide reconciliation (#23), exact externally-pinned archive byte installation (#24), offline artifact/release planning (#25), fake-target deployment/recovery (#26) and offline operational incident/work proposals (#27). The sole next planned mainline integration is **PR #28**, carrying SF-19 cross-package development qualification and source-history reconciliation. Required cumulative PR checks and protected merge-group validation must be observed, not inferred from earlier runs.
+
+Important distinctions: a matching trust pin does not authenticate its issuer; SF-14 cannot authorize an actual release; SF-15 is in-memory simulated dispatch/recovery; SF-16 has no live telemetry or incident ownership. Production v1 readiness remains **blocked**, even if protected source incorporation passes. SF-17/18 and SF-R10 budget/orchestration remain deferred. No target-project installation, external release, deployment, real recovery, or production activation is authorized.
+
+See `docs/factory/SF19_QUALIFICATION.md` and `docs/factory/evidence/SF-19.md` for acceptance ladder, blocked claims and cumulative evidence.

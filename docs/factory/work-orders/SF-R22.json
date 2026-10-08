@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-R22",
+  "baseline": {
+    "commit": "6c82b1230046650afcf28a61d7c8da7f8d157773",
+    "tree": "d95b8fc15c358992961e98d0adeb9f90dd07db09"
+  },
+  "objective": "Reconcile the post-PR #22 factory integration state and source-bound merge evidence without claiming missing distribution-installation or production qualification.",
+  "nonGoals": [
+    "No runtime, contract, CI gate, security policy or target-project behavior changes",
+    "No merge, release, deployment, distribution publication or downstream repository writes"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-R22.json",
+    "docs/factory/evidence/SF-R22.md",
+    "README.md",
+    "docs/factory/PROJECT.md",
+    "docs/factory/evidence/SF-13.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R07",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "SF-00–SF-13 are incorporated into main by PR #22; incorporation is distinct from installation enforcement, release qualification or production acceptance."
+  ],
+  "obligations": [
+    {
+      "id": "reconcile",
+      "description": "Correct stale PR #17–#22 unmerged status in README and project adapter, with no added authority.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "integration",
+      "description": "Bind PR #22 head/main and observed required merge-group result to exact GitHub run and SHA, separating unsupported claims.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "gaps",
+      "description": "Make SF-13 lock/installer enforcement gap and SF-14–SF-19 remaining work explicit.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-13",
+      "kind": "git-ancestor",
+      "revision": "6c82b1230046650afcf28a61d7c8da7f8d157773",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "README.md: root current-state introduction",
+    "docs/factory/PROJECT.md: repo authority, integration history and development lifecycle",
+    "docs/factory/evidence/SF-R22.md: factual post-merge reconciliation evidence",
+    "docs/factory/evidence/SF-13.md: previous dossier status reconciled without altering historic results"
+  ],
+  "impact": [
+    "Documentation and evidence accuracy only; no change to executable factory controls or production permissions"
+  ],
+  "budget": {
+    "hostedRuns": 0,
+    "repairDiagnosticAfter": 2,
+    "network": "GitHub metadata reads only; no external target writes",
+    "execution": "Source-bound doc diff and read-only audit; no redundant hosted Actions"
+  },
+  "externalEffects": [
+    "User authorized stacked PR creation #23–#28, not separate merge of #23–#27 or target deployments",
+    "Only PR #28 may later be queued for protected main integration once its prerequisites pass"
+  ],
+  "proofs": {},
+  "amendments": []
+}

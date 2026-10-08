@@ -52,3 +52,11 @@ No background updates, remote API traffic, hosted agent infrastructure, releases
 ## Test boundaries and promotion
 
 SF-13 synthetic fixtures cover identical build outputs for the same committed tree, exclusion of nonportable project files, source dirt, user-requested exclusive output, mismatched publisher/release/source version/tree/digest, expiry, duplicate/unknown JSON, corrupt members, extra/duplicate/unsafe paths, symlinks, case/Windows reserved names, zip reordering and unsupported compatibility. Native Windows/Linux full suite qualification must match the PR #22 integration candidate. A green PR is not merge-group proof. Enter the protected squash merge queue only after explicit user authorization; source and queue SHA/tree identities must be recorded separately.
+
+## SF-13I source-to-install enforcement (development candidate)
+
+The normal SF-06 CLI install/upgrade path now takes the previously verified bundle, out-of-band authenticated exact release pin and canonical lock. It enforces exact identity on plan, apply and recovery and writes every verified archive member as its exact bytes under the factory-owned portable namespace. Generated per-project files are separately tracked as derived outputs.
+
+An explicit legacy unpinned *development-preview* path remains available only as an unqualified compatibility operation, not an acceptable provenance path. These changes do not verify publisher signatures, establish the external trust channel's authenticity or qualify a production release.
+
+Until native Windows/Linux tests and independent review of this candidate are complete, original SF-13 full acceptance remains unproven.

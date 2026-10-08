@@ -5,11 +5,14 @@ Never executes profile commands, modifies project CI, or writes outside managed 
 """
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 import os
 import tempfile
 from pathlib import Path
 
+from .distribution import DistributionError, verify_installation_lock
 from .integration import IntegrationError, _canonical, _digest, _observe, _payloads, plan_install
 from .profile import read_profile, validate_profile
 
@@ -71,11 +74,37 @@ def _managed_steps(mode: str, old: dict | None, new: dict | None, route: bool) -
 
 
 def _matches(observed: dict, expected: dict) -> bool:
-    return observed == {key: value for key, value in expected.items() if key != "content"}
+    return observed == {key: value for key, value in expected.items() if key not in ("content", "contentB64")}
 
 
-def _plan(mode: str, root: Path, new_profile: Path | None = None, *, ack_manual: bool = False) -> dict:
+def _distribution_binding(mode: str, bundle: Path | None, trust: Path | None,
+                          lock: Path | None) -> dict | None:
+    inputs = (bundle, trust, lock)
+    if mode == "remove":
+        if any(value is not None for value in inputs):
+            raise IntegrationError("remove has no new distribution source")
+        return None
+    if not any(value is not None for value in inputs):
+        return None  # legacy preview mode; never a provenance qualification
+    if not all(value is not None for value in inputs):
+        raise IntegrationError("bundle, trust and lock must all be supplied together")
+    proof = verify_installation_lock(bundle, trust, lock)
+    return proof["lock"]
+
+
+def _plan(mode: str, root: Path, new_profile: Path | None = None, *, ack_manual: bool = False,
+          bundle: Path | None = None, trust: Path | None = None,
+          lock: Path | None = None) -> dict:
     root = _root(root)
+    if mode == "remove" and (root / ".s-f/FACTORY_LOCK.json").is_file():
+        from . import pinned
+        return pinned.plan(mode, root, new_profile, bundle=bundle, trust=trust,
+                           lock=lock, ack_manual=ack_manual)
+    if mode in ("integrate", "upgrade") and any(x is not None for x in (bundle, trust, lock)):
+        from . import pinned
+        return pinned.plan(mode, root, new_profile, bundle=bundle, trust=trust,
+                           lock=lock, ack_manual=ack_manual)
+    distribution = _distribution_binding(mode, bundle, trust, lock)
     if _observe(root, JOURNAL)["state"] != "absent":
         raise IntegrationError("pending transaction; run sf recover before another operation")
     if mode == "integrate":
@@ -122,14 +151,19 @@ def _plan(mode: str, root: Path, new_profile: Path | None = None, *, ack_manual:
     conflicts.sort(key=lambda c: (c["path"], c["reason"]))
     result = {"schemaVersion": 1, "mode": mode, "root": root.as_posix(), "oldProfile": old,
               "newProfile": new, "routeOwned": route, "acknowledgedManualRoute": ack_manual,
+              "distribution": distribution, "distributionVerified": distribution is not None,
+              "installedDistributionBytesVerified": False,
               "changes": actions, "conflicts": conflicts, "ready": not conflicts,
               "installationAuthorized": False, "releaseQualified": False}
     return result
 
 
-def plan_lifecycle(mode: str, root: Path, profile: Path | None = None, *, ack_manual: bool = False) -> dict:
+def plan_lifecycle(mode: str, root: Path, profile: Path | None = None, *, ack_manual: bool = False,
+                   bundle: Path | None = None, trust: Path | None = None,
+                   lock: Path | None = None) -> dict:
     """Read-only plan suitable for human inspection and later explicit --plan apply."""
-    return _plan(mode, root, profile, ack_manual=ack_manual)
+    return _plan(mode, root, profile, ack_manual=ack_manual,
+                 bundle=bundle, trust=trust, lock=lock)
 
 
 def _fsync_dir(path: Path) -> None:
@@ -141,9 +175,9 @@ def _fsync_dir(path: Path) -> None:
             os.close(fd)
 
 
-def _make_journal(root: Path, data: dict) -> None:
+def _make_journal(root: Path, data: dict, *, size_limit: int = MAX_JOURNAL_BYTES) -> None:
     content = (_canonical(data) + "\n").encode("utf-8")
-    if len(content) > MAX_JOURNAL_BYTES:
+    if len(content) > size_limit:
         raise IntegrationError("journal exceeds size limit")
     flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0)
     fd = os.open(root / JOURNAL, flags, 0o600)
@@ -158,12 +192,12 @@ def _make_journal(root: Path, data: dict) -> None:
         raise
 
 
-def _atomic_put(path: Path, content: str) -> None:
+def _atomic_put(path: Path, content: str | bytes) -> None:
     parent = path.parent
     fd, tmp = tempfile.mkstemp(prefix=".sf06-write-", dir=parent)
     try:
         with os.fdopen(fd, "wb") as out:
-            out.write(content.encode("utf-8"))
+            out.write(content.encode("utf-8") if isinstance(content, str) else content)
             out.flush()
             os.fsync(out.fileno())
         os.replace(tmp, path)
@@ -197,7 +231,17 @@ def _checked_effect(root: Path, step: dict) -> bool:
         raise IntegrationError(f"external change or malformed transaction at {name}")
     if step["after"]["state"] == "file":
         _ensure_parent(root, name)
-        _atomic_put(root / name, step["after"]["content"])
+        after = step["after"]
+        if "contentB64" in after:
+            try:
+                raw = base64.b64decode(after["contentB64"], validate=True)
+            except (ValueError, binascii.Error) as exc:
+                raise IntegrationError("invalid journal byte payload") from exc
+            if _digest(raw) != after["sha256"]:
+                raise IntegrationError("journal byte payload digest mismatch")
+            _atomic_put(root / name, raw)
+        else:
+            _atomic_put(root / name, after["content"])
     else:
         (root / name).unlink()
         _fsync_dir((root / name).parent)
@@ -219,11 +263,20 @@ def _finish(root: Path, mode: str) -> None:
 
 
 def execute_plan(root: Path, profile: Path | None, document: Path,
-                 *, mode: str, ack_manual: bool = False) -> dict:
+                 *, mode: str, ack_manual: bool = False,
+                 bundle: Path | None = None, trust: Path | None = None,
+                 lock: Path | None = None) -> dict:
     """Explicit developer-authorized apply of a freshly recomputed exact plan."""
     root = _root(root)
+    if (mode == "remove" and (root / ".s-f/FACTORY_LOCK.json").is_file()) or (
+            mode in ("integrate", "upgrade") and
+            any(x is not None for x in (bundle, trust, lock))):
+        from . import pinned
+        return pinned.apply(root, profile, document, mode=mode, bundle=bundle,
+                            trust=trust, lock=lock, ack_manual=ack_manual)
     requested = _read_json(document, MAX_PLAN_BYTES)
-    expected = _plan(mode, root, profile, ack_manual=ack_manual)
+    expected = _plan(mode, root, profile, ack_manual=ack_manual,
+                     bundle=bundle, trust=trust, lock=lock)
     if requested != expected:
         raise IntegrationError("stale or altered plan; generate a fresh dry-run")
     if expected["conflicts"]:
@@ -231,22 +284,29 @@ def execute_plan(root: Path, profile: Path | None, document: Path,
     steps = _managed_steps(mode, expected["oldProfile"], expected["newProfile"], expected["routeOwned"])
     pending = [step for step in steps if not _matches(_observe(root, step["path"]), step["after"])]
     if not pending:
-        return {"mode": mode, "status": "no-op", "changed": [], "releaseQualified": False}
+        return {"mode": mode, "status": "no-op", "changed": [],
+                "distributionVerified": expected["distributionVerified"], "releaseQualified": False}
     journal = {"schemaVersion": 1, "root": root.as_posix(), "mode": mode,
                "oldProfile": expected["oldProfile"], "newProfile": expected["newProfile"],
-               "routeOwned": expected["routeOwned"], "steps": steps}
+               "routeOwned": expected["routeOwned"], "distribution": expected["distribution"],
+               "steps": steps}
     _make_journal(root, journal)
-    return _resume(root, journal)
+    return _resume(root, journal, verified=expected["distribution"])
 
 
-def _validate_journal(root: Path, journal: dict) -> None:
-    if set(journal) != {"schemaVersion", "root", "mode", "oldProfile", "newProfile", "routeOwned", "steps"}:
+def _validate_journal(root: Path, journal: dict, *, verified: dict | None = None) -> None:
+    if set(journal) != {"schemaVersion", "root", "mode", "oldProfile", "newProfile",
+                        "routeOwned", "distribution", "steps"}:
         raise IntegrationError("invalid journal fields")
     if type(journal["schemaVersion"]) is not int or journal["schemaVersion"] != 1 or journal["root"] != root.as_posix():
         raise IntegrationError("invalid journal identity")
     mode, old, new, route = (journal[x] for x in ("mode", "oldProfile", "newProfile", "routeOwned"))
     if mode not in ("integrate", "upgrade", "remove") or type(route) is not bool:
         raise IntegrationError("invalid journal mode or route")
+    if journal["distribution"] != verified:
+        raise IntegrationError("recovery/install distribution identity does not match verified lock")
+    if mode == "remove" and verified is not None:
+        raise IntegrationError("removal must not bind new distribution")
     if mode == "integrate" and (old is not None or new is None):
         raise IntegrationError("invalid integration journal")
     if mode == "upgrade" and (old is None or new is None):
@@ -260,8 +320,8 @@ def _validate_journal(root: Path, journal: dict) -> None:
         raise IntegrationError("journal differs from factory-generated managed effects")
 
 
-def _resume(root: Path, journal: dict) -> dict:
-    _validate_journal(root, journal)
+def _resume(root: Path, journal: dict, *, verified: dict | None = None) -> dict:
+    _validate_journal(root, journal, verified=verified)
     # Validate ALL steps before any new effect. This catches foreign changes or
     # tampered intermediate files without partially proceeding on recovery.
     for step in journal["steps"]:
@@ -274,15 +334,20 @@ def _resume(root: Path, journal: dict) -> dict:
             changed.append(step["path"])
     _finish(root, journal["mode"])
     return {"mode": journal["mode"], "status": "completed", "changed": changed,
-            "releaseQualified": False}
+            "distributionVerified": verified is not None, "releaseQualified": False}
 
 
-def recover(root: Path) -> dict:
+def recover(root: Path, *, bundle: Path | None = None, trust: Path | None = None,
+            lock: Path | None = None) -> dict:
     root = _root(root)
     observed = _observe(root, JOURNAL)
     if observed["state"] == "absent":
         return {"status": "no-op", "changed": [], "releaseQualified": False}
     if observed["state"] != "file":
         raise IntegrationError("unsafe journal path")
-    journal = _read_json(root / JOURNAL, MAX_JOURNAL_BYTES)
-    return _resume(root, journal)
+    journal = _read_json(root / JOURNAL, 42 * 1024 * 1024)
+    if journal.get("schemaVersion") == 2:
+        from . import pinned
+        return pinned.recover(root, bundle=bundle, trust=trust, lock=lock)
+    verified = _distribution_binding(journal.get("mode"), bundle, trust, lock)
+    return _resume(root, journal, verified=verified)

@@ -15,8 +15,11 @@ from datetime import date
 from pathlib import Path
 
 from sf.cli import main
+from sf.lifecycle import JOURNAL, execute_plan, plan_lifecycle, recover
+from sf.integration import IntegrationError
+from unittest.mock import patch
 from sf.distribution import (COMPAT, MANDATORY, DistributionError, _canonical,
-                             _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes)
+                             _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes, verify_installation_lock)
 
 
 class DistributionTests(unittest.TestCase):
@@ -278,6 +281,137 @@ class DistributionTests(unittest.TestCase):
         self.git('commit','-qm','unsafe module data')
         bundle=build_bytes(self.root,publisher=self.publisher,release_id=self.release)
         self.assertTrue(bundle)
+
+
+    def test_installation_lock_requires_same_verified_archive(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        result = verify_bundle(archive_path, trust_path, lock_out=lock_path)
+        binding = verify_installation_lock(archive_path, trust_path, lock_path)
+        self.assertEqual(binding["bundleSha256"], self.trust["bundleSha256"])
+        self.assertEqual(binding["lock"], result["lock"])
+        self.assertFalse(binding["releaseQualified"])
+        self.assertFalse(binding["independentTrustProvisioningVerified"])
+
+    def test_missing_or_mutated_installation_lock_blocks(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        with self.assertRaisesRegex(DistributionError, "installation lock"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+        lock = verify_bundle(archive_path, trust_path)["lock"]
+        for mutated in (dict(lock, bundleSha256="0" * 64),
+                        dict(lock, releaseId="other-release"),
+                        dict(lock, compatibility=dict(lock["compatibility"], profileSchema=99)),
+                        dict(lock, attacker=True)):
+            lock_path.write_bytes(_canonical(mutated))
+            with self.assertRaisesRegex(DistributionError, "installation lock"):
+                verify_installation_lock(archive_path, trust_path, lock_path)
+
+    def test_lock_noncanonical_and_expired_trust_block(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        lock = verify_bundle(archive_path, trust_path)["lock"]
+        lock_path.write_text(json.dumps(lock, sort_keys=True, indent=2))
+        with self.assertRaisesRegex(DistributionError, "noncanonical"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+        lock_path.write_bytes(_canonical(lock))
+        trust_path.write_bytes(_canonical(dict(self.trust, expiresOn="2020-01-01")))
+        with self.assertRaisesRegex(DistributionError, "expired"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+
+    def test_separately_tampered_bundle_rejected_against_lock(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        lock_path.write_bytes(_canonical(verify_bundle(archive_path, trust_path)["lock"]))
+        archive_path.write_bytes(self.archive[:-1] + b"X")
+        with self.assertRaisesRegex(DistributionError, "external trust anchor"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+
+
+
+    def _lifecycle_proof_fixture(self):
+        target = self.folder / "destination"
+        target.mkdir()
+        profile = target / "profile.json"
+        profile.write_text(json.dumps({
+            "schemaVersion": 1, "project": {"id": "sandbox"},
+            "commands": {"check": {"argv": ["make", "verify"], "cwd": "."}},
+            "components": [{"id": "svc", "path": ".", "stack": "custom",
+                            "checks": ["check"]}]
+        }))
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        verify_bundle(archive_path, trust_path, lock_out=lock_path)
+        return target, profile, archive_path, trust_path, lock_path
+
+    def test_verified_distribution_bound_into_lifecycle_plan_and_apply(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        plan = plan_lifecycle("integrate", target, profile, **kwargs)
+        self.assertEqual(plan["schemaVersion"], 2)
+        self.assertEqual(plan["verifiedLock"]["bundleSha256"], self.trust["bundleSha256"])
+        self.assertFalse(plan["installedDistributionBytesVerified"])
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan))
+        receipt = execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertEqual(receipt["status"], "completed")
+        self.assertTrue(receipt["distributionVerified"])
+        self.assertTrue((target / ".s-f/OWNERSHIP.json").is_file())
+        self.assertFalse((target / JOURNAL).exists())
+
+    def test_verified_plan_rejects_missing_or_replaced_proof_before_mutation(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan_lifecycle("integrate", target, profile, **kwargs)))
+        with self.assertRaisesRegex(Exception, "stale or altered"):
+            execute_plan(target, profile, doc, mode="integrate")
+        self.assertFalse((target / ".s-f").exists())
+        self.assertFalse((target / JOURNAL).exists())
+        payload = json.loads(lock.read_text())
+        lock.write_bytes(_canonical(dict(payload, sourceTree="0" * 40)))
+        with self.assertRaises((DistributionError, IntegrationError)):
+            execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertFalse((target / ".s-f").exists())
+        self.assertFalse((target / JOURNAL).exists())
+
+    def test_verification_failure_on_recovery_preserves_incomplete_journal(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan_lifecycle("integrate", target, profile, **kwargs)))
+        from sf import lifecycle
+        actual = lifecycle._checked_effect
+        count = []
+        def interrupted(root, step):
+            if count:
+                raise OSError("interruption")
+            count.append(step["path"])
+            return actual(root, step)
+        with patch("sf.lifecycle._checked_effect", side_effect=interrupted):
+            with self.assertRaises(OSError):
+                execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertTrue((target / JOURNAL).is_file())
+        with self.assertRaises(Exception):
+            recover(target)
+        self.assertTrue((target / JOURNAL).is_file())
+        self.assertEqual(recover(target, **kwargs)["status"], "completed")
+        self.assertFalse((target / JOURNAL).exists())
 
 
 if __name__ == '__main__':

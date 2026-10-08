@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-13I",
+  "baseline": {
+    "commit": "95ffa63ac79857f72d56a21376e8c851bac33801",
+    "tree": "bf1cb51a1022fd5339a1244d9668f73b9e29cfe9"
+  },
+  "objective": "Bind SF-13 independently verified exact release archive and installation lock to SF-06 apply and upgrade, preserving existing conflict detection, deterministic managed outputs and crash recovery, with explicit fail-closed qualification boundaries.",
+  "nonGoals": [
+    "No publisher-signature implementation or claims of authenticated trust provisioning",
+    "No silent or automatic installation, deployment, dependency download, release or host capability escalation",
+    "No changes to existing target-project authority, CI or manual instruction preservation"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-13I.json",
+    "docs/factory/SF13_DISTRIBUTION.md",
+    "docs/factory/SF06_LIFECYCLE.md",
+    "docs/factory/evidence/SF-13I.md",
+    "src/sf/distribution.py",
+    "src/sf/lifecycle.py",
+    "src/sf/pinned.py",
+    "src/sf/integration.py",
+    "src/sf/cli.py",
+    "tests/test_distribution.py",
+    "tests/test_lifecycle.py",
+    "tests/test_integration.py",
+    "tests/test_distribution_install.py",
+    "README.md",
+    "docs/factory/PROJECT.md",
+    "tests/test_pinned.py"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R03",
+    "SF-R04",
+    "SF-R11",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Release trust: externally authenticated digest pin; do not turn a self-written trust file into release authority.",
+    "Design must distinguish exact distribution payload-member bytes from deterministically generated target-project routing and ownership state."
+  ],
+  "obligations": [
+    {
+      "id": "lock-precondition",
+      "description": "Dry-run/apply/upgrade validate exact manifest/bundle/trust/lock schema, expiry, source, digest and compatibility; reject missing, modified or incompatible identity before target writes.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "installed-bytes",
+      "description": "Demonstrate byte-for-byte integrity of every installed distribution-owned member against the authenticated bundle, including post-apply and upgrade tests.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "lifecycle-preservation",
+      "description": "Preserve ownership-conflict prevention, unchanged custom instructions, zero-write dry-run, interrupted write roll-forward and tamper-safe recovery; reject forged or stale lock across recovery.",
+      "proofKinds": [
+        "regression-reproducer",
+        "event-trace"
+      ]
+    },
+    {
+      "id": "qualification",
+      "description": "Windows/Linux parity and meaningful negative fixtures; do not claim publisher signatures, self-attested trust origin or production release.",
+      "proofKinds": [
+        "independent-output",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-R22",
+      "kind": "git-ancestor",
+      "revision": "95ffa63ac79857f72d56a21376e8c851bac33801",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/distribution.py: explicit verified archive read and trusted lock identity",
+    "src/sf/lifecycle.py: install/upgrade plan, journal and recover preconditions",
+    "src/sf/cli.py: explicit installation proof flags and failure behavior",
+    "src/sf/integration.py: generated-files/installed-members ownership mapping if required",
+    "tests/: identity tamper, byte equality and crash/recovery fixtures",
+    "src/sf/pinned.py: qualified pinned lifecycle transaction, archive byte mapping and checked recovery"
+  ],
+  "impact": [
+    "Installation/upgrade authority boundary and persistent target bytes, but no new release or deployment authority",
+    "Input lock/trust may be externally controlled; untrusted source, file paths and stale state must not enable installation effects"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "None at runtime; GitHub connector code review only",
+    "execution": "Local exact tests and final stable CI once; no build/release on target systems"
+  },
+  "externalEffects": [
+    "Implement only on spsoftwarefc/s-f stacked branch; no installation into other repositories",
+    "PR #24 must stack on #23 and remain unmerged until cumulative PR #28",
+    "Any test-only fixture writes must stay in isolated temporary directories"
+  ],
+  "proofs": {},
+  "amendments": [
+    {
+      "reason": "Reconciliation found SF-06 generated target routing files cannot demonstrate installed portable archive-member byte equality; isolate a schema-v2 qualified pinned transaction module with explicit exact-byte members, leaving legacy SF-06 previews unqualified and requiring an explicit legacy selection."
+    }
+  ]
+}

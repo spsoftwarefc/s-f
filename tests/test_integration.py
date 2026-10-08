@@ -151,13 +151,13 @@ class IntegrationTests(unittest.TestCase):
             p = profile(root)
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
-                self.assertEqual(main(["integrate", "--dry-run", "--root", str(root),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--dry-run", "--root", str(root),
                                        "--profile", str(p)]), 0)
             result = json.loads(out.getvalue())
             self.assertFalse(result["installationAuthorized"])
             (root / "AGENTS.md").write_text("existing")
             with contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(main(["integrate", "--dry-run", "--root", str(root),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--dry-run", "--root", str(root),
                                        "--profile", str(p)]), 1)
             with self.assertRaises(SystemExit) as err:
                 main(["integrate", "--root", str(root), "--profile", str(p)])

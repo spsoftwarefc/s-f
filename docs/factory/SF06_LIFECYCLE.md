@@ -35,3 +35,15 @@ Removal validates the ownership manifest and removes only byte-matching owned pa
 ## Limits and qualification
 
 The journal is local project state, not a cryptographic attestation. Hostile concurrent filesystem writers, multi-process locking, unsigned factory distribution, Windows durability semantics and platform isolation remain unqualified in this implementation. The local runner is not a sandbox. Cross-platform portability and end-to-end acceptance belong to SF-07 (PR #12); actual developer execution/CI and release qualifications belong to later packages.
+
+## SF-13I pinned portable installation (development candidate)
+
+Normal `sf integrate` and `sf upgrade` now require `--bundle ZIP`, `--trust APPROVED_PIN_JSON` and `--lock FACTORY_LOCK_JSON` during dry-run and apply. The operator must authenticate and protect the release pin through a channel independent of the archive. `sf recover` requires these same original inputs when resuming a bound transaction.
+
+An exact verified source payload is written without decoding under `.s-f/portable/<bundle-member-path>`. The qualified path records `.s-f/FACTORY_LOCK.json` and binds every installed member in `.s-f/OWNERSHIP.json`. The generated profile, routing and ownership files are target-specific output, and are not claimed to be ZIP member bytes.
+
+Read-only plans do not change the project. Apply revalidates the archive, independent pin, canonical lock and exact saved plan; it journals desired bytes before target effects, checks conflicts on every step, and commits ownership last. Recovery rejects changed locks and forged journal steps. Foreign files and existing custom instructions remain owned by the project.
+
+An explicit `--development-preview-unpinned` switch permits the earlier unqualified lifecycle for backwards compatibility. Direct calls to legacy Python preview operations also remain possible. Neither route is a qualified distribution-installation path.
+
+**This is an implementation candidate, not a production claim.** It still needs exact-candidate Linux/Windows test evidence and substantive review. Local lock matching does not attest who created/provisioned the external trust pin, and the verifier has no publisher-signature verification.

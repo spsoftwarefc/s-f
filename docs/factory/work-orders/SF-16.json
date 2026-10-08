@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-16",
+  "baseline": {
+    "commit": "d3d86e2d7506da09e5b2b99e3d4c2d38d722d55d",
+    "tree": "c1a9a0a0f98b56203186d0b9839052de9b21c408"
+  },
+  "objective": "Introduce read-only bounded operational observation, deterministic health/incident classification, explicit owner/runbook routing and feedback-to-work-item proposals anchored to the exact SF-15 synthetic qualification and SF-14 source identity.",
+  "nonGoals": [
+    "No live telemetry collectors, external service calls, deployment or recovery commands, tickets/PR creation, notifications, network, or production authorization",
+    "Never represent locally supplied observations as authenticated real health evidence or automatically resolve incidents",
+    "No change to CI gates, branch protections, unrelated project files, existing SF-15 fake deployment decisions, or real-world rollout"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-16.json",
+    "src/sf/operations.py",
+    "src/sf/cli.py",
+    "tests/test_operations.py",
+    "docs/factory/SF16_OPERATIONS.md",
+    "docs/factory/evidence/SF-16.md"
+  ],
+  "requirements": [
+    "SF-R03",
+    "SF-R06",
+    "SF-R07",
+    "SF-R09",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "SF-16 consumes SF-15 qualification solely as a bounded, untrusted synthetic source binding, never a live deployment or authenticated source-acceptance proof.",
+    "Use exact closed schemas, UTC timestamps, signal allowlists, source/target digest binding, deterministic ID and capped event count; reject conflicting duplicates and ordering ambiguity.",
+    "Fresh healthy observations can mark recovery eligibility for manual review but cannot close an incident or authorize redeployment.",
+    "Missing, stale or unknown operational telemetry must remain unknown; incident owner/runbook and proposed work are advisory and require independent human/process authorization."
+  ],
+  "obligations": [
+    {
+      "id": "bound-input",
+      "description": "Reject malformed/duplicate/oversized/symlinked offline observation, qualification and policy inputs; require exact source/plan/target correlation and UTC ordered timestamps.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "health",
+      "description": "Classify healthy/degraded/failed/unknown and stale/missing evidence without ever asserting live monitored health, including recovery review rather than auto-resolve.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "incident",
+      "description": "Deterministic bounded per-domain incident severity, owner, runbook, dedup identity and explicit uncertainty/recovery disposition from observed events.",
+      "proofKinds": [
+        "event-trace",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "feedback",
+      "description": "Produce bounded idempotent work-item *proposals* with source/incident evidence identity, never automatic issue/PR creation or external effects.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "platform",
+      "description": "Keep legacy source/interfaces unchanged; qualify exact stacked candidate on Linux/Windows with zero skips and source-bound evidence; avoid redundant Action runs.",
+      "proofKinds": [
+        "diff-review",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-15",
+      "kind": "git-ancestor",
+      "revision": "d3d86e2d7506da09e5b2b99e3d4c2d38d722d55d",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/operations.py: pure validator/classifier for source-bound observation input, health, incidents and proposed work",
+    "src/sf/cli.py: sf operations assess read-only, input controls and failure outcomes",
+    "tests/test_operations.py: independently expected positive/negative/fault/temporal/dedup/unknown/stale cases",
+    "docs/factory/SF16_OPERATIONS.md: synthetic vs live evidence trust boundary, incident/runbook/feedback operating protocol",
+    "docs/factory/evidence/SF-16.md: source-bound candidate evidence and exclusions"
+  ],
+  "impact": [
+    "New offline observation/incident protocol and work-proposal output only; no change to release, installer, deployment, CI, authority or other repos",
+    "Input consists solely of simulated/source-bound IDs, digest references, enums and timestamps; never ingest secrets or unbounded raw telemetry as work prompts"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "none from runtime; GitHub API reads/writes limited to authorized s-f PR",
+    "execution": "Unit/negative tests plus native Linux/Windows required checks once stable; no hosted manual reruns"
+  },
+  "externalEffects": [
+    "Only spsoftwarefc/s-f work order, allowed files and stacked PR #27; never deploy, access VPS, call live systems or create external issues",
+    "Keep #23–#27 unmerged, reserve next main merge for cumulative protected PR #28",
+    "All incident handling and ticket creation outside automation; policy does not grant incident/release authority"
+  ],
+  "proofs": {},
+  "amendments": []
+}

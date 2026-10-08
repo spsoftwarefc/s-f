@@ -6,6 +6,7 @@ import json
 import signal
 import sys
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __version__
@@ -13,6 +14,10 @@ from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
 from .assurance import AssuranceError, read_packet, inspect_review
 from .security import SecurityError, read_policy, assess_security
+from .release import ReleasePlanError, plan_release, _load as release_load, _regular as release_regular
+from .deployment import DeploymentError, qualify_deployment
+from .operations import OperationsError, assess_operations, read_document as read_operations_document
+from .qualification import QualificationError, qualify_factory
 from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
@@ -44,11 +49,20 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--root", type=Path, required=True)
         if operation != "remove":
             command.add_argument("--profile", type=Path, required=True)
+            command.add_argument("--development-preview-unpinned", action="store_true",
+                                 help="explicitly opt into legacy, unverified preview; not a qualified installation")
+            for flag in ("bundle", "trust", "lock"):
+                command.add_argument("--" + flag, type=Path, default=None,
+                                     help="optional complete external-pin verified distribution binding (preview)")
+
         if operation == "integrate":
             command.add_argument("--ack-manual-routing", action="store_true",
                                  help="preserve existing AGENTS.md and acknowledge manual routing")
     recovery = sub.add_parser("recover", help="verify and resume an interrupted factory transaction")
     recovery.add_argument("--root", type=Path, required=True)
+    for flag in ("bundle", "trust", "lock"):
+        recovery.add_argument("--" + flag, type=Path, default=None,
+                              help="verified distribution proof for recovery of bound transaction")
     work = sub.add_parser("work", help="read-only work-order assessment")
     work_ops = work.add_subparsers(dest="operation", required=True)
     for operation in ("start", "resume"):
@@ -90,8 +104,68 @@ def main(argv: list[str] | None = None) -> int:
     release_verify.add_argument("--bundle", type=Path, required=True)
     release_verify.add_argument("--trust", type=Path, required=True)
     release_verify.add_argument("--lock-out", type=Path, default=None)
+    release = sub.add_parser("release", help="read-only artifact/release plans; no deployment")
+    release_ops = release.add_subparsers(dest="operation", required=True)
+    release_plan = release_ops.add_parser("plan", help="bind source, artifact, CI, destination and recovery")
+    release_plan.add_argument("--root", type=Path, required=True)
+    release_plan.add_argument("--request", type=Path, required=True)
+    release_plan.add_argument("--artifact", type=Path, required=True)
+    release_plan.add_argument("--ci-receipt", type=Path, required=True)
+    release_plan.add_argument("--approval-pin", type=Path, required=True)
+    deploy = sub.add_parser("deployment", help="isolated fake-target qualifications only")
+    deploy_ops = deploy.add_subparsers(dest="operation", required=True)
+    qualification = deploy_ops.add_parser("qualify", help="run bounded offline fake-target fault matrix")
+    qualification.add_argument("--plan", type=Path, required=True,
+                               help="SF-14 offline release-plan result JSON; untrusted fixture only")
+    operations = sub.add_parser("operations", help="bounded offline observation and incident proposals")
+    operations_ops = operations.add_subparsers(dest="operation", required=True)
+    op_assess = operations_ops.add_parser("assess", help="classify source-bound offline operations evidence")
+    op_assess.add_argument("--qualification", type=Path, required=True)
+    op_assess.add_argument("--policy", type=Path, required=True)
+    op_assess.add_argument("--observations", type=Path, required=True)
+    factory = sub.add_parser("factory", help="cross-package offline development qualification only")
+    factory_ops = factory.add_subparsers(dest="operation", required=True)
+    factory_check = factory_ops.add_parser("qualify", help="recheck installed archive and synthetic qualification chain")
+    for param in ("target", "bundle", "trust", "lock", "release-plan", "deployment",
+                  "operations-policy", "observations"):
+        factory_check.add_argument("--" + param, type=Path, required=True)
+    factory_check.add_argument("--as-of", default=None,
+                               help="optional exact UTC timestamp YYYY-MM-DDTHH:MM:SSZ for reproducible fixtures")
     args = parser.parse_args(argv)
     try:
+        if args.command == "factory":
+            clock = None
+            if args.as_of is not None:
+                try:
+                    if not isinstance(args.as_of, str) or not args.as_of.endswith("Z"):
+                        raise ValueError("UTC Z suffix required")
+                    clock = datetime.strptime(args.as_of, "%Y-%m-%dT%H:%M:%SZ").replace(
+                        tzinfo=timezone.utc)
+                except ValueError as exc:
+                    raise QualificationError("invalid exact UTC --as-of") from exc
+            result = qualify_factory(args.target, args.bundle, args.trust, args.lock,
+                                     read_operations_document(args.release_plan),
+                                     read_operations_document(args.deployment),
+                                     read_operations_document(args.operations_policy),
+                                     read_operations_document(args.observations), now=clock)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0 if result["developmentFixturePassed"] else 1
+        if args.command == "operations":
+            result = assess_operations(read_operations_document(args.qualification),
+                                       read_operations_document(args.policy),
+                                       read_operations_document(args.observations))
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 1 if result["status"] != "healthy-observed-unverified" else 0
+        if args.command == "deployment":
+            source = release_regular(args.plan, 1024 * 1024, "fake-target plan")
+            result = qualify_deployment(release_load(source, "fake-target plan"))
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0 if result["syntheticPassed"] else 1
+        if args.command == "release":
+            result = plan_release(args.root, args.request, args.artifact,
+                                  args.ci_receipt, args.approval_pin)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0
         if args.command == "distribution":
             if args.operation == "build":
                 result = build_bundle(args.root, args.output, publisher=args.publisher, release_id=args.release_id)
@@ -149,18 +223,34 @@ def main(argv: list[str] | None = None) -> int:
                               "releaseQualified": False}, sort_keys=True))
             return 0
         if args.command == "recover":
-            print(json.dumps(recover(args.root), ensure_ascii=False, sort_keys=True))
+            print(json.dumps(recover(args.root, bundle=args.bundle, trust=args.trust, lock=args.lock),
+                             ensure_ascii=False, sort_keys=True))
             return 0
         if args.command in ("integrate", "upgrade", "remove"):
             target_profile = args.profile if args.command != "remove" else None
             acknowledgement = getattr(args, "ack_manual_routing", False)
+            if args.command != "remove":
+                proof = (args.bundle, args.trust, args.lock)
+                if getattr(args, "development_preview_unpinned", False):
+                    if any(value is not None for value in proof):
+                        raise IntegrationError("unqualified preview cannot claim verified distribution")
+                elif not all(value is not None for value in proof):
+                    raise IntegrationError(
+                        "integrate/upgrade require --bundle, --trust and --lock; "
+                        "use --development-preview-unpinned only for the unqualified legacy preview")
             if args.dry_run:
                 plan = plan_lifecycle(args.command, args.root, target_profile,
-                                      ack_manual=acknowledgement)
+                                      ack_manual=acknowledgement,
+                                      bundle=getattr(args, "bundle", None),
+                                      trust=getattr(args, "trust", None),
+                                      lock=getattr(args, "lock", None))
                 print(json.dumps(plan, ensure_ascii=False, sort_keys=True))
                 return 1 if plan["conflicts"] else 0
             receipt = execute_plan(args.root, target_profile, args.apply, mode=args.command,
-                                   ack_manual=acknowledgement)
+                                   ack_manual=acknowledgement,
+                                   bundle=getattr(args, "bundle", None),
+                                   trust=getattr(args, "trust", None),
+                                   lock=getattr(args, "lock", None))
             print(json.dumps(receipt, ensure_ascii=False, sort_keys=True))
             return 0
         if args.command == "profile":
@@ -181,7 +271,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (QualificationError, OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2

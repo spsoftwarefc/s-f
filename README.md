@@ -1,16 +1,13 @@
 # s-f — Software Factory
 
-s-f is a repository-local software production system for planning, implementing, verifying, reviewing, releasing and operating software changes.
+s-f is a repository-local software production system intended to accompany projects from planning and controlled implementation through verification, release planning and operations, while respecting target-project authority.
 
-Current state (8 October 2026): **SF-00–SF-07 foundation is merged** and GitHub required Linux/Windows/acceptance checks plus a successful and negative merge-queue probe were verified. **SF-08 through SF-13 are implemented as an open, unmerged PR #17–#22 stack**, with PR #22 the intended cumulative integration to `main`. Installation-planning and verification remain development-preview capabilities; SF-13 uses an out-of-band approved digest pin and explicitly **does not verify publisher signatures or enforce lock use in SF-06 installation**. **SF-14–SF-16 deployment and operations and SF-19 v1 qualification are not implemented.** A green PR is not merge-queue, deployment or production-release authorization.
+**Source integration state, 8 October 2026:** SF-00–SF-13 are integrated into `main` via protected PR #22, commit `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). GitHub merge-group run [37801503467](https://github.com/spsoftwarefc/s-f/actions/runs/37801503467) passed required Linux/Windows and acceptance checks. PRs #17–#21 were closed as incorporated, not separately merged.
 
-Start with:
-- `AGENTS.md` for repository operating boundaries.
-- `docs/factory/WORKFLOW.md` for the lifecycle.
-- `docs/factory/WORK_ORDER.md` for package checkpoints.
-- `docs/factory/PROJECT.md` for this repository's adapter.
-- `docs/factory/work-orders/SF-13.json` for the active package declaration, `docs/factory/CI_ENFORCEMENT.md` for the s-f-specific enforcement contract, and `docs/factory/evidence/CI-16.md` for the real negative merge-queue evidence.
-- `docs/factory/SF07_QUALIFICATION.md` for the historical portability fixture matrix and its limits.
-- `docs/factory/SF06_LIFECYCLE.md` for opt-in installation, upgrade, removal and recovery limits.
+**Cumulative development candidate (not yet merged):** PR #23 reconciliation; PR #24 verified SF-13 distribution-to-SF-06 installer enforcement with exact portable archive bytes and an unqualified legacy preview; PR #25 offline source-bound artifact/release planning; PR #26 fake-target deployment/recovery qualification; PR #27 offline operations and feedback proposals; PR #28 SF-19 cumulative acceptance and the **single** planned protected merge into `main`. PRs #23–#27 are still open and unmerged until the protected PR #28 result is confirmed.
 
-For the open development-factory stack, consult `docs/factory/SF08_WORK.md` through `SF13_DISTRIBUTION.md` and the matching `docs/factory/evidence/SF-08.md` through `SF-13.md`. The authenticated-trust-pin origin is an external operator prerequisite, not established by bundle self-hashes.
+**Production/public release is not qualified.** External trust pin matching is not publisher signing or authenticated pin issuance. SF-14's approval is operator-provided, SF-15 uses an in-memory fake target without live dispatch/durable recovery, and SF-16 consumes offline unauthenticated observations with no real alert/incident system. SF-17/18 optional orchestration/budget work remains deferred; SF-R10 is unmet. Successful PR-stage and merge-group tests can qualify development-source integration only—not a public production v1 release, real deployment, target-project installation, or release authority.
+
+Start with `AGENTS.md`, `docs/factory/WORKFLOW.md`, `docs/factory/WORK_ORDER.md`, `docs/factory/PROJECT.md`, and `docs/product/REQUIREMENTS.md`. See `docs/factory/SF13_DISTRIBUTION.md`, `docs/factory/SF06_LIFECYCLE.md`, `docs/factory/SF14_RELEASE_PLAN.md`, `docs/factory/SF15_DEPLOYMENT_RECOVERY.md`, `docs/factory/SF16_OPERATIONS.md`, and `docs/factory/SF19_QUALIFICATION.md` for exact capability and trust boundaries. Per-package work orders and evidence are in `docs/factory/work-orders/` and `docs/factory/evidence/`.
+
+**Resource and authority rules:** one work order before implementation, one stacked PR at a time, no redundant GitHub Actions usage, no mandatory reviewer request, no bypass of protected merge queue, no changes to unrelated projects, and no merge/deployment outside the active authorization boundary.

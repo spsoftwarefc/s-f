@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-15",
+  "baseline": {
+    "commit": "21b9fe0a3b7e93ff60e7e187274b5ef251a74b44",
+    "tree": "5bd5448d1d4a15cb8dc3fbc6314c7c7b37365df2"
+  },
+  "objective": "Qualify a bounded fake-target deployment state machine with explicit source/authorization binding, fencing, persist-before-dispatch, uncertain outcome reconciliation, migration/health faults, and recovery. No live deployment.",
+  "nonGoals": [
+    "No production or staging deployment, remote network calls, external secrets or target writes",
+    "No automatic promotion of SF-14 self-supplied release pin into authenticated authorization",
+    "No claim that synthetic in-memory fencing proves distributed locking, disk durability or real adapter semantics",
+    "No CI workflow, branch protection or external project changes"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-15.json",
+    "docs/factory/SF15_DEPLOYMENT_RECOVERY.md",
+    "docs/factory/evidence/SF-15.md",
+    "src/sf/deployment.py",
+    "src/sf/cli.py",
+    "tests/test_deployment.py"
+  ],
+  "requirements": [
+    "SF-R03",
+    "SF-R04",
+    "SF-R06",
+    "SF-R07",
+    "SF-R09",
+    "SF-R11",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Use pure fake-target simulation and independently checked state transitions; no adapter with live deployment authority.",
+    "Require persisted intent before fake dispatch and exact idempotency/fence correlation for eventual recovery; unknown outcomes cannot be replayed as fresh actions.",
+    "Fail closed on stale grant, wrong destination/source/artifact, mutation and health failure. Failure vs unknown vs compensated are separate states."
+  ],
+  "obligations": [
+    {
+      "id": "authority-fencing",
+      "description": "Reject expired/revoked or stale grant/epoch and conflicting concurrent owners before simulated dispatch; bind source, destination, artifact and grant identities.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "faults",
+      "description": "Exercise injection matrix: concurrent admission, stale authorization, migration pre/post-dispatch failure, crash after dispatch, unknown outcome, health failure; require per-scenario expected trace/outcome.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "recovery",
+      "description": "On restart, reconcile unresolved dispatches against trusted fake-target receipts before any replay; prevent duplicate effects and distinguish unresolved, failed, compensated and recovered outcomes.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "offline",
+      "description": "No live target invocation, credentials, network, deployment or production release; validate deterministic portable Linux/Windows suite and preserve previous CLI semantics.",
+      "proofKinds": [
+        "independent-output",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-14",
+      "kind": "git-ancestor",
+      "revision": "21b9fe0a3b7e93ff60e7e187274b5ef251a74b44",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/deployment.py: synthetic coordinator, durable-log snapshot model and fake target authority / dispatch / recovery protocol",
+    "src/sf/cli.py: offline sf deployment qualify command only",
+    "tests/test_deployment.py: failure injection, state and event assertions against independent expectations",
+    "docs/factory/SF15_DEPLOYMENT_RECOVERY.md: precise authorization/unknown-outcome contract and simulation limits"
+  ],
+  "impact": [
+    "Adds isolated non-production qualification surface without enabling deployment to any real target",
+    "Provides reusable accepted source and operations handoff for future SF-16 and SF-19 acceptance campaigns"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No runtime network or third-party calls; GitHub provider API for PR evidence only",
+    "execution": "Local deterministic fixture tests first, then one stable exact-head Linux/Windows required CI run; no redundant runs"
+  },
+  "externalEffects": [
+    "Only spsoftwarefc/s-f may be changed; do not operate on CTJ, Accordquill, VPS or cloud providers",
+    "Stack PR #26 on PR #25, keep #23–#27 unmerged, and reserve the next main integration for PR #28",
+    "No merge/release/deploy authority is granted by an SF-15 qualification result"
+  ],
+  "proofs": {},
+  "amendments": []
+}
