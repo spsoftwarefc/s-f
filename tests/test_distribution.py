@@ -16,7 +16,7 @@ from pathlib import Path
 
 from sf.cli import main
 from sf.distribution import (COMPAT, MANDATORY, DistributionError, _canonical,
-                             _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes)
+                             _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes, verify_installation_lock)
 
 
 class DistributionTests(unittest.TestCase):
@@ -278,6 +278,64 @@ class DistributionTests(unittest.TestCase):
         self.git('commit','-qm','unsafe module data')
         bundle=build_bytes(self.root,publisher=self.publisher,release_id=self.release)
         self.assertTrue(bundle)
+
+
+    def test_installation_lock_requires_same_verified_archive(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        result = verify_bundle(archive_path, trust_path, lock_out=lock_path)
+        binding = verify_installation_lock(archive_path, trust_path, lock_path)
+        self.assertEqual(binding["bundleSha256"], self.trust["bundleSha256"])
+        self.assertEqual(binding["lock"], result["lock"])
+        self.assertFalse(binding["releaseQualified"])
+        self.assertFalse(binding["independentTrustProvisioningVerified"])
+
+    def test_missing_or_mutated_installation_lock_blocks(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        with self.assertRaisesRegex(DistributionError, "installation lock"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+        lock = verify_bundle(archive_path, trust_path)["lock"]
+        for mutated in (dict(lock, bundleSha256="0" * 64),
+                        dict(lock, releaseId="other-release"),
+                        dict(lock, compatibility=dict(lock["compatibility"], profileSchema=99)),
+                        dict(lock, attacker=True)):
+            lock_path.write_bytes(_canonical(mutated))
+            with self.assertRaisesRegex(DistributionError, "installation lock"):
+                verify_installation_lock(archive_path, trust_path, lock_path)
+
+    def test_lock_noncanonical_and_expired_trust_block(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        lock = verify_bundle(archive_path, trust_path)["lock"]
+        lock_path.write_text(json.dumps(lock, sort_keys=True, indent=2))
+        with self.assertRaisesRegex(DistributionError, "noncanonical"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+        lock_path.write_bytes(_canonical(lock))
+        trust_path.write_bytes(_canonical(dict(self.trust, expiresOn="2020-01-01")))
+        with self.assertRaisesRegex(DistributionError, "expired"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+
+    def test_separately_tampered_bundle_rejected_against_lock(self):
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        lock_path.write_bytes(_canonical(verify_bundle(archive_path, trust_path)["lock"]))
+        archive_path.write_bytes(self.archive[:-1] + b"X")
+        with self.assertRaisesRegex(DistributionError, "external trust anchor"):
+            verify_installation_lock(archive_path, trust_path, lock_path)
+
 
 
 if __name__ == '__main__':
