@@ -12,6 +12,7 @@ from .inventory import InventoryError, inventory
 from .integration import IntegrationError, plan_install
 from .lifecycle import execute_plan, plan_lifecycle, recover
 from .profile import ProfileError, read_profile
+from .work import WorkError, inspect_work
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -40,8 +41,20 @@ def main(argv: list[str] | None = None) -> int:
                                  help="preserve existing AGENTS.md and acknowledge manual routing")
     recovery = sub.add_parser("recover", help="verify and resume an interrupted factory transaction")
     recovery.add_argument("--root", type=Path, required=True)
+    work = sub.add_parser("work", help="read-only work-order assessment")
+    work_ops = work.add_subparsers(dest="operation", required=True)
+    for operation in ("start", "resume"):
+        command = work_ops.add_parser(operation)
+        command.add_argument("--root", type=Path, required=True)
+        command.add_argument("--order", required=True, help="committed repository-relative JSON work-order path")
+        command.add_argument("--base-ref", default=None, help="optional local integration branch for drift detection")
     args = parser.parse_args(argv)
     try:
+        if args.command == "work":
+            assessment = inspect_work(args.root, args.order, mode=args.operation,
+                                      base_ref=args.base_ref)
+            print(json.dumps(assessment, ensure_ascii=False, sort_keys=True))
+            return 1 if assessment["blockers"] else 0
         if args.command == "inventory":
             print(json.dumps(inventory(args.path), sort_keys=True))
             return 0
@@ -74,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(declared_check_plan(data), sort_keys=True))
             return 0
         return 2
-    except (ProfileError, InventoryError, IntegrationError, OSError, RecursionError) as exc:
+    except (WorkError, ProfileError, InventoryError, IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
 

@@ -24,7 +24,7 @@ Build and qualify a portable, repository-local software factory that supports a 
 - PR #15 consolidated the CI-13/CI-15 source and was squash-merged by the GitHub queue to `main` at `eea5b503990e20167b2d88073f0d9e79c2990378`. PR #14 was closed as superseded, not merged separately.
 - The live Base ruleset `24705576` requires pull requests with **zero approving reviews**, three named GitHub Actions checks (Linux, Windows and `sf07-acceptance`, provider id `15368`), a squash merge queue (minimum 1), non-fast-forward/deletion protection, and no bypass actors.
 - PR #15 [successful merge-group run 37770656384](https://github.com/spsoftwarefc/s-f/actions/runs/37770656384) validated the exact mainline commit/tree. PR #16 [negative merge-group run 37772265905](https://github.com/spsoftwarefc/s-f/actions/runs/37772265905) showed a controlled Linux failure, Windows skipped job, failing acceptance, and actual queue removal with `main` unchanged. The temporary probe was restored byte-for-byte.
-- The next integration is **PR #16 as a focused documentation/qualification closure**, not permission to begin SF-08 or to merge outside the user's next explicitly authorized boundary. Do not enqueue a final passing PR as an experiment: it can automatically merge.
+- PR #16 subsequently merged at `9178dd0d6e0f0dee49d1b4f693bdf8d5f59ff2c5`, after successful real merge-group run [37773194423](https://github.com/spsoftwarefc/s-f/actions/runs/37773194423) (attempt 1). Its final tree `6d89e8fc5721a915891b91e9cd72fade41c62c4d` is the SF-08 baseline. The next implementation package is SF-08; entering the merge queue requires a separate user-authorized boundary.
 - Provider outcomes for cancelled, missing, neutral or superseded queue checks have not been separately induced. Claim only the successful integration and failed/skipped rejection actually witnessed. Documentation contracts do not replace a platform-enforced gate.
 
 ## Instruction ownership
@@ -56,4 +56,4 @@ Self-hosted CI is not part of SF-07 and is not placed on a production VPS by def
 
 ## Current package
 
-`docs/factory/work-orders/CI-16.md` defines the current narrow closure; `docs/factory/CI_ENFORCEMENT.md` and `docs/factory/evidence/CI-16.md` record enforceable contexts, strict skip policy, real queue proof and explicit limits. The present CLI supports profile validation, inventory, installation planning and managed local lifecycle. SF-08–SF-19 implementation remains pending.
+`docs/factory/work-orders/SF-08.json` is the current precommitted package. SF-08 adds deterministic, read-only `sf work start` and `sf work resume` assessments, but does not verify hosted evidence, run project commands, or grant acceptance. CI-16 is merged and documented in `docs/factory/evidence/CI-16.md`; SF-09–SF-19 remain pending.
