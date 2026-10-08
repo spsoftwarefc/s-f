@@ -9,6 +9,8 @@ import threading
 from pathlib import Path
 
 from . import __version__
+from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
+                          read_request, verify_github, inspect_offline)
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
 from .inventory import InventoryError, inventory
@@ -59,8 +61,27 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--allow-network", action="store_true", help="acknowledge network-capable declared command")
     run.add_argument("--redact-env", action="append", default=[], metavar="NAME",
                      help="redact a sensitive value from the named environment variable (repeatable)")
+    evidence = sub.add_parser("evidence", help="explicit CI evidence verification")
+    evidence_ops = evidence.add_subparsers(dest="operation", required=True)
+    verify = evidence_ops.add_parser("verify", help="check provider metadata or mark offline snapshot unverified")
+    verify.add_argument("--request", type=Path, required=True, help="versioned source/CI job expectation JSON")
+    verify.add_argument("--source", choices=("github", "offline"), required=True)
+    verify.add_argument("--snapshot", type=Path, default=None, help="offline-only local JSON snapshot")
     args = parser.parse_args(argv)
     try:
+        if args.command == "evidence":
+            request = read_request(args.request)
+            if args.source == "github":
+                if args.snapshot is not None:
+                    raise EvidenceError("--snapshot is only valid with --source offline")
+                result = verify_github(request)
+                print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+                return 0
+            if args.snapshot is None:
+                raise EvidenceError("--source offline requires --snapshot")
+            result = inspect_offline(request, args.snapshot)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 1  # inspection is not provider verification
         if args.command == "run":
             cancel = threading.Event()
             previous = {}
@@ -114,7 +135,15 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(declared_check_plan(data), sort_keys=True))
             return 0
         return 2
-    except (ExecutionError, WorkError, ProfileError, InventoryError,
+    except EvidenceBlocked as exc:
+        print(json.dumps({"schemaVersion": 1, "status": "blocked", "providerMetadataVerified": False,
+                          "accepted": False, "reason": str(exc)}, sort_keys=True))
+        return 1
+    except ProviderUnavailable:
+        print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
+                          "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
+        return 2
+    except (EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
