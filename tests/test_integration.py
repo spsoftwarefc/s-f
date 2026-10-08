@@ -119,7 +119,8 @@ class IntegrationTests(unittest.TestCase):
             self.assertIn("AGENTS.md", conflict_paths)
             self.assertIn(".s-f/profile.json", conflict_paths)
             self.assertEqual(out["readiness"], "blocked")
-            self.assertFalse((root / ".s-f").exists())
+            self.assertTrue((root / ".S-F").exists())
+            self.assertFalse((root / ".S-F" / "OWNERSHIP.json").exists())
 
     def test_file_instead_of_namespace_and_oversize_existing(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -182,7 +183,7 @@ class IntegrationTests(unittest.TestCase):
             for change in initial["changes"]:
                 destination = root / change["path"]
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                destination.write_text(change["content"], encoding="utf-8")
+                destination.write_bytes(change["content"].encode("utf-8"))
             repeated = plan_install(root, p)
             self.assertEqual(repeated["conflicts"], [])
             self.assertTrue(all(c["disposition"] == "unchanged" for c in repeated["changes"]))
