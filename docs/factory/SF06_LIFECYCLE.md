@@ -35,3 +35,11 @@ Removal validates the ownership manifest and removes only byte-matching owned pa
 ## Limits and qualification
 
 The journal is local project state, not a cryptographic attestation. Hostile concurrent filesystem writers, multi-process locking, unsigned factory distribution, Windows durability semantics and platform isolation remain unqualified in this implementation. The local runner is not a sandbox. Cross-platform portability and end-to-end acceptance belong to SF-07 (PR #12); actual developer execution/CI and release qualifications belong to later packages.
+
+## SF-13 installer proof binding (SF-13I implementation candidate)
+
+The opt-in `--bundle PATH --trust PATH --lock PATH` parameters are supported on `sf integrate` and `sf upgrade` dry-run/apply, and on `sf recover` when continuing a proof-bound journal. All three are mandatory **when requesting a proof-bound operation**; partial proofs fail before target writes. The lock must be a canonical exact record matching `sf distribution verify` for the same archive, independently supplied trust pin, unexpired compatibility and identity.
+
+A saved plan binds the verified distribution lock. Apply rechecks exact archive/trust/lock inputs and compares the recomputed plan before writing the journal. Recovery rechecks those inputs and requires the same lock identity before proceeding with a previously proof-bound transaction. Missing or altered inputs cannot be silently replaced with a different release for an existing proof-bound plan or journal.
+
+**Not yet full secure-installation acceptance:** The older unpinned development-preview lifecycle remains available. SF-06 still generates project-specific `.s-f` files and does not install the canonical archive's portable members byte-for-byte; this package only binds verified source identity to the plan/journal. Its result therefore always reports `installedDistributionBytesVerified=false` (plans) and `releaseQualified=false`. The complete distribution-owned file installation, immutable byte mapping, and mandatory proof policy must be finished and qualified before SF-13 is declared fully accepted. A successful local digest match cannot prove the provenance of a self-supplied trust pin.

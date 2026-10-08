@@ -52,3 +52,9 @@ No background updates, remote API traffic, hosted agent infrastructure, releases
 ## Test boundaries and promotion
 
 SF-13 synthetic fixtures cover identical build outputs for the same committed tree, exclusion of nonportable project files, source dirt, user-requested exclusive output, mismatched publisher/release/source version/tree/digest, expiry, duplicate/unknown JSON, corrupt members, extra/duplicate/unsafe paths, symlinks, case/Windows reserved names, zip reordering and unsupported compatibility. Native Windows/Linux full suite qualification must match the PR #22 integration candidate. A green PR is not merge-group proof. Enter the protected squash merge queue only after explicit user authorization; source and queue SHA/tree identities must be recorded separately.
+
+## SF-13I installation-binding follow-up (development candidate)
+
+SF-06 now has an opt-in proof-binding pathway using `--bundle`, `--trust` and `--lock` together. It revalidates an unexpired operator-pinned archive and exact canonical lock at plan/apply/recovery boundaries and records that lock identity in the plan/journal. It rejects missing or modified proof when replaying a proof-bound plan or recovering its journal.
+
+This does **not** yet fulfill original SF-13 installation acceptance: the legacy preview path is still available, the operator-supplied trust file is not authenticated by the tool, and generated target routing/ownership files are not byte-for-byte copied from the verified ZIP. In particular `verified-external-pin-for-installation` means a conditional local lock comparison, not full installed-payload authenticity or product acceptance. Do not promote this slice until those boundaries are closed with independent tests.
