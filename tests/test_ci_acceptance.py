@@ -88,6 +88,10 @@ class CIAcceptanceTests(unittest.TestCase):
         group = unittest.TestSuite([unittest.TestSuite([case])])
         self.assertEqual(_ids(group), {case.id()})
 
+    def test_ci15_provider_failure_probe(self):
+        """Intentional temporary red check: must block main promotion."""
+        self.fail("CI-15 controlled required-status-check enforcement probe")
+
     def test_current_critical_tests_present_in_discovery(self):
         suite = unittest.TestLoader().discover(start_dir="tests", pattern="test_*.py")
         found = _ids(suite)
