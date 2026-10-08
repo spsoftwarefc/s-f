@@ -1,52 +1,43 @@
-# CI-13 — Required-check enforcement and integration identity
+# CI enforcement — reusable promotion rule and s-f's GitHub qualification
 
-Status: **three required GitHub Actions contexts verified in active Base ruleset; merge-group integration and negative provider enforcement remain UNVERIFIED** (2026-10-08).
-Scope: the `spsoftwarefc/s-f` repository. This is a repository-specific implementation of a portable promotion rule, not a requirement that every installed factory use GitHub, this matrix or these job names.
+Status: **s-f GitHub ruleset enforcement configured; passing and controlled failing/skipped `merge_group` cases observed**. This is a repository-specific CI governance control, not qualification of the entire Software Factory. Historical SHA/run evidence lives in `docs/factory/evidence/CI-15.md` and `docs/factory/evidence/CI-16.md`.
 
-## Universal promotion contract
+## Universal contract vs this project's provider
 
-Acceptance requires **successful evidence for the current integration candidate** and enforcement by the destination project's supported promotion mechanism. Installation and a green local test run do not configure branch rules or authorize release.
+A production candidate is accepted only with successful evidence for the **current integration candidate**, enforced by the destination's supported promotion mechanism. A portable factory installation does **not** configure a destination's branch rules or authorize releases. GitHub Actions, this particular Python/OS matrix, and the merge queue are **s-f-specific**, not universal requirements on installed projects.
 
-## Repository-specific required contexts
+For `spsoftwarefc/s-f`, the active [Base ruleset](https://github.com/spsoftwarefc/s-f/rules/24705576), ID `24705576`, applies to `main`: pull request required with **zero approving reviews**, non-fast-forward and deletion protection, squash merge queue, zero bypass actors, and strict required status checks. The recorded October 8 configuration has `min_entries_to_merge=1`, 3-minute wait, `ALLGREEN` and three check contexts, all bound to GitHub Actions app `15368`:
 
-The active `main` ruleset is [Base](https://github.com/spsoftwarefc/s-f/rules/24705576). Preserve deletion protection, non-fast-forward protection, squash merge queue and no bypass actors. The Base ruleset NOW HAS GitHub's **require status checks** rule, with the exact three job names (case and punctuation matter):
+- `sf07-portability (ubuntu-24.04, py3.12)`
+- `sf07-portability (windows-2022, py3.12)`
+- `sf07-acceptance`
 
-1. `sf07-portability (ubuntu-24.04, py3.12)`
-2. `sf07-portability (windows-2022, py3.12)`
-3. `sf07-acceptance`
+Do not substitute descriptive strings for actual GitHub check names, weaken the source binding or silently add bypass actors. The former, unqualified code-quality rule was removed rather than represented as a verified analyzer. Repository-specific rulesets must be reread before each qualification if they may have changed.
 
-Live reread at 2026-10-08 14:24 EAT confirmed all three contexts bound to **GitHub Actions integration 15368**, strict checks enabled, no bypass actors, pull requests required with zero approvals, and deletion/non-fast-forward plus squash merge queue retained. This is provider configuration evidence, not yet an actual merge-group enforcement test. The connected GitHub connector exposes ruleset **reads**, but no write operation.
+## Strict acceptance semantics
 
-The separately named Linux and Windows jobs remove ambiguity from one aggregate matrix `needs` result. The acceptance job declares `needs: [linux, windows]` and `if: always()`; it passes only when **both dependency results equal `success`**. A skipped, neutral, failed, missing or cancelled required job does not qualify the factory acceptance claim. GitHub may regard `skipped` or `neutral` as acceptable for individual required checks; requiring the successful acceptance job adds a fail-closed dependency predicate. This does not protect against someone deleting or editing the acceptance job without a separate controlled review.
+The Linux and Windows jobs have **independent stable names**. The acceptance job declares `needs: [linux, windows]` and `if: always()`. It passes only when both dependency results are *exactly* `success`; `failure`, `skipped`, `cancelled`, unknown/empty or any other state is rejected. This is stronger than relying on GitHub's default interpretation of an individual skipped required job.
 
-**Individual tests:** the mandatory discovery suite accepts **zero skipped tests**, expected failures, unexpected successes, test load errors or assertion failures. It also verifies at least 61 discovered cases, the declared baseline critical-test inventory, and **executed test count exactly equal to the discovered count**; both fewer and more executions fail qualification. Inability to create platform-specific test fixtures (for example symlinks) is a **qualification failure for that platform**, not green evidence. A future explicit policy exception must identify scope, excluded capability and an approved alternate proof, and must not label the excluded capability qualified. Changes to required test names/count are gate changes requiring operator review; the local inventory is not independently tamper-proof.
+On each platform, the stdlib-only runner discovers tests, enforces minimum 61 tests, critical-test identities and **every discovered test executed exactly once** by count. Zero skipped tests, expected failures, unexpected successes, test errors and assertion failures are accepted. A capability missing on a host remains unqualified rather than silently receiving a pass. The runner and critical-test inventory are candidate-controlled: modifying them requires explicit operator source/diff review and cannot be treated as independent technical enforcement.
 
-## Event and revision identity
+## Provider events and identities
 
-GitHub Actions executes on `pull_request` and `merge_group`, not duplicate `push` events. Each platform job prints and verifies:
+The single pinned, read-only workflow `.github/workflows/sf07-qualification.yml` runs on `pull_request` and `merge_group` (not duplicate `push`), using Ubuntu 24.04 and Windows 2022 / Python 3.12. Checkout and Python setup actions are full-SHA-pinned; checkout does not persist credentials; job permissions are `contents: read`; timeouts are bounded. No release secrets or generic production runners are used.
 
-- `GITHUB_EVENT_NAME`, `GITHUB_REF`, `GITHUB_SHA`.
-- `GITHUB_WORKFLOW`, `GITHUB_WORKFLOW_REF`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, `GITHUB_JOB`.
-- Actual `git rev-parse HEAD` and `git rev-parse HEAD^{tree}`, with actual commit required to equal `GITHUB_SHA`.
-- For PR events: `pull_request.head.sha` and `pull_request.base.sha`.
-- For merge-group events: `merge_group.head_sha` and `merge_group.base_sha`.
+Record the **separate** PR head/base SHA, checked-out PR synthetic merge SHA/tree, merge-group SHA/base/tree, workflow file reference, provider run ID/attempt, job IDs/conclusions/source app, and final squash commit/parent/tree. A PR head, PR synthetic merge, merge group and squash merge are distinct identities even when file trees match. A passing PR head is not proof of the queue; compare actual candidate identities, not green badges.
 
-A separate provider inspection records workflow file identity, numerical **job IDs**, conclusions, exact run URL, run attempt and source app from the GitHub API, since numerical job IDs are not available simply from `GITHUB_JOB`. Compare checks to the exact tested SHA/event; don't reuse stale or superseded head results.
+## Completed positive and negative qualification
 
-A PR check often tests an ephemeral `refs/pull/.../merge` commit rather than the literal PR head. A merge-group check tests another temporary SHA representing queued integration. Following the merge, record the final squash commit, its parent, tree and diff/provenance relationship to the successful tested candidate. **SHA equality between a squash merge and a PR head or queue head is not required.** A queue run cannot be inferred from a successful PR run; inspect it separately. Identical file tree, if observed, supports content identity but does not prove identical commit identity or merge policy.
+**Positive integration (PR #15).** [Run 37770656384](https://github.com/spsoftwarefc/s-f/actions/runs/37770656384) was a real `merge_group` on queue SHA `eea5b503990e20167b2d88073f0d9e79c2990378`; Linux and Windows each ran 71/71 tests with zero skips/errors, and `sf07-acceptance` passed. The same SHA became the merged `main` commit with identical tree `3dfe90c36e5116d7d804ca69c09e819572536210`. [PR run 37770487614](https://github.com/spsoftwarefc/s-f/actions/runs/37770487614) independently exercised the final PR integration candidate.
 
-## Control-change review boundary
+**Negative PR-stage (PR #15).** [Run 37770394865](https://github.com/spsoftwarefc/s-f/actions/runs/37770394865) verified controlled test failures in both platform jobs and the dependent acceptance job; GitHub reported PR `mergeable_state=blocked`. The temporary failing source was removed before merging.
 
-Before promoting a candidate that changes `.github/workflows/**`, `tools/ci_acceptance.py`, `tests/**`, `docs/factory/**` gates, or test inventory, the operator records the old/new diff and explicitly checks: deleted/renamed assertions, new conditional skips/xfails, relaxed inventory thresholds, softened error paths, dependency gating/always semantics, action SHA revisions, new permissions/secrets and provider context renames. This is **procedural operator review** for a solo repo, not independent external technical enforcement against an administrator or candidate-controlled checker.
+**Negative queue-stage (PR #16 controlled probe).** [Run 37772265905](https://github.com/spsoftwarefc/s-f/actions/runs/37772265905), event `merge_group`, showed real **Linux `failure`**, **Windows job `skipped`**, and unconditional `sf07-acceptance` **`failure`**. Its log recorded `linux=failure, windows=skipped, qualified=false`. GitHub logged `removed_from_merge_queue` at 11:46:52 UTC, and `main` did not move. The probe was injected only into the candidate, **not merged**, and the original workflow blob `89054cae40ac8215358d14bc2525c024ab499e9e` was restored byte-for-byte. Exact IDs, SHA/tree and timeline are recorded in `docs/factory/evidence/CI-16.md`.
 
-Baseline supply-chain minimum: read-only `contents: read`; pinned `actions/checkout` and `actions/setup-python` by immutable full SHA; `persist-credentials: false`; bounded job timeouts; no release secrets in PR jobs. Deeper dependency scan/attestation is conditional on actual dependency, tool or trusted action changes; these standing controls are not optional.
+These events directly prove working positive queue validation and rejection of a failing/skipped required-job merge group. They do **not** prove every possible provider fault. Provider-only **cancelled**, **missing/unreported**, **neutral**, and **superseded** queue scenarios were not separately executed; do not label them witnessed. The strict source-level acceptance predicate rejects non-success dependencies, but GitHub provider behavior for those particular scenarios remains an explicit qualification limit. Avoid fabricating checks or incurring long provider timeouts just for appearance of complete coverage.
 
-## Provider qualification before closing Issue #13
+## Control-change review, release boundary and resource discipline
 
-1. Finish a focused PR without bypassing branch controls; capture exact successful Linux, Windows and acceptance run/job data on its final SHA. A PR-only success is insufficient for a merge queue assertion.
-2. **Verified**: re-read live Base required contexts and GitHub Actions app source, keeping the queue intact. Code Quality rule was removed; no additional unqualified analyzer gate remains.
-3. Use the focused, nonproduction PR #15 qualification candidate under the user-authorized PR #15 merge boundary to observe successful `merge_group` checks. At current queue settings minimum group size is 2 and wait 10 minutes; after this wait GitHub permits a single entry, so do not create an unrelated filler PR. Queue entry can automatically merge; **do not enqueue** unless that merge is authorized.
-4. Exercise genuine provider blocking with a controlled failing required context. Verify missing/cancelled/skipped and superseded cases where provider-safe; negative unit tests alone do **not** prove GitHub enforcement. Never invent a skipped provider check.
-5. Reconcile the exact merged commit and integration-candidate relationship. Close Issue #13 only after provider and ruleset checks are demonstrably satisfied. Otherwise keep it open, with unknowns documented.
+Review every candidate diff touching `.github/workflows/**`, `tools/ci_acceptance.py`, `tests/**`, or instruction/gate contracts for deleted assertions, new skips, softened errors, source-app or context renames, privileges/secrets, new action revisions, branch-rule changes and expected-oracle drift. Solo-operator review is procedural, not a second-person requirement and not tamper-proof against administrators or a candidate that rewrites its own checker.
 
-No mandatory human approval count, paid reviewer, parallel duplicate push runs or self-hosted production machine is introduced. Larger reusable CI evidence verification remains in SF-10 and later packages.
+Use targeted local verification before one final exact-revision hosted pass. Only enter the merge queue when the operator has authorized that merge boundary; green queue checks can auto-merge. Separate code acceptance, merge, artifact/release qualification and production deployment. Generalized CI receipt verification and post-release assurance remain later SF packages, not outcomes of CI-13/CI-16.
