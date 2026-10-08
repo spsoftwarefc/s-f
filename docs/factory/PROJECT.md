@@ -1,6 +1,6 @@
 # s-f repository factory adapter
 
-Status: SF-00 baseline reconciliation.
+Status: SF-07 candidate qualification (G2 not yet accepted).
 Authority: this file configures the reusable workflow for the `spsoftwarefc/s-f` repository. It grants no authority over repositories where s-f may later be installed.
 
 ## Purpose
@@ -22,7 +22,7 @@ The CTJ bot is an extraction source only. Trading contracts, stage ledgers, exch
 
 ## Current merge cadence
 
-For SF-00, PRs #1 through #4 are intentionally stacked. Do not merge an earlier PR in isolation. After PR #4 completes SF-00 acceptance, merge the stack to `main` in dependency order.
+SF-00 is merged into `main` at the reconciled baseline. Current stack: PRs #6–#11 with planned PR #12 as the acceptance and merge boundary. Work is staged on dependent branches; no interim merge before final combined acceptance. Repository ruleset mandates a merge queue and squash integration; follow it, do not bypass it or claim intermediate history survives a squash.
 
 ## Instruction ownership
 
@@ -41,7 +41,7 @@ For SF-00, PRs #1 through #4 are intentionally stacked. Do not merge an earlier 
 
 ## Resource policy
 
-Current GitHub repository size is small and SF-00 adds no Actions workflow. The limiting resource is hosted execution, not repository storage. During implementation:
+The SF-07 candidate introduces a one-event PR/merge-queue matrix for required Linux/Windows evidence. No continuous push or self-hosted workflow is added. The limiting resource is hosted execution, not repository storage. During implementation:
 
 1. run focused tests locally/tool-side;
 2. run the applicable local acceptance suite once on a stable candidate;
@@ -49,8 +49,8 @@ Current GitHub repository size is small and SF-00 adds no Actions workflow. The 
 4. reuse valid exact-candidate evidence rather than rerunning unchanged jobs;
 5. never treat a skipped or unavailable hosted check as success.
 
-Self-hosted CI is not part of SF-00 and is not placed on a production VPS by default.
+Self-hosted CI is not part of SF-07 and is not placed on a production VPS by default.
 
 ## Current package
 
-`docs/factory/work-orders/SF-00.md` defines the active reconciliation. Later packages implement the CLI, schemas, inventory, installation, verified CI evidence, security adapters and release/deployment lifecycle.
+`docs/factory/work-orders/SF-07.md` defines the active portability acceptance. The present CLI validates/inventories/plans and conditionally applies/reconciles owned files; later SF-08–SF-19 packages implement the development lifecycle, authoritative CI proof, security, distribution and release/deployment capabilities.

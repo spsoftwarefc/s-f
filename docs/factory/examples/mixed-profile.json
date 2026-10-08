@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "mixed-example"
+  },
+  "commands": {
+    "test-core": {
+      "argv": [
+        "cargo",
+        "test",
+        "--locked"
+      ],
+      "cwd": "core",
+      "risk": "build",
+      "network": false,
+      "timeoutSeconds": 300
+    },
+    "test-app": {
+      "argv": [
+        "npm",
+        "test",
+        "--",
+        "--run"
+      ],
+      "cwd": "app",
+      "risk": "build",
+      "network": false,
+      "timeoutSeconds": 300
+    }
+  },
+  "components": [
+    {
+      "id": "core",
+      "path": "core",
+      "stack": "rust",
+      "checks": [
+        "test-core"
+      ]
+    },
+    {
+      "id": "app",
+      "path": "app",
+      "stack": "node",
+      "dependsOn": [
+        "core"
+      ],
+      "checks": [
+        "test-app"
+      ]
+    }
+  ]
+}
