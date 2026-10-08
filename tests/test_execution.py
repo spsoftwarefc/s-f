@@ -52,7 +52,7 @@ class ExecutionTests(unittest.TestCase):
         r=self.run_check(receipt_out='records/first.json')
         self.assertEqual(r['result']['outcome'],'success')
         self.assertEqual(r['result']['exitCode'],0)
-        self.assertEqual(r['stdout']['text'],'ok\n')
+        self.assertEqual(r['stdout']['text'],'ok'+os.linesep)
         self.assertEqual(r['schemaVersion'],1)
         self.assertFalse(r['ciVerified'])
         self.assertFalse(r['evidenceVerified'])
@@ -75,7 +75,7 @@ class ExecutionTests(unittest.TestCase):
         self.profile['commands']['check']['argv']=[sys.executable,'-c','import sys;print(sys.argv[1])','$(touch injected); $HOME']
         self.save()
         r=self.run_check()
-        self.assertEqual(r['stdout']['text'],'$(touch injected); $HOME\n')
+        self.assertEqual(r['stdout']['text'],'$(touch injected); $HOME'+os.linesep)
         self.assertFalse((self.root/'injected').exists())
 
     def test_nonzero_exit_retained_without_success(self):
@@ -84,7 +84,7 @@ class ExecutionTests(unittest.TestCase):
         r=self.run_check(receipt_out='records/fail.json')
         self.assertEqual(r['result']['outcome'],'failed')
         self.assertEqual(r['result']['exitCode'],13)
-        self.assertEqual(r['stderr']['text'],'bad\n')
+        self.assertEqual(r['stderr']['text'],'bad'+os.linesep)
         self.assertTrue((self.root/'records/fail.json').exists())
 
     def test_timeout_is_recorded_and_stops_process(self):
@@ -124,7 +124,7 @@ class ExecutionTests(unittest.TestCase):
         self.save()
         with patch.dict(os.environ,{'SF09_PRIVATE_SENTINEL':'SECRET_TEST_123456'}):
             r=self.run_check(redact_env=['SF09_PRIVATE_SENTINEL'])
-        self.assertEqual(r['stdout']['text'],'absent\n[REDACTED]\n')
+        self.assertEqual(r['stdout']['text'],'absent'+os.linesep+'[REDACTED]'+os.linesep)
         self.assertNotIn('SECRET_TEST_123456',json.dumps(r))
         self.assertEqual(r['environment']['redactedNames'],['SF09_PRIVATE_SENTINEL'])
 
@@ -133,7 +133,7 @@ class ExecutionTests(unittest.TestCase):
         self.profile['commands']['check']['argv']=[sys.executable,'-c',f'print("{token}")']
         self.save()
         r=self.run_check()
-        self.assertEqual(r['stdout']['text'],'[REDACTED]\n')
+        self.assertEqual(r['stdout']['text'],'[REDACTED]'+os.linesep)
         self.assertEqual(r['argv'][-1],'print("[REDACTED]")')
 
     def test_undeclared_check_blocks_without_executing(self):
