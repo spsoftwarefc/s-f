@@ -10,6 +10,7 @@ from . import __version__
 from .adapters import declared_check_plan
 from .inventory import InventoryError, inventory
 from .integration import IntegrationError, plan_install
+from .lifecycle import execute_plan, plan_lifecycle, recover
 from .profile import ProfileError, read_profile
 
 
@@ -26,11 +27,19 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("path", type=Path)
         command.add_argument("--root", type=Path, default=None,
                              help="optionally verify declared directories in this project root")
-    integration = sub.add_parser("integrate", help="plan repository integration without writes")
-    integration.add_argument("--dry-run", action="store_true", required=True,
-                             help="the only supported SF-05 integration mode")
-    integration.add_argument("--root", type=Path, required=True)
-    integration.add_argument("--profile", type=Path, required=True)
+    for operation in ("integrate", "upgrade", "remove"):
+        command = sub.add_parser(operation, help="explicit, checked factory lifecycle operation")
+        effect = command.add_mutually_exclusive_group(required=True)
+        effect.add_argument("--dry-run", action="store_true", help="inspect proposed changes")
+        effect.add_argument("--apply", type=Path, metavar="PLAN", help="apply an exact saved plan")
+        command.add_argument("--root", type=Path, required=True)
+        if operation != "remove":
+            command.add_argument("--profile", type=Path, required=True)
+        if operation == "integrate":
+            command.add_argument("--ack-manual-routing", action="store_true",
+                                 help="preserve existing AGENTS.md and acknowledge manual routing")
+    recovery = sub.add_parser("recover", help="verify and resume an interrupted factory transaction")
+    recovery.add_argument("--root", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "inventory":
@@ -40,10 +49,21 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"cliVersion": __version__, "offline": True,
                               "releaseQualified": False}, sort_keys=True))
             return 0
-        if args.command == "integrate":
-            plan = plan_install(args.root, args.profile)
-            print(json.dumps(plan, ensure_ascii=False, sort_keys=True))
-            return 1 if plan["conflicts"] else 0
+        if args.command == "recover":
+            print(json.dumps(recover(args.root), ensure_ascii=False, sort_keys=True))
+            return 0
+        if args.command in ("integrate", "upgrade", "remove"):
+            target_profile = args.profile if args.command != "remove" else None
+            acknowledgement = getattr(args, "ack_manual_routing", False)
+            if args.dry_run:
+                plan = plan_lifecycle(args.command, args.root, target_profile,
+                                      ack_manual=acknowledgement)
+                print(json.dumps(plan, ensure_ascii=False, sort_keys=True))
+                return 1 if plan["conflicts"] else 0
+            receipt = execute_plan(args.root, target_profile, args.apply, mode=args.command,
+                                   ack_manual=acknowledgement)
+            print(json.dumps(receipt, ensure_ascii=False, sort_keys=True))
+            return 0
         if args.command == "profile":
             data = read_profile(args.path, root=args.root)
             if args.operation == "validate":
