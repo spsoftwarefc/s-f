@@ -4,7 +4,7 @@ Full JSON Schema Draft 2020-12 validator follows in the versioned contracts pack
 """
 from __future__ import annotations
 import json
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 MAX_PROFILE_BYTES = 1024 * 1024
 PROFILE_KEYS = frozenset({"schemaVersion", "project", "commands"})
@@ -23,7 +23,7 @@ def _relative(value: object) -> bool:
         and "\\" not in value
         and not value.startswith("/")
         and ":" not in value
-        and all(part not in ("", ".", "..") for part in PurePosixPath(value).parts)
+        and all(part not in ("", ".", "..") for part in value.split("/"))
     )
 
 
