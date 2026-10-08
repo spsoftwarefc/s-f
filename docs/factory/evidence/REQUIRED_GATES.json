@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 2,
+  "workflow": ".github/workflows/verify.yml",
+  "triggers": {
+    "push": [],
+    "pull_request": [
+      "opened",
+      "synchronize",
+      "reopened",
+      "ready_for_review"
+    ]
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "python": [
+      {
+        "name": "Install locked dependencies (uv.lock)",
+        "executionSha256": "253a3fea41bfd3338da394196cf2e48804b5de20c0601b9fa218a3766c7a1873"
+      },
+      {
+        "name": "Report interpreter and import provenance",
+        "executionSha256": "593268108a3724a7847cadab31aa45128dbbc9cef0782ba0702c4067986f9c7a"
+      },
+      {
+        "name": "pytest",
+        "executionSha256": "e1195147146cc0e0d52011febc42670884b797d6692c33265751756ef6afcbc6"
+      },
+      {
+        "name": "Contract cross-check",
+        "executionSha256": "037293c516a14ae48248cf02459846b3ef8e8f90d0238744a81c02a7b6b6fbc0"
+      },
+      {
+        "name": "Manifest and integrity verification",
+        "executionSha256": "415a6faa96cea37bf27b4488071ab43ce38fd84fa891ddd03d048a297cdf10be"
+      },
+      {
+        "name": "Fixture authoring is in sync",
+        "executionSha256": "b55dead83389f3458e31d087d9e7d8ad79a0daf42ee131b2622cef26296410fd"
+      },
+      {
+        "name": "Agent context map checks",
+        "executionSha256": "9de191a0c28e6003f16ebee22761671315418bb80e9e6df2f16489af64439f61"
+      },
+      {
+        "name": "Stage 1 gate consistency",
+        "executionSha256": "cf28f074fdacd73afc374e97f2ab59a164c448d51358ef947ff23bdb1ef50ad6"
+      },
+      {
+        "name": "FB-02 venue procedure completeness",
+        "executionSha256": "49af2f270256c01116a6a5b7be2c4e3cc5c459d19418a8f95e4f9ecaadffda02"
+      },
+      {
+        "name": "Incident resolution behavioral consistency",
+        "executionSha256": "93edadca94aa31c5e7b72229b57b577eac9d759fdcaae00b8f224704b5f47c36"
+      },
+      {
+        "name": "Proposal and outbox recovery contract boundary",
+        "executionSha256": "892f0c5d7685f5175a9c1eb6af5873e88c1b3cea938e745ab30260a6cb7a8b87"
+      },
+      {
+        "name": "Pending D1-D5 implementation evidence",
+        "executionSha256": "7bc2b2a50cf689e3ce8956dd837968f97993f76d86fdfd4ab579d637fd99e854"
+      },
+      {
+        "name": "Research-input evidence ledger",
+        "executionSha256": "707a15fb9a9e518d0ba400da6691153e7f1965e844d18bdae4110cd9f9f0f173"
+      },
+      {
+        "name": "Factory routing, preservation and evidence checks",
+        "executionSha256": "eb84b35329f19f965c0167be87e45da179938d5d8daa5dd53ad10ccc289b270c"
+      },
+      {
+        "name": "Project map consistency",
+        "executionSha256": "116f299fa5e6475d80a04b3a2b7ca35cb72625a92642e8c21d7e7c0bee7a8ec7"
+      }
+    ],
+    "typescript": [
+      {
+        "name": "Install locked dependencies (package-lock.json)",
+        "executionSha256": "061d99b76792d1f0d7676fb41d3665f908813948455f8614f8ab9dae8216e74b"
+      },
+      {
+        "name": "Build and run the reference-model, replay and negative tests",
+        "executionSha256": "164096462493f8e5a48a7af3482d47c204e2e0e2cc417b53770700774c8e68db"
+      }
+    ],
+    "hygiene": [
+      {
+        "name": "No tracked build artifacts, raw data, or obvious credential material",
+        "executionSha256": "403779131f3680dc158b2bd1afa048c5ff21ed12774bf9a248e906f7ea55439c"
+      }
+    ]
+  },
+  "checkoutFetchDepth": {
+    "python": "0"
+  }
+}

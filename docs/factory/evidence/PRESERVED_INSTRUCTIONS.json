@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "requiredFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "SKILLS.md",
+    "PLAN.md",
+    "docs/NORMATIVE_INVENTORY.json",
+    "docs/AGENT_EXECUTION_GUIDE.md",
+    ".agents/skills/bot-context/SKILL.md",
+    ".agents/skills/bot-implementation/SKILL.md",
+    ".agents/skills/bot-review/SKILL.md",
+    "docs/factory/WORKFLOW.md",
+    "docs/factory/WORK_ORDER.md",
+    "docs/factory/PROJECT.md",
+    "docs/factory/MIGRATION_REVIEW.md",
+    "docs/factory/PF2_WORK_ORDER.md"
+  ],
+  "requiredHeadings": {
+    "AGENTS.md": [
+      "# AGENTS.md — Bot Trader",
+      "## Purpose and authority",
+      "## Production Factory",
+      "## Start every task from repository evidence",
+      "## Status and gates",
+      "## Architecture boundaries",
+      "## Accounting invariants",
+      "## Execution, protection and recovery",
+      "## Research and data discipline",
+      "## Fixtures and verification",
+      "## Integrity and repository changes",
+      "## Completion report",
+      "## Repository-local implementation and review workflow"
+    ],
+    "docs/factory/WORK_ORDER.md": [
+      "# Work-order checklist",
+      "## 1. Pre-implementation checkpoint",
+      "## 2. Code-structure checklist",
+      "## 3. Proof: before and after",
+      "## 4. Evidence record",
+      "## 5. Stages",
+      "## 6. Handoff and resume checkpoint",
+      "## 7. Review and disposition"
+    ]
+  },
+  "requiredLines": {
+    "CLAUDE.md": [
+      "@AGENTS.md"
+    ]
+  },
+  "routingFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "SKILLS.md",
+    "docs/factory/PROJECT.md",
+    "docs/factory/WORK_ORDER.md",
+    ".agents/skills/bot-implementation/SKILL.md",
+    ".agents/skills/bot-review/SKILL.md"
+  ],
+  "requiredReferences": {
+    "AGENTS.md": [
+      "SKILLS.md",
+      "docs/factory/WORKFLOW.md",
+      "docs/factory/PROJECT.md",
+      "docs/factory/WORK_ORDER.md"
+    ],
+    "SKILLS.md": [
+      ".agents/skills/bot-implementation/SKILL.md",
+      ".agents/skills/bot-review/SKILL.md",
+      ".agents/skills/bot-context/SKILL.md",
+      "docs/factory/WORK_ORDER.md"
+    ],
+    ".agents/skills/bot-implementation/SKILL.md": [
+      "docs/factory/WORK_ORDER.md"
+    ],
+    ".agents/skills/bot-review/SKILL.md": [
+      "docs/factory/WORK_ORDER.md"
+    ],
+    "docs/AGENT_EXECUTION_GUIDE.md": [
+      "docs/factory/WORK_ORDER.md"
+    ],
+    "docs/factory/PROJECT.md": [
+      "docs/factory/WORK_ORDER.md"
+    ]
+  },
+  "hostAdapters": {
+    "CLAUDE.md": {
+      "requires": [
+        "@AGENTS.md"
+      ],
+      "forbidHeadingsFrom": "docs/factory/WORK_ORDER.md"
+    }
+  },
+  "canonicalSkillRoot": ".agents/skills/",
+  "forbiddenText": {
+    "SKILLS.md": [
+      "is optional when the current acceptance record"
+    ],
+    "AGENTS.md": [
+      "single work-package and evidence process"
+    ],
+    "docs/AGENT_EXECUTION_GUIDE.md": [
+      "work-order template may fill"
+    ],
+    ".agents/skills/bot-implementation/SKILL.md": [
+      "use the guide's completion criteria"
+    ]
+  }
+}

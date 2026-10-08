@@ -1,6 +1,6 @@
 # Work-order checklist
 
-Status: INFORMATIVE. Version: 1.6. This is the single authoritative factory checklist for every implementation work package, whichever agent performs it. `AGENTS.md` routes here, and project implementation/review skills may consume it; do not copy the checklist into those skills or other files. Domain rules remain in each consumer project's own contracts and agent guide. `tools/check_factory_evidence.py` enforces the machine-checked parts described here (see `docs/factory/PF2_WORK_ORDER.md` for exact behavior and limits).
+Status: INFORMATIVE. Version: 1.6. This is the single authoritative factory checklist for every implementation work package, whichever agent performs it. `AGENTS.md` routes here, and the `bot-implementation` and `bot-review` skills consume it; do not copy the checklist into those skills or other files. Domain rules stay in `AGENTS.md`, the normative contracts and `docs/AGENT_EXECUTION_GUIDE.md`. `tools/check_factory_evidence.py` enforces the machine-checked parts described here (see `docs/factory/PF2_WORK_ORDER.md` for exact behavior and limits).
 
 Do not fill in a passing result before evidence exists. Do not create a parallel project plan: the work order points at existing acceptance rows and adds only what they lack.
 
