@@ -362,8 +362,8 @@ class DistributionTests(unittest.TestCase):
         target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
         kwargs = {"bundle": archive, "trust": trust, "lock": lock}
         plan = plan_lifecycle("integrate", target, profile, **kwargs)
-        self.assertTrue(plan["distributionVerified"])
-        self.assertEqual(plan["distribution"]["bundleSha256"], self.trust["bundleSha256"])
+        self.assertEqual(plan["schemaVersion"], 2)
+        self.assertEqual(plan["verifiedLock"]["bundleSha256"], self.trust["bundleSha256"])
         self.assertFalse(plan["installedDistributionBytesVerified"])
         doc = self.folder / "plan.json"
         doc.write_text(json.dumps(plan))
