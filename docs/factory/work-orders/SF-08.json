@@ -97,6 +97,49 @@
     "Merge queue entry requires separate authorization",
     "No automated project command execution or deployment"
   ],
-  "proofs": {},
-  "amendments": []
+  "proofs": {
+    "contract": [
+      {
+        "kind": "independent-output",
+        "path": "docs/factory/evidence/SF-08.md"
+      }
+    ],
+    "precedence": [
+      {
+        "kind": "regression-reproducer",
+        "path": "docs/factory/evidence/SF-08.md"
+      },
+      {
+        "kind": "event-trace",
+        "path": "docs/factory/evidence/SF-08.md"
+      }
+    ],
+    "scope": [
+      {
+        "kind": "independent-output",
+        "path": "docs/factory/evidence/SF-08.md"
+      }
+    ],
+    "commands": [
+      {
+        "kind": "independent-output",
+        "path": "docs/factory/evidence/SF-08.md"
+      }
+    ],
+    "docs": [
+      {
+        "kind": "preservation-review",
+        "path": "docs/factory/evidence/SF-08.md"
+      },
+      {
+        "kind": "diff-review",
+        "path": "docs/factory/evidence/SF-08.md"
+      }
+    ]
+  },
+  "amendments": [
+    {
+      "reason": "Register separately committed SF-08 focused local evidence and document-review references; presence is not verified proof or acceptance."
+    }
+  ]
 }
