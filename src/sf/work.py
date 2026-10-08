@@ -147,7 +147,8 @@ def _allowed(path: str, patterns: list[str]) -> bool:
 def _git(root: Path, *args: str, allow_failure: bool = False) -> tuple[int, bytes]:
     env = {**os.environ, 'GIT_OPTIONAL_LOCKS': '0', 'GIT_TERMINAL_PROMPT': '0'}
     try:
-        run = subprocess.run(['git', '-C', str(root), '--no-pager', *args],
+        run = subprocess.run(['git', '-C', str(root), '-c', 'core.fsmonitor=false',
+                              '-c', 'core.untrackedCache=false', '--no-pager', *args],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env,
                              timeout=20, check=False)
     except (OSError, subprocess.TimeoutExpired) as exc:

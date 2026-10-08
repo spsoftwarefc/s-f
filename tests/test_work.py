@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sf.work import WorkError, inspect_work, validate_order
+from sf.work import WorkError, inspect_work, validate_order, _git
 
 ORDER_PATH = 'docs/factory/work-orders/DEMO.json'
 
@@ -158,6 +158,17 @@ class WorkTests(unittest.TestCase):
         self.order['allowedPaths'].pop()
         self.order['accepted']='true'
         self.assertRaises(WorkError,validate_order,self.order)
+
+    def test_git_reads_disable_configured_fsmonitor(self):
+        from unittest.mock import patch
+        with patch('sf.work.subprocess.run') as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = b''
+            run.return_value.stderr = b''
+            _git(self.root, 'status', '--porcelain=v1')
+            argv = run.call_args.args[0]
+            self.assertIn('core.fsmonitor=false', argv)
+            self.assertIn('core.untrackedCache=false', argv)
 
     def test_uncommitted_order_cannot_start(self):
         write(self.root,ORDER_PATH,json.dumps(self.order))
