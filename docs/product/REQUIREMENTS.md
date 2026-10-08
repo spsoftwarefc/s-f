@@ -21,14 +21,14 @@ Every requirement remains unqualified until its named acceptance test is execute
 
 ## SF-19 cumulative status — source integration vs product readiness
 
-Status as of 8 October 2026: pending PR #28. SF-00–SF-13 are integrated through PR #22; PR #23–#27 development candidates passed their respective scoped PR-stage checks, but no cumulative PR #28 protected integration has yet occurred. A final merge or CI run does not retroactively authorize production operation.
+Status as of 8 October 2026: **protected cumulative PR #28 merged** into `main` at `ad573a2d900d4fef8211455ab9512e4a8003ac17` (tree `c3f07bc882770abb795af7fe14bc414552cb2fe3`). Merge-group run [37840817630](https://github.com/spsoftwarefc/s-f/actions/runs/37840817630) passed required Linux, Windows and `sf07-acceptance`. SF-00–SF-13 were already integrated through PR #22; PRs #23–#27 are closed as incorporated in #28, **not** individually merged. These provider results qualify source integration only and do not retroactively authenticate production release, deployment or live operations.
 
 | Requirement group | Source/development evidence | Independent product-release qualification |
 | --- | --- | --- |
-| SF-R01–SF-R04 | Historical fixture coverage and SF-13I pinned lifecycle candidate | Target-project installs/controls must be independently qualified per adopter |
+| SF-R01–SF-R04 | Historical fixture coverage and integrated SF-13I pinned lifecycle source | Target-project installs/controls must be independently qualified per adopter |
 | SF-R05 | Exact pinned archive and installed bytes on local fixtures | BLOCKED: authenticated publisher/signature and out-of-band trust custody |
 | SF-R06 | SF-14–SF-16 source planning, fake dispatch and offline observation, integrated in SF-19 fixture | BLOCKED: real target, durable recovery, live observation and operational authorization |
-| SF-R07–SF-R09 | Existing evidence/review gates and no mandatory reviewer request; pending protected cumulative checks | Provider policy, artifact and release authority must be independently bound |
+| SF-R07–SF-R09 | Existing evidence/review gates, no mandatory reviewer request and passed protected PR #28 merge-group checks | Provider policy, artifact and release authority must be independently bound |
 | SF-R10 | No implementation claimed; SF-18 deferred | UNMET: production agent budget/concurrency qualification, if required by adopter |
 | SF-R11–SF-R12 | Explicit all-false production release/authority flags and qualified-vs-unknown distinctions | BLOCKED unless external deployment/host controls are verified |
 
