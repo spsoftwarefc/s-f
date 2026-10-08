@@ -1,19 +1,13 @@
 # s-f — Software Factory
 
-s-f is a repository-local software production system for planning, implementing, verifying, reviewing, releasing and operating software changes.
+s-f is a repository-local software production system intended to accompany projects from planning and controlled implementation through verification, release planning and operations, while respecting target-project authority.
 
-Current state (8 October 2026): **SF-00–SF-13 are incorporated into `main` through protected PR #22**. The cumulative integration commit is `6c82b1230046650afcf28a61d7c8da7f8d157773`, tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`. Linux, Windows and `sf07-acceptance` passed in the required `merge_group` run [37801503467](https://github.com/spsoftwarefc/s-f/actions/runs/37801503467). PRs #17–#21 were closed as incorporated, **not individually merged**.
+**Source integration state, 8 October 2026:** SF-00–SF-13 are integrated into `main` via protected PR #22, commit `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). GitHub merge-group run [37801503467](https://github.com/spsoftwarefc/s-f/actions/runs/37801503467) passed required Linux/Windows and acceptance checks. PRs #17–#21 were closed as incorporated, not separately merged.
 
-The implementation is still a **development-preview factory**, not a public, production-qualified release. SF-13 distribution verification depends on an externally authenticated operator-controlled digest pin; publisher signatures, authenticated trust provisioning and **SF-06 installer enforcement of SF-13 locks** are not established. SF-14–SF-16 and SF-19 remain unimplemented; SF-17/18 are optional/deferred. A successful merge queue is source integration evidence, not installation provenance, deployment authority or release qualification.
+**Cumulative development candidate (not yet merged):** PR #23 reconciliation; PR #24 verified SF-13 distribution-to-SF-06 installer enforcement with exact portable archive bytes and an unqualified legacy preview; PR #25 offline source-bound artifact/release planning; PR #26 fake-target deployment/recovery qualification; PR #27 offline operations and feedback proposals; PR #28 SF-19 cumulative acceptance and the **single** planned protected merge into `main`. PRs #23–#27 are still open and unmerged until the protected PR #28 result is confirmed.
 
-Start with:
-- `AGENTS.md` for repository operating boundaries.
-- `docs/factory/WORKFLOW.md` for the lifecycle.
-- `docs/factory/WORK_ORDER.md` for package checkpoints.
-- `docs/factory/PROJECT.md` for this repository's adapter.
-- `docs/factory/work-orders/SF-R22.json` and `docs/factory/evidence/SF-R22.md` for post-merge reconciliation.
-- `docs/factory/CI_ENFORCEMENT.md` and `docs/factory/evidence/CI-16.md` for enforced checks and negative queue evidence.
-- `docs/factory/SF07_QUALIFICATION.md` for historical portability qualification and limits.
-- `docs/factory/SF06_LIFECYCLE.md` and `docs/factory/SF13_DISTRIBUTION.md` for lifecycle and distribution contracts.
+**Production/public release is not qualified.** External trust pin matching is not publisher signing or authenticated pin issuance. SF-14's approval is operator-provided, SF-15 uses an in-memory fake target without live dispatch/durable recovery, and SF-16 consumes offline unauthenticated observations with no real alert/incident system. SF-17/18 optional orchestration/budget work remains deferred; SF-R10 is unmet. Successful PR-stage and merge-group tests can qualify development-source integration only—not a public production v1 release, real deployment, target-project installation, or release authority.
 
-For the integrated development-factory packages, consult `docs/factory/SF08_WORK.md` through `docs/factory/SF13_DISTRIBUTION.md` and corresponding `docs/factory/evidence/SF-08.md` through `SF-13.md`. Those historic package records retain their original candidate-stage limitations.
+Start with `AGENTS.md`, `docs/factory/WORKFLOW.md`, `docs/factory/WORK_ORDER.md`, `docs/factory/PROJECT.md`, and `docs/product/REQUIREMENTS.md`. See `docs/factory/SF13_DISTRIBUTION.md`, `docs/factory/SF06_LIFECYCLE.md`, `docs/factory/SF14_RELEASE_PLAN.md`, `docs/factory/SF15_DEPLOYMENT_RECOVERY.md`, `docs/factory/SF16_OPERATIONS.md`, and `docs/factory/SF19_QUALIFICATION.md` for exact capability and trust boundaries. Per-package work orders and evidence are in `docs/factory/work-orders/` and `docs/factory/evidence/`.
+
+**Resource and authority rules:** one work order before implementation, one stacked PR at a time, no redundant GitHub Actions usage, no mandatory reviewer request, no bypass of protected merge queue, no changes to unrelated projects, and no merge/deployment outside the active authorization boundary.
