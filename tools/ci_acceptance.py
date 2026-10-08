@@ -66,6 +66,9 @@ def qualifies_tests(result: unittest.TestResult, discovered: set[str]) -> bool:
 
 
 def run_suite() -> int:
+    repository_root = str(Path(__file__).resolve().parent.parent)
+    if repository_root not in sys.path:
+        sys.path.insert(0, repository_root)
     suite = unittest.TestLoader().discover(start_dir="tests", pattern="test_*.py")
     ids = _ids(suite)
     if len(ids) < BASELINE_MINIMUM or not REQUIRED_TEST_IDS <= ids:
