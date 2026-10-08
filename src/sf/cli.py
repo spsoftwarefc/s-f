@@ -11,6 +11,7 @@ from pathlib import Path
 from . import __version__
 from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
+from .assurance import AssuranceError, read_packet, inspect_review
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
 from .inventory import InventoryError, inventory
@@ -67,8 +68,16 @@ def main(argv: list[str] | None = None) -> int:
     verify.add_argument("--request", type=Path, required=True, help="versioned source/CI job expectation JSON")
     verify.add_argument("--source", choices=("github", "offline"), required=True)
     verify.add_argument("--snapshot", type=Path, default=None, help="offline-only local JSON snapshot")
+    for name in ("review", "readiness"):
+        assessment = sub.add_parser(name, help="source-bound offline assurance assessment (no acceptance authority)")
+        assessment.add_argument("--root", type=Path, required=True)
+        assessment.add_argument("--packet", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command in ("review", "readiness"):
+            result = inspect_review(args.root, read_packet(args.packet), summary=args.command == "readiness")
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 1 if result["blockers"] else 0
         if args.command == "evidence":
             request = read_request(args.request)
             if args.source == "github":
@@ -143,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
