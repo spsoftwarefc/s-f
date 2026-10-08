@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-R28",
+  "baseline": {
+    "commit": "ad573a2d900d4fef8211455ab9512e4a8003ac17",
+    "tree": "c3f07bc882770abb795af7fe14bc414552cb2fe3"
+  },
+  "objective": "Reconcile canonical repository README, project adapter and SF-19 requirement state after GitHub's verified protected PR #28 integration, closing obsolete pending-stack claims while preserving the separate public/production qualification blockers; record source-bound postmerge evidence and assess the residual governance branch without destructive repository operations.",
+  "nonGoals": [
+    "No executable, workflow, schema, CI, security control, deployment, release, target repository, or branch-protection changes",
+    "Do not change historical SF-19 candidate dossier or its frozen work order; append separately a postmerge evidence record",
+    "Do not individually merge upstream PRs, rerun unchanged evidence, or misstate production/release readiness",
+    "No new authority over publisher trust pin issuance, target adapters, recovery durability, live operations, or SF-17/SF-18"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-R28.json",
+    "README.md",
+    "docs/factory/PROJECT.md",
+    "docs/product/REQUIREMENTS.md",
+    "docs/factory/evidence/SF-R28.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Use GitHub PR #28 and merge_group 37840817630 as sole evidence for completed protected main incorporation, not PR-stage tests alone.",
+    "Preserve exact historical PR #12, #15, #16, #22 and SF-19 candidate dossier provenance; mark PRs #23–#27 closed as incorporated, not individually merged.",
+    "Ensure SF-17 and SF-18 remain deferred and SF-R10 unmet; publisher authenticity, external CI/release custody, real provider dispatch, durable recovery and live observability remain unqualified.",
+    "The non-protected governance/ci-enforcement-13 ref may be deleted only with explicit branch-deletion capability and after verifying its head ancestry to PR #15; in the absence of such a capability, record handoff instead of rewriting/ref-clearing."
+  ],
+  "obligations": [
+    {
+      "id": "current-state",
+      "description": "README, PROJECT and REQUIREMENTS state PR #28 merged, PRs #23–#27 closed as incorporated, no open PRs, exact main SHA/tree, passed protected merge-group identity and explicit separate production readiness.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "source-trace",
+      "description": "Bind PR #28 head SHA, protected main merge SHA/tree, queue run 37840817630 and required Linux, Windows and acceptance jobs to recorded actual GitHub results; preserve historical dossier as candid initial evidence.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "negative-claims",
+      "description": "No new code, tests, workflows, or rights; do not conflate protected source integration with real release qualification; retain SF-R10 deficit and conditional trust/release requirements.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "branch-hygiene",
+      "description": "Report the single remaining governance branch's PR #14/15 ancestry, and delete only if a safe specific ref deletion action is available; otherwise retain it and describe manual cleanup.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-19",
+      "kind": "protected-main",
+      "revision": "ad573a2d900d4fef8211455ab9512e4a8003ac17",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "README.md: user-facing integrated current state and source-vs-production boundary",
+    "docs/factory/PROJECT.md: current integration history and operating rules",
+    "docs/product/REQUIREMENTS.md: integration evidence vs product readiness table",
+    "docs/factory/evidence/SF-R28.md: independently observed postmerge GitHub provider evidence and scope exclusions",
+    "docs/factory/work-orders/SF-R28.json: predeclared baseline/scope and proof obligations"
+  ],
+  "impact": [
+    "Pure documentation corrections and append-only evidence with byte-preserving unrelated content",
+    "All claims restricted to observed provider PR/queue metadata, not installation authority"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "read-only GitHub evidence and repository-local PR operations; no external infrastructure",
+    "execution": "Only first stable PR-stage run and required merge_group; no push workflow or reruns on unchanged head."
+  },
+  "externalEffects": [
+    "No deployment, publication, project installation, release authorization, new real incident, cross-repo changes or branch-protection bypass",
+    "A new protected documentation PR may be queued only after required Linux/Windows/acceptance gates; no direct main write",
+    "An already-merged historical branch is not deleted via unrelated ref mutation or file-deletion workaround"
+  ],
+  "proofs": {},
+  "amendments": []
+}
