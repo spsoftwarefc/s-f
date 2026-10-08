@@ -88,7 +88,8 @@ class PinnedLifecycleTests(unittest.TestCase):
     def _plan(self, mode="integrate", profile=None, release=None, ack_manual=False):
         return plan_lifecycle(mode, self.project, profile if profile is not None else
                               (self.profile if mode != "remove" else None),
-                              ack_manual=ack_manual, **self._kwargs(release) if mode != "remove" else {})
+                              ack_manual=ack_manual,
+                              **(self._kwargs(release) if mode != "remove" else {}))
 
     def _apply(self, mode="integrate", profile=None, release=None, ack_manual=False):
         selected_profile = profile if profile is not None else (
