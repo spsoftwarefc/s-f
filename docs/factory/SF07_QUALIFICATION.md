@@ -1,6 +1,6 @@
 # SF-07 — Portability and integration acceptance contract
 
-Status: **SF-07 portability fixture acceptance completed for PR #12** on native Linux and Windows/Python 3.12, separately from **GitHub ruleset CI enforcement (CI-13: pending)**. This is a portable installation layer, not a complete production factory.
+Status: **SF-07 portability fixture acceptance completed for PR #12** on native Linux and Windows/Python 3.12. **CI-13 enforced required checks, qualified by PR #15's actual successful merge group and PR #16's controlled failing/skipped queue rejection.** This qualifies the s-f repository's CI acceptance boundary, not a complete production Software Factory.
 
 ## G2 fixture scenarios
 
@@ -27,9 +27,15 @@ PR #12 was squash-merged to main at `5bc3c39c887d24cd7b03f348285af5a5d955386c`, 
 
 No `merge_group` workflow run was observed during PR #12 integration. No required status checks were configured in the Base ruleset at that time. Thus the two native successes do **not** establish enforced future CI gates or a verified merge-group check. The exact historical source and limitations are documented in `docs/factory/evidence/SF-07.md`.
 
-## CI-13 prospective enforcement requirement
+## CI-13/CI-16 completed repository CI enforcement evidence
 
-The separate project-specific correction is `docs/factory/CI_ENFORCEMENT.md`. It preserves individually named Linux/Windows Python 3.12 jobs and introduces unconditional, dependent `sf07-acceptance` requiring both platform job outcomes to be `success`. The Python test runner accepts no skips, expected failures or absent critical tests; without them, any platform with untested symlink behavior remains unqualified. Its three check contexts must be required by the live GitHub Base ruleset and qualified on the **actual merge-group integration revision** before Issue #13 can close. These controls cannot be inferred from a green `pull_request` run.
+The historical PR #12 result above is not retroactively transformed into a merge-group pass. The **subsequent** CI-13 implementation was consolidated into GitHub queue-squash-merged [PR #15](https://github.com/spsoftwarefc/s-f/pull/15), final main SHA `eea5b503990e20167b2d88073f0d9e79c2990378`. Its actual [merge_group run 37770656384](https://github.com/spsoftwarefc/s-f/actions/runs/37770656384) checked out the same commit SHA and tree `3dfe90c36e5116d7d804ca69c09e819572536210`, with **71/71 tests on Linux and Windows**, zero skipped tests, and the dependent `sf07-acceptance` job successful. Independent [PR run 37770487614](https://github.com/spsoftwarefc/s-f/actions/runs/37770487614) also passed, on its separate PR merge-ref revision.
+
+Live Base ruleset [24705576](https://github.com/spsoftwarefc/s-f/rules/24705576) binds the named Linux/Windows/acceptance checks to GitHub Actions app `15368`, with required pull requests, zero reviewer approvals, squash merge queue (minimum group **1**, wait **3 minutes**), no bypass actors, and non-fast-forward/deletion protection. These rules are **for s-f** and are not imposed on arbitrary downstream repositories.
+
+PR #15's controlled [negative PR-stage run 37770394865](https://github.com/spsoftwarefc/s-f/actions/runs/37770394865) blocked a failing candidate. PR #16's controlled [negative merge_group run 37772265905](https://github.com/spsoftwarefc/s-f/actions/runs/37772265905) recorded **Linux failure**, **Windows job skipped**, and **unconditional acceptance failure**. GitHub removed PR #16 from the merge queue and `main` remained unchanged. Temporary event-only probes were **restored byte-for-byte** before final promotion; they are not permanent CI policy. Full provider event/tree/job evidence appears in `docs/factory/evidence/CI-16.md`.
+
+The exact provider behavior of cancelled, missing/unreported, neutral and superseded queue checks was not separately provoked. Those conclusions must not be claimed experimentally verified; the source-based acceptance predicate rejects non-success prerequisites. No release, downstream branch protection, deployment or operational qualification follows from this result.
 
 ## Scope and trust limit
 

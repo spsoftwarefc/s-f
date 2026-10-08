@@ -1,6 +1,6 @@
 # s-f repository factory adapter
 
-Status: SF-07 portable installation qualified on prior PR-head Linux/Windows tests; CI-13 live merge-queue enforcement pending.
+Status: SF-07 portable installation fixtures qualified; CI-13 required GitHub checks merged via PR #15 and real merge-group positive and CI-16 negative provider behavior verified. This remains a development-preview factory, not a production-qualified factory.
 Authority: this file configures the reusable workflow for the `spsoftwarefc/s-f` repository. It grants no authority over repositories where s-f may later be installed.
 
 ## Purpose
@@ -18,9 +18,14 @@ Build and qualify a portable, repository-local software factory that supports a 
 - Merge and deployment remain separate effects requiring the user's active cadence/authorization.
 - Missing evidence is unknown, not success.
 
-## Current merge cadence
+## Repository integration history and authority
 
-PR #12 consolidated SF-01–SF-07 and merged to `main` at `5bc3c39c887d24cd7b03f348285af5a5d955386c`. PRs #6–#11 were closed as superseded. The next prerequisite is CI-13, tracked in Issue #13: a focused PR for unconditional acceptance plus a separately verified live ruleset requiring Linux, Windows and acceptance contexts. Do not merge a future PR merely because code-level gate changes pass; the Base ruleset and merge-group integration must be qualified. Squash commits preserve final files but not intermediate source commit ancestry.
+- PR #12 merged the SF-00–SF-07 portable installation foundation at `5bc3c39c887d24cd7b03f348285af5a5d955386c`.
+- PR #15 consolidated the CI-13/CI-15 source and was squash-merged by the GitHub queue to `main` at `eea5b503990e20167b2d88073f0d9e79c2990378`. PR #14 was closed as superseded, not merged separately.
+- The live Base ruleset `24705576` requires pull requests with **zero approving reviews**, three named GitHub Actions checks (Linux, Windows and `sf07-acceptance`, provider id `15368`), a squash merge queue (minimum 1), non-fast-forward/deletion protection, and no bypass actors.
+- PR #15 [successful merge-group run 37770656384](https://github.com/spsoftwarefc/s-f/actions/runs/37770656384) validated the exact mainline commit/tree. PR #16 [negative merge-group run 37772265905](https://github.com/spsoftwarefc/s-f/actions/runs/37772265905) showed a controlled Linux failure, Windows skipped job, failing acceptance, and actual queue removal with `main` unchanged. The temporary probe was restored byte-for-byte.
+- The next integration is **PR #16 as a focused documentation/qualification closure**, not permission to begin SF-08 or to merge outside the user's next explicitly authorized boundary. Do not enqueue a final passing PR as an experiment: it can automatically merge.
+- Provider outcomes for cancelled, missing, neutral or superseded queue checks have not been separately induced. Claim only the successful integration and failed/skipped rejection actually witnessed. Documentation contracts do not replace a platform-enforced gate.
 
 ## Instruction ownership
 
@@ -39,7 +44,7 @@ PR #12 consolidated SF-01–SF-07 and merged to `main` at `5bc3c39c887d24cd7b03f
 
 ## Resource policy
 
-The CI-13 candidate uses distinct PR and merge-group event checks for Linux, Windows and an explicit acceptance job. No continuous push or self-hosted workflow is added. The limiting resource is hosted execution, not repository storage. During implementation:
+The enforced CI-13 workflow uses separate PR and merge-group events for Linux, Windows and the dependent acceptance job. No continuous push or self-hosted workflow is added. The limiting resource is hosted execution, not repository storage. During implementation:
 
 1. run focused tests locally/tool-side;
 2. run the applicable local acceptance suite once on a stable candidate;
@@ -51,4 +56,4 @@ Self-hosted CI is not part of SF-07 and is not placed on a production VPS by def
 
 ## Current package
 
-`docs/factory/work-orders/CI-13.md` defines the current governance correction; `docs/factory/CI_ENFORCEMENT.md` defines the project-specific required check contexts, strict skip policy, provider identity and outstanding ruleset work. The present CLI supports profile validation, inventory, installation planning and managed local lifecycle. SF-08–SF-19 implementation remains pending.
+`docs/factory/work-orders/CI-16.md` defines the current narrow closure; `docs/factory/CI_ENFORCEMENT.md` and `docs/factory/evidence/CI-16.md` record enforceable contexts, strict skip policy, real queue proof and explicit limits. The present CLI supports profile validation, inventory, installation planning and managed local lifecycle. SF-08–SF-19 implementation remains pending.
