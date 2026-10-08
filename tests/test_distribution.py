@@ -15,6 +15,8 @@ from datetime import date
 from pathlib import Path
 
 from sf.cli import main
+from sf.lifecycle import JOURNAL, execute_plan, plan_lifecycle, recover
+from unittest.mock import patch
 from sf.distribution import (COMPAT, MANDATORY, DistributionError, _canonical,
                              _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes, verify_installation_lock)
 
@@ -336,6 +338,79 @@ class DistributionTests(unittest.TestCase):
         with self.assertRaisesRegex(DistributionError, "external trust anchor"):
             verify_installation_lock(archive_path, trust_path, lock_path)
 
+
+
+    def _lifecycle_proof_fixture(self):
+        target = self.folder / "destination"
+        target.mkdir()
+        profile = target / "profile.json"
+        profile.write_text(json.dumps({
+            "schemaVersion": 1, "project": {"id": "sandbox"},
+            "commands": {"check": {"argv": ["make", "verify"], "cwd": "."}},
+            "components": [{"id": "svc", "path": ".", "stack": "custom",
+                            "checks": ["check"]}]
+        }))
+        archive_path = self.folder / "release.zip"
+        trust_path = self.folder / "approved.json"
+        lock_path = self.folder / "factory-lock.json"
+        archive_path.write_bytes(self.archive)
+        trust_path.write_bytes(_canonical(self.trust))
+        verify_bundle(archive_path, trust_path, lock_out=lock_path)
+        return target, profile, archive_path, trust_path, lock_path
+
+    def test_verified_distribution_bound_into_lifecycle_plan_and_apply(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        plan = plan_lifecycle("integrate", target, profile, **kwargs)
+        self.assertTrue(plan["distributionVerified"])
+        self.assertEqual(plan["distribution"]["bundleSha256"], self.trust["bundleSha256"])
+        self.assertFalse(plan["installedDistributionBytesVerified"])
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan))
+        receipt = execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertEqual(receipt["status"], "completed")
+        self.assertTrue(receipt["distributionVerified"])
+        self.assertTrue((target / ".s-f/OWNERSHIP.json").is_file())
+        self.assertFalse((target / JOURNAL).exists())
+
+    def test_verified_plan_rejects_missing_or_replaced_proof_before_mutation(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan_lifecycle("integrate", target, profile, **kwargs)))
+        with self.assertRaisesRegex(Exception, "stale or altered"):
+            execute_plan(target, profile, doc, mode="integrate")
+        self.assertFalse((target / ".s-f").exists())
+        self.assertFalse((target / JOURNAL).exists())
+        payload = json.loads(lock.read_text())
+        lock.write_bytes(_canonical(dict(payload, sourceTree="0" * 40)))
+        with self.assertRaises(DistributionError):
+            execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertFalse((target / ".s-f").exists())
+        self.assertFalse((target / JOURNAL).exists())
+
+    def test_verification_failure_on_recovery_preserves_incomplete_journal(self):
+        target, profile, archive, trust, lock = self._lifecycle_proof_fixture()
+        kwargs = {"bundle": archive, "trust": trust, "lock": lock}
+        doc = self.folder / "plan.json"
+        doc.write_text(json.dumps(plan_lifecycle("integrate", target, profile, **kwargs)))
+        from sf import lifecycle
+        actual = lifecycle._checked_effect
+        count = []
+        def interrupted(root, step):
+            if count:
+                raise OSError("interruption")
+            count.append(step["path"])
+            return actual(root, step)
+        with patch("sf.lifecycle._checked_effect", side_effect=interrupted):
+            with self.assertRaises(OSError):
+                execute_plan(target, profile, doc, mode="integrate", **kwargs)
+        self.assertTrue((target / JOURNAL).is_file())
+        with self.assertRaises(Exception):
+            recover(target)
+        self.assertTrue((target / JOURNAL).is_file())
+        self.assertEqual(recover(target, **kwargs)["status"], "completed")
+        self.assertFalse((target / JOURNAL).exists())
 
 
 if __name__ == '__main__':
