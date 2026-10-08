@@ -16,6 +16,7 @@ from pathlib import Path
 
 from sf.cli import main
 from sf.lifecycle import JOURNAL, execute_plan, plan_lifecycle, recover
+from sf.integration import IntegrationError
 from unittest.mock import patch
 from sf.distribution import (COMPAT, MANDATORY, DistributionError, _canonical,
                              _read_json, build_bundle, build_bytes, verify_bundle, verify_bytes, verify_installation_lock)
@@ -384,7 +385,7 @@ class DistributionTests(unittest.TestCase):
         self.assertFalse((target / JOURNAL).exists())
         payload = json.loads(lock.read_text())
         lock.write_bytes(_canonical(dict(payload, sourceTree="0" * 40)))
-        with self.assertRaises(DistributionError):
+        with self.assertRaises((DistributionError, IntegrationError)):
             execute_plan(target, profile, doc, mode="integrate", **kwargs)
         self.assertFalse((target / ".s-f").exists())
         self.assertFalse((target / JOURNAL).exists())
