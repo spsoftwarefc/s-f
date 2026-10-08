@@ -333,7 +333,13 @@ def _validate_journal(root: Path, journal: dict, *, bundle: Path | None,
             raise IntegrationError("qualified journal ownership snapshot is invalid")
         current_ownership = _observe(root, OWNERSHIP)
         if current_ownership["state"] == "file":
-            if current_ownership["sha256"] != old[OWNERSHIP]:
+            desired_owner = _new_files(new_profile, journal["routeOwned"], source, members).get(OWNERSHIP) if new_profile else None
+            after_digest = _digest(desired_owner) if desired_owner is not None else None
+            if current_ownership["sha256"] == after_digest:
+                for step in journal["steps"][:-1]:
+                    if not fs._matches(_observe(root, step["path"]), step["after"]):
+                        raise IntegrationError("new ownership appears before all prior effects")
+            elif current_ownership["sha256"] != old[OWNERSHIP]:
                 raise IntegrationError("recovery old ownership changed")
         else:
             # Ownership is finalized last; the missing old manifest is safe
