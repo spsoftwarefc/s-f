@@ -5,14 +5,13 @@ Never executes profile commands, modifies project CI, or writes outside managed 
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import tempfile
 from pathlib import Path
 
 from .integration import IntegrationError, _canonical, _digest, _observe, _payloads, plan_install
-from .profile import ProfileError, read_profile, validate_profile
+from .profile import read_profile, validate_profile
 
 JOURNAL = ".s-f-transaction.json"
 MAX_JOURNAL_BYTES = 4 * 1024 * 1024
