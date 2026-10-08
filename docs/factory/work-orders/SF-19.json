@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-19",
+  "baseline": {
+    "commit": "a4a8ab734a34d408a6c6e0b0ca6d81a9a980ec70",
+    "tree": "df0620c35c6b7b2263f366bea1d08f2e9bb321d5"
+  },
+  "objective": "Reconcile the protected PR #23–#27 stack, exercise a source-bound cross-package factory candidate from exact verified archive installation through offline release planning, fake-target recovery and offline operations, establish negative and platform-qualification evidence, and integrate only qualified development source through protected PR #28. Separate development integration from public production release readiness.",
+  "nonGoals": [
+    "No fake claim of authenticated publisher signature/trust issuance, real deployment, durable recovery, live monitoring or production qualification",
+    "No live deployment, release publication, target-project mutation outside isolated test fixtures, branch bypass or direct main merge",
+    "No installation in other project repositories, no unrelated platform or workflow changes, no required reviewer/paid service"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-19.json",
+    "src/sf/qualification.py",
+    "src/sf/cli.py",
+    "tests/test_factory_v1.py",
+    "docs/factory/SF19_QUALIFICATION.md",
+    "docs/factory/evidence/SF-19.md",
+    "docs/factory/PROJECT.md",
+    "README.md",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "requirements": [
+    "SF-R01",
+    "SF-R02",
+    "SF-R03",
+    "SF-R04",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R08",
+    "SF-R09",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Qualify source integration and isolated development-fixture capability only, not a public or production-qualified v1 release. V1 product readiness fails until external trust custody, real authority-bearing deploy/observe and durable recovery are independently attested.",
+    "Use independently derived checked archive bytes and exact source/target identity as cross-package acceptance oracle. Do not promote candidate-authored digest/pin/evidence JSON to authenticated facts.",
+    "Allow only PR #28 as cumulative head-to-main PR; require exact PR-stage Linux, Windows and sf07-acceptance, then provider-required merge_group checks without bypass. Do not merge predecessors individually.",
+    "Keep SF-17/SF-18 deferred; SF-R10's optional agent/orchestration budget/concurrency controls remain unmet, not automatically waived."
+  ],
+  "obligations": [
+    {
+      "id": "source-stack",
+      "description": "Verify PR #23–#27 exact linear ancestry with PR #27 parent, immutable source main baseline and only PR #28 direct to protected main; reconcile docs and requirement matrix accurately.",
+      "proofKinds": [
+        "diff-review",
+        "preservation-review"
+      ]
+    },
+    {
+      "id": "installation",
+      "description": "Independently test clean committed portable ZIP/pin/lock identity; exact installed source bytes; local instruction/CI preservation, stale/tampered proof rejection and safe upgrade/recovery/removal on isolated Git fixture.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output",
+        "event-trace"
+      ]
+    },
+    {
+      "id": "release-ops",
+      "description": "Run an integrated synthetic source-bound release-plan → fake deployment/recovery → offline observations/incident work-proposal handoff; verify no stage grants authority, and reject substituted source/destination/artifact/evidence.",
+      "proofKinds": [
+        "independent-output",
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "qualification",
+      "description": "Provide deterministic fail-closed cross-package input contract, explicit separated developmentCandidate vs productionReleaseEligible disposition; enforce source, target and claimed-result trust-boundary consistency.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "platform",
+      "description": "Exact cumulative candidate passes native Linux/Windows full suite and required acceptance; provider merge_group checks gate the final protected merge; no stale/predecessor evidence substitution or Action waste.",
+      "proofKinds": [
+        "diff-review",
+        "independent-output"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-16",
+      "kind": "git-ancestor",
+      "revision": "a4a8ab734a34d408a6c6e0b0ca6d81a9a980ec70",
+      "scope": "development"
+    },
+    {
+      "id": "SF-13I",
+      "kind": "stacked-ancestor",
+      "revision": "0912c621e731b5b5b31d5a7c5e7e3acfe436bd3a",
+      "scope": "development"
+    },
+    {
+      "id": "protected-main",
+      "kind": "integration-base",
+      "revision": "6c82b1230046650afcf28a61d7c8da7f8d157773",
+      "scope": "protected"
+    }
+  ],
+  "structure": [
+    "src/sf/qualification.py: strict read-only cross-package developer-qualification report that never issues production permission",
+    "src/sf/cli.py: sf factory qualify only reads bounded artifacts and reports blocked claims",
+    "tests/test_factory_v1.py: independent synthetic full factory fixture and negative differential proof",
+    "docs/factory/SF19_QUALIFICATION.md: source-bound acceptance, open risks and main integration gate",
+    "docs/factory/PROJECT.md, README.md, docs/product/REQUIREMENTS.md: reconcile current stack status without preclaiming eventual merge",
+    "docs/factory/evidence/SF-19.md: candidate-stage evidence, then separate PR conversation for immutable final run/merge identities"
+  ],
+  "impact": [
+    "New developer-oriented cross-package qualification only; candidate source has no live adapter, no new workflow or main bypass",
+    "End-to-end regression fixture creates only throwaway local directories; does not import target repo authority or perform deployment"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "none from qualification code; GitHub reads/writes only current repo and approved PRs",
+    "execution": "One stable exact-head PR run and required protected merge-group. Avoid redundant push runs or unchanged reruns."
+  },
+  "externalEffects": [
+    "No real release, deployment, external credentials, autonomous issue handling or other projects",
+    "Protected PR #28 cumulative integration to main is permitted only after all required checks and blocking findings resolved; no bypass or direct merge",
+    "No individual merges of earlier stack PR #23–#27"
+  ],
+  "proofs": {},
+  "amendments": []
+}
