@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-08",
+  "baseline": {
+    "commit": "9178dd0d6e0f0dee49d1b4f693bdf8d5f59ff2c5",
+    "tree": "6d89e8fc5721a915891b91e9cd72fade41c62c4d"
+  },
+  "objective": "Implement deterministic offline planning and work-order start/resume assessment without claiming CI or acceptance.",
+  "nonGoals": [
+    "No execution of project commands (SF-09)",
+    "No hosted provider proof verification (SF-10)",
+    "No assurance scoring or review automation (SF-11)",
+    "No merge, deployment or edits to other repositories"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-08.json",
+    "docs/factory/PROJECT.md",
+    "docs/factory/evidence/CI-16.md",
+    "docs/factory/evidence/SF-08.md",
+    "docs/factory/SF08_WORK.md",
+    "docs/factory/WORK_ORDER.md",
+    "src/sf/work.py",
+    "src/sf/cli.py",
+    "tests/test_work.py",
+    "README.md"
+  ],
+  "requirements": [
+    "docs/factory/WORK_ORDER.md",
+    "docs/factory/WORKFLOW.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md"
+  ],
+  "obligations": [
+    {
+      "id": "contract",
+      "description": "Versioned validated declaration; malformed and unsupported contracts rejected",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "precedence",
+      "description": "Detect changes before committed declaration; preserve amendment history and reasons",
+      "proofKinds": [
+        "regression-reproducer",
+        "event-trace"
+      ]
+    },
+    {
+      "id": "scope",
+      "description": "Report baseline drift, scope changes, prerequisites, missing obligation proof and dirty paths",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "commands",
+      "description": "Read-only sf work start/resume; maintain project state authority",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "docs",
+      "description": "Reconcile CI-16 closure and document SF-08 boundaries",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "CI-16",
+      "kind": "git-ancestor",
+      "revision": "9178dd0d6e0f0dee49d1b4f693bdf8d5f59ff2c5",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/work.py Git read-only adapter and schema validator",
+    "src/sf/cli.py command routing",
+    "tests/test_work.py isolated Git fixtures"
+  ],
+  "impact": [
+    "Adds work-order assessment CLI; no behavior changes to installation lifecycle",
+    "Documents previously merged CI-16 without rerunning provider experiment"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "none for local work",
+    "execution": "offline; Git reads only"
+  },
+  "externalEffects": [
+    "Merge queue entry requires separate authorization",
+    "No automated project command execution or deployment"
+  ],
+  "proofs": {},
+  "amendments": []
+}
