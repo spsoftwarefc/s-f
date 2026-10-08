@@ -188,7 +188,7 @@ def read_profile(path: Path, *, root: Path | None = None) -> dict:
         raise ProfileError("profile too large")
     try:
         data = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_pairs)
-    except (UnicodeError, json.JSONDecodeError) as exc:
+    except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise ProfileError("invalid UTF-8 or JSON") from exc
     profile = validate_profile(data)
     if root is not None:
