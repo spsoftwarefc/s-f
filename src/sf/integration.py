@@ -80,7 +80,7 @@ def _payloads(profile: dict, *, add_route: bool) -> dict[str, str]:
     if add_route:
         payloads["AGENTS.md"] = (
             "# Project agent routing\n\n"
-            "Consult \`.s-f/INSTRUCTIONS.md\` and \`.s-f/PROJECT.md\` for factory guidance.\n"
+            "Consult `.s-f/INSTRUCTIONS.md` and `.s-f/PROJECT.md` for factory guidance.\n"
             "Existing project security, tests, CI and release rules remain authoritative.\n"
         )
     manifest = {"schemaVersion": 1, "owner": "s-f", "projectId": project,
