@@ -18,17 +18,20 @@ HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 IDENT = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,127}\Z")
 STATES = frozenset({"PREPARED", "DISPATCHED", "UNKNOWN", "DEPLOYED", "MIGRATION_FAILED",
                     "UNHEALTHY", "HEALTHY", "COMPENSATION_UNKNOWN", "COMPENSATED",
+                    "MIGRATION_UNKNOWN",
                     "RECOVERY_BLOCKED"})
 TERMINAL = frozenset({"HEALTHY", "COMPENSATED", "MIGRATION_FAILED"})
 SCENARIOS = ("healthy", "concurrent", "stale-authorization", "migration-failure",
-             "crash-after-dispatch", "unknown-outcome", "health-failure",
-             "compensation", "unknown-recovery", "stale-fence")
+             "migration-after-effect", "crash-after-dispatch", "unknown-outcome", "health-failure",
+             "compensation", "compensation-unknown", "unknown-recovery", "stale-fence")
 EXPECTED = {
     "healthy": "HEALTHY", "concurrent": "CONFLICT_BLOCKED",
     "stale-authorization": "AUTHORITY_BLOCKED",
-    "migration-failure": "MIGRATION_FAILED", "crash-after-dispatch": "DEPLOYED",
+    "migration-failure": "MIGRATION_FAILED", "migration-after-effect": "MIGRATION_UNKNOWN",
+    "crash-after-dispatch": "DEPLOYED",
     "unknown-outcome": "DEPLOYED", "health-failure": "UNHEALTHY",
-    "compensation": "COMPENSATED", "unknown-recovery": "UNKNOWN",
+    "compensation": "COMPENSATED", "compensation-unknown": "COMPENSATION_UNKNOWN",
+    "unknown-recovery": "UNKNOWN",
     "stale-fence": "AUTHORITY_BLOCKED",
 }
 
@@ -249,7 +252,12 @@ class FakeCoordinator:
         self._authority(plan, owner, epoch, revoked)
         if self.ledger.record is not None:
             raise DeploymentError("unsettled operation; reconcile before another deployment")
-        # Neither an in-memory lock nor SF-14's candidate plan is a live grant.
+        if fault not in ("none", "migration", "migration-after", "unknown", "crash", "health"):
+            raise DeploymentError("unsupported fake fault")
+        if epoch <= self.target.fence:
+            raise DeploymentError("stale target fencing token")
+        # Single-threaded fake preflight, not a distributed atomic lease/fence.
+        # Neither this memory lock nor SF-14's candidate plan is a live grant.
         self.ledger.acquire(owner, epoch)
         self.target.reserve_fence(epoch)
         key = _intent(plan)
@@ -264,6 +272,9 @@ class FakeCoordinator:
         # The synthetic migration has no real effect or backend executor.
         self.target.migration_keys.add(key)
         self.ledger.record["events"].append("migration-simulated")
+        if fault == "migration-after":
+            self.ledger.transition("MIGRATION_UNKNOWN", event="migration-outcome-unknown-no-dispatch")
+            return copy.deepcopy(self.ledger.record)
         self.ledger.transition("DISPATCHED", event="dispatch-intent-persisted")
         try:
             self.target.dispatch(key=key, epoch=epoch, plan=plan, ambiguous=fault == "unknown")
@@ -371,9 +382,11 @@ def run_scenario(plan_value: dict, scenario: str, *, today: date | None = None) 
         except DeploymentError:
             status = "CONFLICT_BLOCKED"
     else:
-        fault = {"migration-failure": "migration", "crash-after-dispatch": "crash",
+        fault = {"migration-failure": "migration", "migration-after-effect": "migration-after",
+                 "crash-after-dispatch": "crash",
                  "unknown-outcome": "unknown", "unknown-recovery": "unknown",
-                 "health-failure": "health", "compensation": "health"}.get(scenario, "none")
+                 "health-failure": "health", "compensation": "health",
+                 "compensation-unknown": "health"}.get(scenario, "none")
         try:
             agent.start(plan, owner=owner, epoch=1, fault=fault)
         except SimulatedCrash:
@@ -383,8 +396,12 @@ def run_scenario(plan_value: dict, scenario: str, *, today: date | None = None) 
                 target.reconcile_available = False
             agent = FakeCoordinator(ledger, target, today=today)  # logical restart
             agent.recover(owner=owner, epoch=1)
-        if scenario == "compensation":
+        if scenario in ("compensation", "compensation-unknown"):
+            if scenario == "compensation-unknown":
+                target.compensation_unknown = True
             agent.compensate(owner=owner, epoch=1)
+            if scenario == "compensation-unknown":
+                agent.recover(owner=owner, epoch=1)
         status = ledger.record["state"]
     events = [] if ledger.record is None else list(ledger.record["events"])
     expected = EXPECTED[scenario]
@@ -394,14 +411,19 @@ def run_scenario(plan_value: dict, scenario: str, *, today: date | None = None) 
         "concurrent": ledger.record is None,
         "stale-authorization": ledger.record is None,
         "migration-failure": "dispatch-intent-persisted" not in events,
+        "migration-after-effect": ("migration-outcome-unknown-no-dispatch" in events
+                                   and "dispatch-intent-persisted" not in events),
         "crash-after-dispatch": "target-receipt-reconciled" in events,
         "unknown-outcome": "target-receipt-reconciled" in events,
         "health-failure": "health-rejected" in events,
         "compensation": "compensation-confirmed" in events,
+        "compensation-unknown": ("compensation-outcome-unknown" in events
+                                 and "compensation-confirmed" not in events),
         "unknown-recovery": "target-query-unavailable" in events,
         "stale-fence": ledger.record is None and target.dispatch_count == 0,
     }[scenario]
-    if scenario in ("concurrent", "stale-authorization", "stale-fence", "migration-failure"):
+    if scenario in ("concurrent", "stale-authorization", "stale-fence", "migration-failure",
+                     "migration-after-effect"):
         safe = safe and target.dispatch_count == 0
     if scenario in ("crash-after-dispatch", "unknown-outcome", "unknown-recovery"):
         safe = safe and target.dispatch_count == 1
