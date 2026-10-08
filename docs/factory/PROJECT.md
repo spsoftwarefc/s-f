@@ -1,6 +1,6 @@
 # s-f repository factory adapter
 
-Status (8 October 2026): SF-00–SF-13 are incorporated through protected PR #22 at `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). Merge-group run 37801503467 passed Linux, Windows and `sf07-acceptance`. Publisher-signature verification, authenticated trust-pin provisioning, SF-13 lock enforcement by SF-06 and production release remain unqualified.
+Status (8 October 2026): SF-00–SF-13 are incorporated through protected PR #22 at `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). Merge-group run 37801503467 passed Linux, Windows and `sf07-acceptance`. Publisher signatures, authenticated trust-pin provisioning and production release remain unqualified; the SF-13I installer binding is in the pending PR #24–#28 stack, not yet incorporated into main.
 Authority: this file configures the reusable workflow for the `spsoftwarefc/s-f` repository. It grants no authority over repositories where s-f may later be installed.
 
 ## Purpose
@@ -55,11 +55,12 @@ The enforced CI-13 workflow uses separate PR and merge-group events for Linux, W
 
 Self-hosted CI is not part of SF-07 and is not placed on a production VPS by default.
 
-## Incorporated development-factory packages and pending qualification
+## Incorporated baseline and pending cumulative qualification
 
-SF-08–SF-13 are incorporated through PR #22, not an open PR stack. The post-merge reconciliation work order is `docs/factory/work-orders/SF-R22.json` and its evidence is `docs/factory/evidence/SF-R22.md`. This documentation pass does not retroactively upgrade the historical package evidence to product release qualification.
+SF-08–SF-13 are integrated through protected PR #22. `docs/factory/work-orders/SF-R22.json` and `docs/factory/evidence/SF-R22.md` preserve the historical post-merge reconciliation.
 
-- SF-08 — Git-history work-order start/resume; SF-09 — bounded execution receipts; SF-10 — provider-metadata CI evidence; SF-11 — read-only assurance/review; SF-12 — offline security/dependency adapters; SF-13 — deterministic bundle plus separately pinned digest/compatibility verification.
-- Critical outstanding boundary: SF-06 installation/upgrade does not enforce SF-13 distribution/lock verification, so installed bytes are not proven to match externally authenticated distribution bytes. A checksum alone is not signed publisher provenance; no authenticated trust-pin issuance channel is attested.
-- Next stacked PR sequence: #23 post-merge reconciliation, #24 SF-13→SF-06 enforcement, #25 SF-14 artifact/release planning, #26 SF-15 deployment/recovery qualification, #27 SF-16 operations/feedback, #28 SF-19 v1 qualification/cumulative integration. Numbers #24–#28 are planned, not implemented or automatically authorized to merge.
-- SF-17/18 optional agent/orchestration work is deferred. No installation into other projects, hosted orchestrator, publication, release or production deployment is authorized by package incorporation or a successful GitHub merge.
+As of 8 October 2026, **PRs #23–#27 remain stacked and unmerged**. Their implemented and PR-stage tested candidates provide reconciliation (#23), exact externally-pinned archive byte installation (#24), offline artifact/release planning (#25), fake-target deployment/recovery (#26) and offline operational incident/work proposals (#27). The sole next planned mainline integration is **PR #28**, carrying SF-19 cross-package development qualification and source-history reconciliation. Required cumulative PR checks and protected merge-group validation must be observed, not inferred from earlier runs.
+
+Important distinctions: a matching trust pin does not authenticate its issuer; SF-14 cannot authorize an actual release; SF-15 is in-memory simulated dispatch/recovery; SF-16 has no live telemetry or incident ownership. Production v1 readiness remains **blocked**, even if protected source incorporation passes. SF-17/18 and SF-R10 budget/orchestration remain deferred. No target-project installation, external release, deployment, real recovery, or production activation is authorized.
+
+See `docs/factory/SF19_QUALIFICATION.md` and `docs/factory/evidence/SF-19.md` for acceptance ladder, blocked claims and cumulative evidence.
