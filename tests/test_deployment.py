@@ -105,7 +105,7 @@ class DeploymentTests(unittest.TestCase):
         expired["authorization"]["expiresOn"] = "2020-01-01"
         with self.assertRaisesRegex(DeploymentError, "stale"):
             self.coordinator.start(expired, owner=self.owner, epoch=1)
-        with self.assertRaises(DeploymentError):
+        with self.assertRaises(SimulatedCrash):
             self.coordinator.start(self.plan, owner=self.owner, epoch=1, fault="crash")
         # The preceding simulated crash leaves an unresolved dispatch.
         newer = FakeCoordinator(self.ledger, self.target, today=date(2100, 1, 1))
