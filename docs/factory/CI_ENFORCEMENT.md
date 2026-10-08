@@ -1,6 +1,6 @@
 # CI-13 — Required-check enforcement and integration identity
 
-Status: **implementation candidate; GitHub ruleset enforcement NOT YET VERIFIED**.
+Status: **three required GitHub Actions contexts verified in active Base ruleset; merge-group integration and negative provider enforcement remain UNVERIFIED** (2026-10-08).
 Scope: the `spsoftwarefc/s-f` repository. This is a repository-specific implementation of a portable promotion rule, not a requirement that every installed factory use GitHub, this matrix or these job names.
 
 ## Universal promotion contract
@@ -9,17 +9,17 @@ Acceptance requires **successful evidence for the current integration candidate*
 
 ## Repository-specific required contexts
 
-The active `main` ruleset is [Base](https://github.com/spsoftwarefc/s-f/rules/24705576). Preserve deletion protection, non-fast-forward protection, squash merge queue and no bypass actors. Configure GitHub's **require status checks** rule with the exact three job names (case and punctuation matter):
+The active `main` ruleset is [Base](https://github.com/spsoftwarefc/s-f/rules/24705576). Preserve deletion protection, non-fast-forward protection, squash merge queue and no bypass actors. The Base ruleset NOW HAS GitHub's **require status checks** rule, with the exact three job names (case and punctuation matter):
 
 1. `sf07-portability (ubuntu-24.04, py3.12)`
 2. `sf07-portability (windows-2022, py3.12)`
 3. `sf07-acceptance`
 
-Use **GitHub Actions** as the expected source application if offered; a name-only match from another check publisher is not equivalent provider trust. This change requires an operator/authorized API capable of writing rulesets. The connected GitHub connector exposes ruleset **reads**, but no ruleset update operation. Do not claim enforcement until rereading the live rule and verifying its required contexts and expected source.
+Live reread at 2026-10-08 14:24 EAT confirmed all three contexts bound to **GitHub Actions integration 15368**, strict checks enabled, no bypass actors, pull requests required with zero approvals, and deletion/non-fast-forward plus squash merge queue retained. This is provider configuration evidence, not yet an actual merge-group enforcement test. The connected GitHub connector exposes ruleset **reads**, but no write operation.
 
 The separately named Linux and Windows jobs remove ambiguity from one aggregate matrix `needs` result. The acceptance job declares `needs: [linux, windows]` and `if: always()`; it passes only when **both dependency results equal `success`**. A skipped, neutral, failed, missing or cancelled required job does not qualify the factory acceptance claim. GitHub may regard `skipped` or `neutral` as acceptable for individual required checks; requiring the successful acceptance job adds a fail-closed dependency predicate. This does not protect against someone deleting or editing the acceptance job without a separate controlled review.
 
-**Individual tests:** the mandatory discovery suite accepts **zero skipped tests**, expected failures, unexpected successes, test load errors or assertion failures. It also verifies at least 61 discovered/executed cases and the declared baseline critical-test inventory. Inability to create platform-specific test fixtures (for example symlinks) is a **qualification failure for that platform**, not green evidence. A future explicit policy exception must identify scope, excluded capability and an approved alternate proof, and must not label the excluded capability qualified. Changes to required test names/count are gate changes requiring operator review; the local inventory is not independently tamper-proof.
+**Individual tests:** the mandatory discovery suite accepts **zero skipped tests**, expected failures, unexpected successes, test load errors or assertion failures. It also verifies at least 61 discovered cases, the declared baseline critical-test inventory, and **executed test count exactly equal to the discovered count**; both fewer and more executions fail qualification. Inability to create platform-specific test fixtures (for example symlinks) is a **qualification failure for that platform**, not green evidence. A future explicit policy exception must identify scope, excluded capability and an approved alternate proof, and must not label the excluded capability qualified. Changes to required test names/count are gate changes requiring operator review; the local inventory is not independently tamper-proof.
 
 ## Event and revision identity
 
@@ -44,8 +44,8 @@ Baseline supply-chain minimum: read-only `contents: read`; pinned `actions/check
 ## Provider qualification before closing Issue #13
 
 1. Finish a focused PR without bypassing branch controls; capture exact successful Linux, Windows and acceptance run/job data on its final SHA. A PR-only success is insufficient for a merge queue assertion.
-2. Configure and re-read live Base required contexts, keeping the queue intact.
-3. Use a harmless, independently reviewed qualification PR under the authorized merge boundary to observe successful `merge_group` checks. Queue entry can automatically merge; **do not enqueue** unless that merge is authorized.
+2. **Verified**: re-read live Base required contexts and GitHub Actions app source, keeping the queue intact. Code Quality rule was removed; no additional unqualified analyzer gate remains.
+3. Use the focused, nonproduction PR #15 qualification candidate under the user-authorized PR #15 merge boundary to observe successful `merge_group` checks. At current queue settings minimum group size is 2 and wait 10 minutes; after this wait GitHub permits a single entry, so do not create an unrelated filler PR. Queue entry can automatically merge; **do not enqueue** unless that merge is authorized.
 4. Exercise genuine provider blocking with a controlled failing required context. Verify missing/cancelled/skipped and superseded cases where provider-safe; negative unit tests alone do **not** prove GitHub enforcement. Never invent a skipped provider check.
 5. Reconcile the exact merged commit and integration-candidate relationship. Close Issue #13 only after provider and ruleset checks are demonstrably satisfied. Otherwise keep it open, with unknowns documented.
 
