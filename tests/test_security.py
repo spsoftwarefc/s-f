@@ -178,7 +178,10 @@ class SecurityTests(unittest.TestCase):
            'generatedAt':days,'tool':{'name':'synthetic-scanner','version':'1.0'},'database':db,
            'findings':findings}
         raw=(json.dumps(d,sort_keys=True)+'\n').encode()
-        self.write('evidence/'+kind+'.json',raw.decode())
+        # Write the exact hashed bytes: Windows text-mode translates LF to CRLF.
+        target=self.root/('evidence/'+kind+'.json')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
         self.policy['scannerEvidence'].append({'kind':kind,'path':'evidence/'+kind+'.json',
                     'sha256':hashlib.sha256(raw).hexdigest(),'maxAgeDays':30})
 
@@ -220,7 +223,7 @@ class SecurityTests(unittest.TestCase):
         data=json.loads(path.read_text())
         data['candidateSha']='0'*40
         content=(json.dumps(data,sort_keys=True)+'\n')
-        path.write_text(content)
+        path.write_bytes(content.encode())
         self.policy['scannerEvidence'][0]['sha256']=hashlib.sha256(content.encode()).hexdigest()
         self.assertEqual(self.scan()['coverage']['static'],'invalid')
 
