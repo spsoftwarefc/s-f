@@ -122,14 +122,31 @@ def _new_files(profile: dict, route: bool, lock: dict,
     return files
 
 
-def _installed(root: Path) -> tuple[dict, bool, dict[str, str], dict]:
-    """Validate installed owned-path inventory before using it for upgrade/removal."""
-    record = _strict_file(root / RECORD, MAX_METADATA)
+def _old_inventory(profile: dict, route: bool, record: dict) -> dict[str, str]:
     if set(record) != {"schemaVersion", "kind", "lock", "files"} or (
             type(record["schemaVersion"]) is not int or record["schemaVersion"] != 1
             or record["kind"] != "sf-pinned-installed-portable"):
         raise IntegrationError("unrecognized installed pinned distribution record")
     _allowed_member_records(record["files"])
+    generated = {
+        name: _digest(body.encode("utf-8"))
+        for name, body in _payloads(profile, add_route=route).items()
+        if name != OWNERSHIP
+    }
+    generated[RECORD] = _digest(canonical_bytes(record))
+    for member in record["files"]:
+        generated[PORTABLE + member["path"]] = member["sha256"]
+    ownership = {
+        "schemaVersion": 1, "owner": "s-f", "projectId": profile["project"]["id"],
+        "files": [{"path": k, "sha256": v} for k, v in sorted(generated.items())],
+    }
+    generated[OWNERSHIP] = _digest(_text(ownership).encode("utf-8"))
+    return generated
+
+
+def _installed(root: Path) -> tuple[dict, bool, dict[str, str], dict]:
+    """Validate installed owned-path inventory before using it for upgrade/removal."""
+    record = _strict_file(root / RECORD, MAX_METADATA)
     profile = read_profile(root / ".s-f/profile.json", root=root)
     ownership = _strict_file(root / OWNERSHIP, MAX_METADATA)
     if (set(ownership) != {"schemaVersion", "owner", "projectId", "files"}
@@ -143,20 +160,11 @@ def _installed(root: Path) -> tuple[dict, bool, dict[str, str], dict]:
     route = any(x == {"path": "AGENTS.md", "sha256": _digest(
         _payloads(profile, add_route=True)["AGENTS.md"].encode("utf-8"))}
         for x in rows)
-    generated = {
-        name: _digest(body.encode("utf-8"))
-        for name, body in _payloads(profile, add_route=route).items()
-        if name != OWNERSHIP
-    }
-    generated[RECORD] = _digest(canonical_bytes(record))
-    for member in record["files"]:
-        generated[PORTABLE + member["path"]] = member["sha256"]
-    expected = [{"path": k, "sha256": v} for k, v in sorted(generated.items())]
-    if rows != expected:
+    old_hashes = _old_inventory(profile, route, record)
+    if ownership["files"] != [
+            {"path": k, "sha256": v}
+            for k, v in sorted(old_hashes.items()) if k != OWNERSHIP]:
         raise IntegrationError("ownership does not match verified managed path inventory")
-    # The exact ownership bytes are needed to establish the before-state digest.
-    old_hashes = dict(generated)
-    old_hashes[OWNERSHIP] = _digest(_text(ownership).encode("utf-8"))
     return profile, route, old_hashes, record
 
 
@@ -191,7 +199,7 @@ def _summarize(mode: str, root: Path, source: dict | None,
 
 def _prepare(mode: str, root: Path, profile_path: Path | None,
              *, bundle: Path | None, trust: Path | None, lock: Path | None,
-             ack_manual: bool = False) -> tuple[dict, list[dict], dict[str, str]]:
+             ack_manual: bool = False) -> tuple[dict, list[dict], dict[str, str], dict | None]:
     root = fs._root(root)
     if mode not in ("integrate", "upgrade", "remove"):
         raise IntegrationError("invalid pinned operation")
@@ -204,11 +212,12 @@ def _prepare(mode: str, root: Path, profile_path: Path | None,
     else:
         source, members = _verified_source(bundle, trust, lock)
     old_profile = None
+    old_record = None
     old_hashes: dict[str, str] = {}
     route = False
     conflicts: list[dict] = []
     if mode in ("upgrade", "remove"):
-        old_profile, route, old_hashes, _ = _installed(root)
+        old_profile, route, old_hashes, old_record = _installed(root)
     elif _observe(root, ".s-f")["state"] != "absent":
         raise IntegrationError("factory namespace already exists; use qualified upgrade")
     if mode == "integrate":
@@ -243,7 +252,7 @@ def _prepare(mode: str, root: Path, profile_path: Path | None,
                         "after": {k: v for k, v in step["after"].items() if k != "contentB64"}})
     result = _summarize(mode, root, source, actions, conflicts, old_profile,
                         new_profile, route, ack_manual)
-    return result, steps, old_hashes
+    return result, steps, old_hashes, old_record
 
 
 def plan(mode: str, root: Path, profile: Path | None = None, *,
@@ -258,7 +267,7 @@ def apply(root: Path, profile: Path | None, document: Path, *,
           lock: Path | None = None, ack_manual: bool = False) -> dict:
     root = fs._root(root)
     requested = fs._read_json(document, MAX_PINNED_PLAN)
-    proposed, steps, old = _prepare(mode, root, profile, bundle=bundle,
+    proposed, steps, old, old_record = _prepare(mode, root, profile, bundle=bundle,
                                     trust=trust, lock=lock, ack_manual=ack_manual)
     if requested != proposed:
         raise IntegrationError("stale or altered qualified lifecycle plan")
@@ -275,19 +284,19 @@ def apply(root: Path, profile: Path | None, document: Path, *,
                "newProfile": proposed["newProfile"],
                "routeOwned": proposed["routeOwned"],
                "verifiedLock": proposed["verifiedLock"], "oldHashes": old,
-               "steps": steps}
+               "oldRecord": old_record, "steps": steps}
     # Size check precedes all target writes; journal exclusivity protects against
     # competing qualified install/upgrade operations that share the same root.
     if len(_text(journal).encode("utf-8")) > MAX_PINNED_JOURNAL:
         raise IntegrationError("qualified lifecycle journal exceeds limit")
-    fs._make_journal(root, journal)
+    fs._make_journal(root, journal, size_limit=MAX_PINNED_JOURNAL)
     return _resume(root, journal, bundle=bundle, trust=trust, lock=lock)
 
 
 def _validate_journal(root: Path, journal: dict, *, bundle: Path | None,
                       trust: Path | None, lock: Path | None) -> None:
     keys = {"schemaVersion", "root", "mode", "oldProfile", "newProfile",
-            "routeOwned", "verifiedLock", "oldHashes", "steps"}
+            "routeOwned", "verifiedLock", "oldHashes", "oldRecord", "steps"}
     if set(journal) != keys or type(journal["schemaVersion"]) is not int or (
             journal["schemaVersion"] != PINNED_SCHEMA or journal["root"] != root.as_posix()):
         raise IntegrationError("invalid qualified transaction identity")
@@ -316,20 +325,22 @@ def _validate_journal(root: Path, journal: dict, *, bundle: Path | None,
     if type(old) is not dict or any(type(k) is not str or type(v) is not str
                                     for k, v in old.items()):
         raise IntegrationError("invalid qualified old ownership map")
-    if mode == "integrate" and old:
-        raise IntegrationError("new installation claims existing ownership")
-    if mode != "integrate":
+    if mode == "integrate":
+        if old or journal["oldRecord"] is not None:
+            raise IntegrationError("new installation claims existing ownership")
+    else:
+        if old != _old_inventory(old_profile, journal["routeOwned"], journal["oldRecord"]):
+            raise IntegrationError("qualified journal ownership snapshot is invalid")
         current_ownership = _observe(root, OWNERSHIP)
         if current_ownership["state"] == "file":
-            old_profile_seen, route, actual_hashes, _ = _installed(root)
-            if old_profile_seen != old_profile or route != journal["routeOwned"] or actual_hashes != old:
+            if current_ownership["sha256"] != old[OWNERSHIP]:
                 raise IntegrationError("recovery old ownership changed")
         else:
-            # Ownership is committed/deleted last; absent ownership is permitted
-            # only if all earlier steps are already at their exact after-state.
+            # Ownership is finalized last; the missing old manifest is safe
+            # only if all preceding steps already match their desired bytes.
             for step in journal["steps"][:-1]:
                 if not fs._matches(_observe(root, step["path"]), step["after"]):
-                    raise IntegrationError("recovery missing ownership with incomplete effects")
+                    raise IntegrationError("missing ownership with incomplete effects")
     desired = _new_files(new_profile, journal["routeOwned"], source, members) if new_profile else {}
     if journal["steps"] != _steps(old, desired):
         raise IntegrationError("qualified journal differs from verified archive and owned paths")
@@ -348,6 +359,25 @@ def _resume(root: Path, journal: dict, *, bundle: Path | None,
     for step in journal["steps"]:
         if fs._checked_effect(root, step):
             changed.append(step["path"])
+    for step in journal["steps"]:
+        if not fs._matches(_observe(root, step["path"]), step["after"]):
+            raise IntegrationError("installed portable member changed during final verification")
+    if journal["mode"] == "remove":
+        # Remove only known-now-empty portable directories, deepest first.
+        parents = set()
+        for step in journal["steps"]:
+            name = step["path"]
+            if name.startswith(PORTABLE):
+                path = (root / name).parent
+                while path != root and path != root / ".s-f":
+                    parents.add(path)
+                    path = path.parent
+        for path in sorted(parents, key=lambda p: len(p.parts), reverse=True):
+            if path.is_dir() and not path.is_symlink():
+                try:
+                    path.rmdir()
+                except OSError:
+                    pass  # Preserve any foreign user data.
     fs._finish(root, journal["mode"])
     return {"mode": journal["mode"], "status": "completed", "changed": changed,
             "installedDistributionBytesVerified": journal["mode"] != "remove",
