@@ -13,6 +13,7 @@ from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
 from .assurance import AssuranceError, read_packet, inspect_review
 from .security import SecurityError, read_policy, assess_security
+from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
 from .inventory import InventoryError, inventory
@@ -78,8 +79,26 @@ def main(argv: list[str] | None = None) -> int:
     sec = security_ops.add_parser("assess", help="assess tracked files and source-bound scanner snapshots")
     sec.add_argument("--root", type=Path, required=True)
     sec.add_argument("--policy", type=Path, required=True)
+    dist = sub.add_parser("distribution", help="offline deterministic factory distribution (no publication)")
+    dist_ops = dist.add_subparsers(dest="operation", required=True)
+    build = dist_ops.add_parser("build", help="build clean committed factory bundle")
+    build.add_argument("--root", type=Path, required=True)
+    build.add_argument("--output", type=Path, required=True)
+    build.add_argument("--publisher", required=True)
+    build.add_argument("--release-id", required=True)
+    release_verify = dist_ops.add_parser("verify", help="check bundle against independently supplied trust pin")
+    release_verify.add_argument("--bundle", type=Path, required=True)
+    release_verify.add_argument("--trust", type=Path, required=True)
+    release_verify.add_argument("--lock-out", type=Path, default=None)
     args = parser.parse_args(argv)
     try:
+        if args.command == "distribution":
+            if args.operation == "build":
+                result = build_bundle(args.root, args.output, publisher=args.publisher, release_id=args.release_id)
+            else:
+                result = verify_bundle(args.bundle, args.trust, lock_out=args.lock_out)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0
         if args.command == "security":
             result = assess_security(args.root, read_policy(args.policy))
             print(json.dumps(result, ensure_ascii=False, sort_keys=True))
@@ -162,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
