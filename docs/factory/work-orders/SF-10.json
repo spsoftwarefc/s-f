@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-10",
+  "baseline": {
+    "commit": "f0caa42a8d85b0c9520427d965ebc08446817e0b",
+    "tree": "4cbeea7c8309fd7b8eb8ee28289a838360b13d02"
+  },
+  "objective": "Verify GitHub Actions run/job/artifact metadata directly against an explicit source-bound CI evidence request, reject stale/forged/unavailable evidence, and distinguish provider observations from offline claims.",
+  "nonGoals": [
+    "No automatic CI invocation, rerun, workflow/ruleset changes or merge-queue entry",
+    "No interpreting candidate-controlled run logs as authenticated checkout provenance",
+    "No network requests in discovery, work-order inspection, or offline receipt validation",
+    "No claim that candidate-selected required jobs constitute baseline policy or independent acceptance",
+    "No artifact-byte download/provenance certification, deployment, release, or changes to other repositories"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-10.json",
+    "docs/factory/SF10_CI_EVIDENCE.md",
+    "docs/factory/evidence/SF-10.md",
+    "src/sf/ci_evidence.py",
+    "src/sf/cli.py",
+    "tests/test_ci_evidence.py"
+  ],
+  "requirements": [
+    "SF-R07",
+    "SF-R12",
+    "docs/factory/CI_ENFORCEMENT.md",
+    "docs/factory/WORK_ORDER.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md",
+    "Provider API over HTTPS is sole source of CI provider-observed claims; offline snapshots are inspectable but unverified"
+  ],
+  "obligations": [
+    {
+      "id": "provider-identity",
+      "description": "Read only pinned GitHub REST endpoint forms; verify repository, run ID/attempt, workflow path/ID, event, candidate SHA and pull-request or merge-group boundary.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "jobs-and-artifacts",
+      "description": "Require exact completed successful unique named jobs for run/attempt and reject absent/skipped/cancelled/failed entries, forged URLs, missing/expired/wrong-attempt artifacts, or incomplete pagination.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "offline-honesty",
+      "description": "Offline/manual snapshots never become provider-verified or accepted; unavailable API remains unknown/blocked, and unchecked checkout identity is not falsely attested.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "cli-compatibility",
+      "description": "Expose explicit sf evidence verify entrypoint with stable result/exit codes, no implicit network or mutations; preserve existing SF-00 through SF-09 commands.",
+      "proofKinds": [
+        "independent-output",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "preservation",
+      "description": "Document trust boundaries and verify exact changed scope without modifying GitHub workflow, policy, other packages or deployments.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-09",
+      "kind": "git-ancestor",
+      "revision": "f0caa42a8d85b0c9520427d965ebc08446817e0b",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/ci_evidence.py: strict source-bound evidence request, GitHub REST reader and verifier",
+    "src/sf/cli.py: opt-in evidence verification CLI",
+    "tests/test_ci_evidence.py: in-memory fake API and negative/provider-identity fixtures"
+  ],
+  "impact": [
+    "Adds provider-evidence verification only when explicitly invoked",
+    "Correctly separates pull request head, base and provider-observed run SHA from actual checkout/merge identity",
+    "No persistent evidence ledger; independently retained evidence depends on external record"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No network for development and tests; GitHub API only when explicitly requested with --source github.",
+    "execution": "Local focused tests and full suite on stable projection; open PR only after local qualification; avoid extra Actions runs."
+  },
+  "externalEffects": [
+    "Do not merge any PR until authorized PR #22 boundary",
+    "Do not enter merge queue, change repository rulesets or trigger workflow dispatch",
+    "Only opt-in read-only GitHub API evidence queries; no deployments or source-bot writes"
+  ],
+  "proofs": {},
+  "amendments": []
+}
