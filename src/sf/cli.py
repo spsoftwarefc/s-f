@@ -13,6 +13,7 @@ from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
 from .assurance import AssuranceError, read_packet, inspect_review
 from .security import SecurityError, read_policy, assess_security
+from .release import ReleasePlanError, plan_release
 from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
@@ -99,8 +100,21 @@ def main(argv: list[str] | None = None) -> int:
     release_verify.add_argument("--bundle", type=Path, required=True)
     release_verify.add_argument("--trust", type=Path, required=True)
     release_verify.add_argument("--lock-out", type=Path, default=None)
+    release = sub.add_parser("release", help="read-only artifact/release plans; no deployment")
+    release_ops = release.add_subparsers(dest="operation", required=True)
+    release_plan = release_ops.add_parser("plan", help="bind source, artifact, CI, destination and recovery")
+    release_plan.add_argument("--root", type=Path, required=True)
+    release_plan.add_argument("--request", type=Path, required=True)
+    release_plan.add_argument("--artifact", type=Path, required=True)
+    release_plan.add_argument("--ci-receipt", type=Path, required=True)
+    release_plan.add_argument("--approval-pin", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command == "release":
+            result = plan_release(args.root, args.request, args.artifact,
+                                  args.ci_receipt, args.approval_pin)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0
         if args.command == "distribution":
             if args.operation == "build":
                 result = build_bundle(args.root, args.output, publisher=args.publisher, release_id=args.release_id)
@@ -206,7 +220,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
