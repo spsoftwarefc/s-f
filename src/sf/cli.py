@@ -13,7 +13,8 @@ from .ci_evidence import (EvidenceError, EvidenceBlocked, ProviderUnavailable,
                           read_request, verify_github, inspect_offline)
 from .assurance import AssuranceError, read_packet, inspect_review
 from .security import SecurityError, read_policy, assess_security
-from .release import ReleasePlanError, plan_release
+from .release import ReleasePlanError, plan_release, _load as release_load, _regular as release_regular
+from .deployment import DeploymentError, qualify_deployment
 from .distribution import DistributionError, build_bundle, verify_bundle
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
@@ -108,8 +109,18 @@ def main(argv: list[str] | None = None) -> int:
     release_plan.add_argument("--artifact", type=Path, required=True)
     release_plan.add_argument("--ci-receipt", type=Path, required=True)
     release_plan.add_argument("--approval-pin", type=Path, required=True)
+    deploy = sub.add_parser("deployment", help="isolated fake-target qualifications only")
+    deploy_ops = deploy.add_subparsers(dest="operation", required=True)
+    qualification = deploy_ops.add_parser("qualify", help="run bounded offline fake-target fault matrix")
+    qualification.add_argument("--plan", type=Path, required=True,
+                               help="SF-14 offline release-plan result JSON; untrusted fixture only")
     args = parser.parse_args(argv)
     try:
+        if args.command == "deployment":
+            source = release_regular(args.plan, 1024 * 1024, "fake-target plan")
+            result = qualify_deployment(release_load(source, "fake-target plan"))
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+            return 0 if result["syntheticPassed"] else 1
         if args.command == "release":
             result = plan_release(args.root, args.request, args.artifact,
                                   args.ci_receipt, args.approval_pin)
@@ -220,7 +231,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
