@@ -193,8 +193,12 @@ class PinnedLifecycleTests(unittest.TestCase):
         self.assertTrue(receipt["installedDistributionBytesVerified"])
         self._check_members(second[0])
         (self.project / ".s-f/portable/src/sf/module.py").write_bytes(b"local-edit")
+        blocked = self._plan("upgrade", next_profile, second)
+        self.assertFalse(blocked["ready"])
+        self.assertIn(".s-f/portable/src/sf/module.py",
+                      [row["path"] for row in blocked["conflicts"]])
         with self.assertRaises(IntegrationError):
-            self._plan("upgrade", next_profile, second)
+            self._apply("upgrade", next_profile, second)
         self.assertEqual((self.project / ".s-f/portable/src/sf/module.py").read_bytes(),
                          b"local-edit")
 
