@@ -13,7 +13,7 @@ from tools.ci_acceptance import (
 
 def _passing_result() -> unittest.TestResult:
     result = unittest.TestResult()
-    result.testsRun = BASELINE_MINIMUM
+    result.testsRun = len(_complete_inventory())
     return result
 
 
@@ -63,6 +63,18 @@ class CIAcceptanceTests(unittest.TestCase):
         fewer.testsRun = BASELINE_MINIMUM - 1
         self.assertFalse(qualifies_tests(fewer, all_tests))
         self.assertFalse(qualifies_tests(_passing_result(), set(REQUIRED_TEST_IDS)))
+
+    def test_discovered_inventory_must_match_executed_tests(self):
+        full = _complete_inventory()
+        result = _passing_result()
+        self.assertTrue(qualifies_tests(result, full))
+        # Both counts remain greater than the 61-test minimum. The old gate
+        # incorrectly accepted execution that silently omitted valid tests.
+        result.testsRun = len(full) - 1
+        self.assertGreater(result.testsRun, BASELINE_MINIMUM)
+        self.assertFalse(qualifies_tests(result, full))
+        result.testsRun = len(full) + 1
+        self.assertFalse(qualifies_tests(result, full))
 
     def test_cli_exit_code_is_fail_closed(self):
         with contextlib.redirect_stdout(io.StringIO()):
