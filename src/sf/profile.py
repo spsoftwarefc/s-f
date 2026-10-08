@@ -45,7 +45,7 @@ def _relative(value: object, *, root_allowed: bool = False) -> bool:
 
 
 def _distinct_identifiers(items: list[str], label: str) -> None:
-    if len({item.casefold() for item in items}) != len(items):
+    if any(not _identifier(item) for item in items) or len({item.casefold() for item in items}) != len(items):
         raise ProfileError(f"duplicate {label} (case-insensitive)")
 
 
@@ -112,7 +112,7 @@ def validate_profile(data: object) -> dict:
             raise ProfileError("argv must be a bounded array of nonempty strings")
         if not _relative(cwd, root_allowed=True):
             raise ProfileError("cwd must be a safe project-relative directory")
-        if "risk" in spec and spec["risk"] not in RISKS:
+        if "risk" in spec and (type(spec["risk"]) is not str or spec["risk"] not in RISKS):
             raise ProfileError("invalid command risk")
         if "network" in spec and type(spec["network"]) is not bool:
             raise ProfileError("network must be boolean")
