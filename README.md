@@ -2,15 +2,18 @@
 
 s-f is a repository-local software production system for planning, implementing, verifying, reviewing, releasing and operating software changes.
 
-Current state (8 October 2026): **SF-00–SF-07 foundation is merged** and GitHub required Linux/Windows/acceptance checks plus a successful and negative merge-queue probe were verified. **SF-08 through SF-13 are implemented as an open, unmerged PR #17–#22 stack**, with PR #22 the intended cumulative integration to `main`. Installation-planning and verification remain development-preview capabilities; SF-13 uses an out-of-band approved digest pin and explicitly **does not verify publisher signatures or enforce lock use in SF-06 installation**. **SF-14–SF-16 deployment and operations and SF-19 v1 qualification are not implemented.** A green PR is not merge-queue, deployment or production-release authorization.
+Current state (8 October 2026): **SF-00–SF-13 are incorporated into `main` through protected PR #22**. The cumulative integration commit is `6c82b1230046650afcf28a61d7c8da7f8d157773`, tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`. Linux, Windows and `sf07-acceptance` passed in the required `merge_group` run [37801503467](https://github.com/spsoftwarefc/s-f/actions/runs/37801503467). PRs #17–#21 were closed as incorporated, **not individually merged**.
+
+The implementation is still a **development-preview factory**, not a public, production-qualified release. SF-13 distribution verification depends on an externally authenticated operator-controlled digest pin; publisher signatures, authenticated trust provisioning and **SF-06 installer enforcement of SF-13 locks** are not established. SF-14–SF-16 and SF-19 remain unimplemented; SF-17/18 are optional/deferred. A successful merge queue is source integration evidence, not installation provenance, deployment authority or release qualification.
 
 Start with:
 - `AGENTS.md` for repository operating boundaries.
 - `docs/factory/WORKFLOW.md` for the lifecycle.
 - `docs/factory/WORK_ORDER.md` for package checkpoints.
 - `docs/factory/PROJECT.md` for this repository's adapter.
-- `docs/factory/work-orders/SF-13.json` for the active package declaration, `docs/factory/CI_ENFORCEMENT.md` for the s-f-specific enforcement contract, and `docs/factory/evidence/CI-16.md` for the real negative merge-queue evidence.
-- `docs/factory/SF07_QUALIFICATION.md` for the historical portability fixture matrix and its limits.
-- `docs/factory/SF06_LIFECYCLE.md` for opt-in installation, upgrade, removal and recovery limits.
+- `docs/factory/work-orders/SF-R22.json` and `docs/factory/evidence/SF-R22.md` for post-merge reconciliation.
+- `docs/factory/CI_ENFORCEMENT.md` and `docs/factory/evidence/CI-16.md` for enforced checks and negative queue evidence.
+- `docs/factory/SF07_QUALIFICATION.md` for historical portability qualification and limits.
+- `docs/factory/SF06_LIFECYCLE.md` and `docs/factory/SF13_DISTRIBUTION.md` for lifecycle and distribution contracts.
 
-For the open development-factory stack, consult `docs/factory/SF08_WORK.md` through `SF13_DISTRIBUTION.md` and the matching `docs/factory/evidence/SF-08.md` through `SF-13.md`. The authenticated-trust-pin origin is an external operator prerequisite, not established by bundle self-hashes.
+For the integrated development-factory packages, consult `docs/factory/SF08_WORK.md` through `docs/factory/SF13_DISTRIBUTION.md` and corresponding `docs/factory/evidence/SF-08.md` through `SF-13.md`. Those historic package records retain their original candidate-stage limitations.
