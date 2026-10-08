@@ -205,11 +205,11 @@ class PortabilityTests(unittest.TestCase):
             p = profile(root)
             capture = io.StringIO()
             with contextlib.redirect_stdout(capture):
-                self.assertEqual(main(["integrate", "--dry-run", "--root", str(root),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--dry-run", "--root", str(root),
                                        "--profile", str(p)]), 0)
             saved = root / "saved-plan.json"
             saved.write_text(capture.getvalue(), encoding="utf-8")
             with contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(main(["integrate", "--apply", str(saved), "--root", str(root),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--apply", str(saved), "--root", str(root),
                                        "--profile", str(p)]), 0)
             self.assertFalse(plan_lifecycle("remove", root)["releaseQualified"])
