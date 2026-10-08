@@ -43,3 +43,7 @@ Plans are **proposals**, not authority to mutate. Observations may go stale betw
 Do not put credentials or secrets inside project profiles: the proposed normalized profile appears inside the plan and future installed project files.
 
 This first version does not generate project-specific instruction patches, Git dirty-path evidence, or CI workflow edits. It represents such cases as manual/unknown rather than claiming enforcement. SF-06 owns controlled application and SF-07 owns platform-specific integration qualification.
+
+## SF-06 interface evolution
+
+This document records the SF-05 **internal** `plan_install()` contract and its original dry-run JSON. Starting with SF-06, the public `sf integrate --dry-run` CLI wraps that planner with `plan_lifecycle()` and now emits the SF-06 before/local/after effect plan; the legacy JSON shape is not accepted as an apply document. Use `docs/factory/SF06_LIFECYCLE.md` for the current CLI format and the distinct `--apply` authorization step. The original SF-05 inventory and conflict rules remain inputs to lifecycle planning.
