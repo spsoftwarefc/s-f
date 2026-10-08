@@ -182,9 +182,8 @@ def _ensure_parent(root: Path, name: str) -> None:
         if parent_view["state"] == "absent":
             (current / part).mkdir()
             _fsync_dir(current)
-        elif parent_view["state"] != "blocked" or parent_view.get("reason") != "not-regular-file":
-            if not (current / part).is_dir() or (current / part).is_symlink():
-                raise IntegrationError("unsafe target parent")
+        elif parent_view != {"state": "blocked", "reason": "not-regular-file"}:
+            raise IntegrationError("unsafe target parent")
         elif not (current / part).is_dir() or (current / part).is_symlink():
             raise IntegrationError("unsafe target parent")
         current = current / part
@@ -244,7 +243,7 @@ def execute_plan(root: Path, profile: Path | None, document: Path,
 def _validate_journal(root: Path, journal: dict) -> None:
     if set(journal) != {"schemaVersion", "root", "mode", "oldProfile", "newProfile", "routeOwned", "steps"}:
         raise IntegrationError("invalid journal fields")
-    if journal["schemaVersion"] != 1 or journal["root"] != root.as_posix():
+    if type(journal["schemaVersion"]) is not int or journal["schemaVersion"] != 1 or journal["root"] != root.as_posix():
         raise IntegrationError("invalid journal identity")
     mode, old, new, route = (journal[x] for x in ("mode", "oldProfile", "newProfile", "routeOwned"))
     if mode not in ("integrate", "upgrade", "remove") or type(route) is not bool:
