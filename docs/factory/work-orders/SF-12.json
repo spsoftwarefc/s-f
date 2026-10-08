@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "SF-12",
+  "baseline": {
+    "commit": "89301aafe4f0194799e64066d05bfde123c97371",
+    "tree": "69bd3995ec4c6761220611cac75cfa67c6e2b081"
+  },
+  "objective": "Implement offline threat-based security and dependency adapters: tracked source secret-pattern scanning, GitHub action pin audit, pinned dependency inventory, structured vulnerability/license/static-analysis evidence intake, and expiring owned exceptions without false clean claims.",
+  "nonGoals": [
+    "No automatic third-party scanner installation, network lookup, package download or scanner execution",
+    "No claim that regex secret scans, self-declared evidence, or stale vulnerability databases prove complete security",
+    "No changes to protected GitHub workflows, rulesets or other repositories",
+    "No automatic security exception approval, merge, release or deployment",
+    "No requirements to purchase external scanning services"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/SF-12.json",
+    "docs/factory/SF12_SECURITY.md",
+    "docs/factory/evidence/SF-12.md",
+    "src/sf/security.py",
+    "src/sf/cli.py",
+    "tests/test_security.py"
+  ],
+  "requirements": [
+    "SF-R03",
+    "SF-R07",
+    "SF-R09",
+    "SF-R12",
+    "docs/product/THREAT_MODEL.md",
+    "docs/factory/RESOURCE_POLICY.md"
+  ],
+  "decisions": [
+    "docs/decisions/ADR-0001-OFFLINE-FIRST.md",
+    "Read-only offline scanner configuration; missing scanner coverage remains unknown, nonempty findings cannot be accepted as clean; exception declarations are not approval signatures"
+  ],
+  "obligations": [
+    {
+      "id": "threat-policy",
+      "description": "Validate strict policy and tracked source scope; deny traversal/symlink escape, malformed/oversized inputs, weak/expired policy and unscoped control changes.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "secrets-pins",
+      "description": "Discover seeded fake secrets, audit SHA-pinned GitHub action refs and explicit Python requirement pins with negative fixtures and bounded data.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "external-scanners",
+      "description": "Ingest source/digest bound scanner records for dependency vulnerabilities, licenses and static analysis; reject observed failures and report missing/stale/incomplete scanner/database as unknown, never success.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "exceptions",
+      "description": "Require owned/scoped/reasoned expiring exceptions; expired, unmatched or unauthorized exception declarations cannot hide blockers or forge acceptance.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "preservation",
+      "description": "Preserve existing command execution and CI; no automatic network, privileged side effects, merger/deployment or workflow mutation.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-11",
+      "kind": "git-ancestor",
+      "revision": "89301aafe4f0194799e64066d05bfde123c97371",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/security.py: read-only scan policy validation, Git inventory, built-in checks, evidence adapters and exception disposition",
+    "src/sf/cli.py: explicit sf security assess subcommand",
+    "tests/test_security.py: isolated synthetic Git repos and adversarial security/availability fixtures",
+    "docs/factory/SF12_SECURITY.md: contracts and trust/coverage limits"
+  ],
+  "impact": [
+    "Add opt-in, offline risk-based security assessment without changing existing profile/assurance semantics",
+    "Scanner reports remain observations, provider authorization distinct; findings and unknown coverage surfaced separately",
+    "Sensitive matched values must not be present in output; hashes are identity not authentication"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "No live scanner download, network/database update or external application execution; tests local first",
+    "execution": "One stable pull-request CI run; rerun only for corrective source changes"
+  },
+  "externalEffects": [
+    "No merge before PR #22 integration checkpoint and explicit acceptance",
+    "No GitHub Actions workflow/ruleset modifications, merge-queue entry or deployment",
+    "No source-bot changes or external project writes"
+  ],
+  "proofs": {},
+  "amendments": []
+}
