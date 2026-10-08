@@ -44,11 +44,18 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--root", type=Path, required=True)
         if operation != "remove":
             command.add_argument("--profile", type=Path, required=True)
+            for flag in ("bundle", "trust", "lock"):
+                command.add_argument("--" + flag, type=Path, default=None,
+                                     help="optional complete external-pin verified distribution binding (preview)")
+
         if operation == "integrate":
             command.add_argument("--ack-manual-routing", action="store_true",
                                  help="preserve existing AGENTS.md and acknowledge manual routing")
     recovery = sub.add_parser("recover", help="verify and resume an interrupted factory transaction")
     recovery.add_argument("--root", type=Path, required=True)
+    for flag in ("bundle", "trust", "lock"):
+        recovery.add_argument("--" + flag, type=Path, default=None,
+                              help="verified distribution proof for recovery of bound transaction")
     work = sub.add_parser("work", help="read-only work-order assessment")
     work_ops = work.add_subparsers(dest="operation", required=True)
     for operation in ("start", "resume"):
@@ -149,18 +156,25 @@ def main(argv: list[str] | None = None) -> int:
                               "releaseQualified": False}, sort_keys=True))
             return 0
         if args.command == "recover":
-            print(json.dumps(recover(args.root), ensure_ascii=False, sort_keys=True))
+            print(json.dumps(recover(args.root, bundle=args.bundle, trust=args.trust, lock=args.lock),
+                             ensure_ascii=False, sort_keys=True))
             return 0
         if args.command in ("integrate", "upgrade", "remove"):
             target_profile = args.profile if args.command != "remove" else None
             acknowledgement = getattr(args, "ack_manual_routing", False)
             if args.dry_run:
                 plan = plan_lifecycle(args.command, args.root, target_profile,
-                                      ack_manual=acknowledgement)
+                                      ack_manual=acknowledgement,
+                                      bundle=getattr(args, "bundle", None),
+                                      trust=getattr(args, "trust", None),
+                                      lock=getattr(args, "lock", None))
                 print(json.dumps(plan, ensure_ascii=False, sort_keys=True))
                 return 1 if plan["conflicts"] else 0
             receipt = execute_plan(args.root, target_profile, args.apply, mode=args.command,
-                                   ack_manual=acknowledgement)
+                                   ack_manual=acknowledgement,
+                                   bundle=getattr(args, "bundle", None),
+                                   trust=getattr(args, "trust", None),
+                                   lock=getattr(args, "lock", None))
             print(json.dumps(receipt, ensure_ascii=False, sort_keys=True))
             return 0
         if args.command == "profile":
