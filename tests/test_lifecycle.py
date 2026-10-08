@@ -257,21 +257,21 @@ class LifecycleTests(unittest.TestCase):
             old = _profile(r)
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
-                self.assertEqual(main(["integrate", "--dry-run", "--root", str(r),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--dry-run", "--root", str(r),
                                        "--profile", str(old)]), 0)
             plan = r / "plan.json"
             plan.write_text(output.getvalue())
             with contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(main(["integrate", "--apply", str(plan), "--root", str(r),
+                self.assertEqual(main(["integrate", "--development-preview-unpinned", "--apply", str(plan), "--root", str(r),
                                        "--profile", str(old)]), 0)
             new = _profile(r, version="b")
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
-                self.assertEqual(main(["upgrade", "--dry-run", "--root", str(r),
+                self.assertEqual(main(["upgrade", "--development-preview-unpinned", "--dry-run", "--root", str(r),
                                        "--profile", str(new)]), 0)
             plan.write_text(output.getvalue())
             with contextlib.redirect_stdout(io.StringIO()):
-                self.assertEqual(main(["upgrade", "--apply", str(plan), "--root", str(r),
+                self.assertEqual(main(["upgrade", "--development-preview-unpinned", "--apply", str(plan), "--root", str(r),
                                        "--profile", str(new)]), 0)
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
