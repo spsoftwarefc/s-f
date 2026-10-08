@@ -370,3 +370,31 @@ def verify_bundle(bundle_path: Path, trust_path: Path, *, lock_out: Path | None 
         _exclusive(lock_out, _canonical(result["lock"]))
         result["lockWritten"] = str(lock_out)
     return result
+
+
+def verify_installation_lock(bundle_path: Path, trust_path: Path, lock_path: Path) -> dict:
+    """Revalidate a previously issued immutable lock against actual archive bytes.
+
+    The operator authenticates the external trust pin *before* invoking this
+    function. A lock supplied by the same actor as a forged trust pin is not
+    release authorization; this check enforces only the exact approved identity.
+    """
+    for first, second in ((bundle_path, trust_path), (bundle_path, lock_path),
+                          (trust_path, lock_path)):
+        if first.resolve(strict=False) == second.resolve(strict=False):
+            raise DistributionError("bundle, trust and lock must be distinct files")
+    raw_lock = _regular_bytes(lock_path, MAX_METADATA, "installation lock")
+    lock = _read_json(raw_lock, "installation lock")
+    if raw_lock != _canonical(lock):
+        raise DistributionError("noncanonical installation lock")
+    result = verify_bundle(bundle_path, trust_path)
+    if lock != result["lock"]:
+        raise DistributionError("installation lock does not match verified distribution")
+    # Do not upgrade a conditional, externally pinned hash match into a signed
+    # publisher claim or a release acceptance decision.
+    return {"schemaVersion": 1, "status": "verified-external-pin-for-installation",
+            "lock": lock, "bundleSha256": lock["bundleSha256"],
+            "sourceCommit": lock["sourceCommit"], "sourceTree": lock["sourceTree"],
+            "publisherSignatureVerified": False,
+            "independentTrustProvisioningVerified": False,
+            "releaseQualified": False, "accepted": False}
