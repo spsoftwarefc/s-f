@@ -1,6 +1,6 @@
 # s-f repository factory adapter
 
-Status (8 October 2026): SF-07 portability/required CI are merged and historically qualified. SF-08 through SF-13 are implemented as a currently unmerged PR #17–#22 stack, with PR #22 reserved for cumulative integration qualification. Distribution verification matches a separately provisioned exact digest pin; signed publisher identity, authenticated trust provisioning, enforced installation lock and production release remain unqualified.
+Status (8 October 2026): SF-00–SF-13 are incorporated through protected PR #22 at `6c82b1230046650afcf28a61d7c8da7f8d157773` (tree `d95b8fc15c358992961e98d0adeb9f90dd07db09`). Merge-group run 37801503467 passed Linux, Windows and `sf07-acceptance`. Publisher-signature verification, authenticated trust-pin provisioning, SF-13 lock enforcement by SF-06 and production release remain unqualified.
 Authority: this file configures the reusable workflow for the `spsoftwarefc/s-f` repository. It grants no authority over repositories where s-f may later be installed.
 
 ## Purpose
