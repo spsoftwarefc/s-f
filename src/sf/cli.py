@@ -9,6 +9,7 @@ from pathlib import Path
 from . import __version__
 from .adapters import declared_check_plan
 from .inventory import InventoryError, inventory
+from .integration import IntegrationError, plan_install
 from .profile import ProfileError, read_profile
 
 
@@ -25,6 +26,11 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("path", type=Path)
         command.add_argument("--root", type=Path, default=None,
                              help="optionally verify declared directories in this project root")
+    integration = sub.add_parser("integrate", help="plan repository integration without writes")
+    integration.add_argument("--dry-run", action="store_true", required=True,
+                             help="the only supported SF-05 integration mode")
+    integration.add_argument("--root", type=Path, required=True)
+    integration.add_argument("--profile", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "inventory":
@@ -34,6 +40,10 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"cliVersion": __version__, "offline": True,
                               "releaseQualified": False}, sort_keys=True))
             return 0
+        if args.command == "integrate":
+            plan = plan_install(args.root, args.profile)
+            print(json.dumps(plan, ensure_ascii=False, sort_keys=True))
+            return 1 if plan["conflicts"] else 0
         if args.command == "profile":
             data = read_profile(args.path, root=args.root)
             if args.operation == "validate":
@@ -44,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(declared_check_plan(data), sort_keys=True))
             return 0
         return 2
-    except (ProfileError, InventoryError, OSError, RecursionError) as exc:
+    except (ProfileError, InventoryError, IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
 
