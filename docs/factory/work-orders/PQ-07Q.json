@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07Q",
+  "baseline": {
+    "commit": "94f0c4481ec44a5d36cf07f0a60ec21f363b49a3",
+    "tree": "2fb89301de1f15389a56334659379c59dbb10bcd"
+  },
+  "objective": "Exercise a disposable, local subprocess-death SQLite target recovery and stale-fence matrix, with an independently authorized live Linux test runbook.",
+  "nonGoals": [
+    "No real application deployment, credentials, or network service",
+    "No live health, migration or operator authenticity claim",
+    "No automatic recovery for ambiguous effects"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07Q.json",
+    "docs/factory/evidence/PQ-07Q.md",
+    "docs/factory/PQ07_REFERENCE_RUNBOOK.md",
+    "src/sf/reference_campaign.py",
+    "tests/test_reference_campaign.py"
+  ],
+  "requirements": [
+    "PQ-04",
+    "PQ-05",
+    "PQ-06",
+    "PQ-07",
+    "SF-R06",
+    "SF-R07",
+    "SF-R11"
+  ],
+  "obligations": [
+    {
+      "id": "crash",
+      "description": "Real local child process dies after commit; reopen from disk to prove receipt and no retry",
+      "proofKinds": [
+        "process-death",
+        "state-trace"
+      ]
+    },
+    {
+      "id": "fence",
+      "description": "Stale generation and conflicting idempotency rejected after restart",
+      "proofKinds": [
+        "negative-test"
+      ]
+    },
+    {
+      "id": "live-matrix",
+      "description": "Runbook enumerates authorized disposable Linux target, migration, health, recovery and operator claims distinctly",
+      "proofKinds": [
+        "contract-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07P",
+      "kind": "stacked-head",
+      "revision": "94f0c4481ec44a5d36cf07f0a60ec21f363b49a3"
+    }
+  ],
+  "budget": {
+    "hostedRuns": "Only required PR CI; no live target setup",
+    "externalCosts": "none"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}
