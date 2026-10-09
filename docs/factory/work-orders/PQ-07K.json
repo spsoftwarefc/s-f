@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07K",
+  "baseline": {
+    "commit": "bdbd1e8adb70fedb7729117b36af7e97ece5cf4e",
+    "tree": "ea763b6c39f61bd30b181aa5098010b7542fef06"
+  },
+  "objective": "Exercise an adversarial end-to-end local source campaign joining raw-campaign positive/negative bytes, external decision declarations and PQ-07F preflight, explicitly preserving production and PQ-08 denials.",
+  "nonGoals": [
+    "No fabricated authenticated proof or live Linux target",
+    "No baseline CI gate changes or separate project deployment",
+    "No assertion that a complete local source campaign satisfies PQ-07 or SF-R10"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07K.json",
+    "tests/test_campaign_cross_boundary.py",
+    "docs/factory/evidence/PQ-07K.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-08",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "decisions": [
+    "Use combined actual library paths rather than assuming isolated passing tests imply cross-package acceptance",
+    "Generate temporary raw bytes and declared operators locally; their positive coverage remains unauthenticated",
+    "Reject changed artifact/policy, forged grant and external decision approval"
+  ],
+  "obligations": [
+    {
+      "id": "integrated-negative",
+      "description": "All local inputs structurally present still produce permanent release/deploy/pilot no-go",
+      "proofKinds": [
+        "regression-reproducer",
+        "event-trace"
+      ]
+    },
+    {
+      "id": "contradiction",
+      "description": "Cross package source/artifact/custody contradictions fail closed without effects",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07J",
+      "kind": "stacked-head",
+      "revision": "bdbd1e8adb70fedb7729117b36af7e97ece5cf4e",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "tests/test_campaign_cross_boundary.py end-to-end source-only adversarial tests",
+    "docs/factory/evidence/PQ-07K.md precise non-qualifying evidence"
+  ],
+  "impact": [
+    "No production source changes, no secrets"
+  ],
+  "budget": {
+    "hostedRuns": "one draft PR-stage run if triggered",
+    "execution": "Local offline unit tests only",
+    "network": "GitHub PR only"
+  },
+  "externalEffects": [
+    "Draft PR #49 stacked on #48; PR #50 next integration checkpoint",
+    "No actual PQ-08 publication or adopter pilot"
+  ],
+  "proofs": {},
+  "amendments": []
+}

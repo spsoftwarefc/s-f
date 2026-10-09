@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07I",
+  "baseline": {
+    "commit": "104c0a3b228382f68b8040de7c8638a0bad26a7c",
+    "tree": "0d92183c788dc92b7086466051fcebfc79fe04d5"
+  },
+  "objective": "Expose a local, effect-free CLI for independently specified PQ-07G manifest intake, printing unqualified raw-case coverage and failing closed on unsafe inputs; make operator evidence gathering reproducible without new network/CI effects.",
+  "nonGoals": [
+    "No production qualification, publisher/CI issuer authentication or release rights",
+    "No external effect, network dependency, secret or service deployment",
+    "No modification of baseline CI/merge gate"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07I.json",
+    "tools/pq07_campaign.py",
+    "tests/test_campaign_cli.py",
+    "docs/factory/evidence/PQ-07I.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "SF-R05",
+    "SF-R07",
+    "SF-R11"
+  ],
+  "decisions": [
+    "CLI requires exact operator supplied candidate/policy/manifest digests, and only inventories raw local evidence",
+    "No implicit default trust policy, remote URL fetch, effect credential or existing-project mutation",
+    "Exit 0 means an assessment was computed, not production acceptance; error exit 2 means invalid/unavailable input"
+  ],
+  "obligations": [
+    {
+      "id": "operator-contract",
+      "description": "CLI parses exact pins and produces machine-readable NO-GO states for missing/present raw cases",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "fail-closed",
+      "description": "Reject bad digests, input errors and arbitrary qualification flags; never perform mutation or network",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07H",
+      "kind": "stacked-head",
+      "revision": "104c0a3b228382f68b8040de7c8638a0bad26a7c",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "tools/pq07_campaign.py read-only command-line entry",
+    "tests/test_campaign_cli.py subprocess negative tests"
+  ],
+  "impact": [
+    "No change to installed sf CLI or existing qualification outputs"
+  ],
+  "budget": {
+    "hostedRuns": "one PR-stage run on draft creation",
+    "network": "GitHub source only",
+    "execution": "bounded subprocess tests"
+  },
+  "externalEffects": [
+    "Draft stacked PR #47; PR #50 reserved for cumulative protected integration",
+    "No target mutation or PQ-08 publication"
+  ],
+  "proofs": {},
+  "amendments": []
+}

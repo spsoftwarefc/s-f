@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07J",
+  "baseline": {
+    "commit": "10b6aebca2f9357648413d1c4d8a449de32dfff1",
+    "tree": "a233ba492546ebf8fbbea0013a9e0853e4b4dfad"
+  },
+  "objective": "Expose explicit externally owned decisions required before PQ-07 can start live effects or accept independently authenticated claims; classify absent or merely declared owners distinctly without self-certification.",
+  "nonGoals": [
+    "Not a release-grant service, trust bootstrap, CI verifier, publication, target deploy or incident closer",
+    "No assumption that owner declarations authenticate their identities",
+    "No weakening baseline acceptance or target-project controls"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07J.json",
+    "src/sf/external_readiness.py",
+    "tests/test_external_readiness.py",
+    "docs/factory/evidence/PQ-07J.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-00",
+    "PQ-01",
+    "PQ-02",
+    "PQ-03",
+    "PQ-04",
+    "PQ-05",
+    "PQ-06",
+    "SF-R10"
+  ],
+  "decisions": [
+    "Freeze eight operator-custody requirements before experiments; no silent default for signer, grant issuer, target or operator",
+    "Validate a bounded strictly canonical decision manifest against separately pinned manifest digest, scope and candidate identity",
+    "Only declaration coverage is reported; external authentication/approval never inferred even if every declaration present"
+  ],
+  "obligations": [
+    {
+      "id": "gaps",
+      "description": "Missing external trust/target/operations custody always visible and classified independently of source verification",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "reject-forgery",
+      "description": "Reject unknown, duplicate, malformed, wrong scope or forged approval claims",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07I",
+      "kind": "stacked-head",
+      "revision": "10b6aebca2f9357648413d1c4d8a449de32dfff1",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/external_readiness.py operator-decision gap reader",
+    "tests/test_external_readiness.py falsification tests"
+  ],
+  "impact": [
+    "New opt-in read-only package, no effect authority"
+  ],
+  "budget": {
+    "hostedRuns": "one draft PR-stage run if triggered",
+    "network": "GitHub PR only",
+    "execution": "Local synthetic input files"
+  },
+  "externalEffects": [
+    "Draft PR #48 stacked on #47; only PR #50 may integrate",
+    "No new credentials, target services, payments or publication"
+  ],
+  "proofs": {},
+  "amendments": []
+}

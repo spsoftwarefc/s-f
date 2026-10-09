@@ -1,6 +1,6 @@
 # Software Factory — Production Qualification Implementation Plan
 
-**Programme:** PQ-00 → PQ-08 · **Status:** PQ-01A/B–PQ-06 partial source protected-integrated; PQ-07A–F source candidates stacked for PR #44; production qualification **BLOCKED** · **Date:** 9 October 2026 (EAT)  
+**Programme:** PQ-00 → PQ-08 · **Status:** PQ-07A–F source protected-integrated via PR #44; PQ-07G–L source-only candidate stack toward PR #50; live PQ-07/PQ-08 **BLOCKED** · **Date:** 9 October 2026 (EAT)  
 **Repository:** `spsoftwarefc/s-f` · **Frozen starting baseline:** `45a1d78197667efeedf5f2e60ca07f1ff070a6f6` · **Tree:** `c498695eb49d6ca4af2859fa2164a85881020837`
 
 This is the forward-looking implementation plan derived from the 9 October 2026 production qualification assessment. PQ package IDs are **not PR numbers**. Every package starts with a separately committed work order and is delivered as **one active PR at a time**. Each completed package must update its status using exact evidence. A PR being open or CI being green does not mean that its package has been accepted, merged, released or deployed.
@@ -125,6 +125,27 @@ After [PR #38](https://github.com/spsoftwarefc/s-f/pull/38) protected-integrated
 - [PR #43](https://github.com/spsoftwarefc/s-f/pull/43): PQ-07E bounded SQLite evidence log with local hash chaining and negative-case presence.
 - [PR #44](https://github.com/spsoftwarefc/s-f/pull/44): PQ-07F cross-package fail-closed qualification preflight.
 
-These are **development candidate** PRs. The user-selected next merge checkpoint is PR #44. The lower stacked PRs must not be merged separately. An authorized integration, if accepted, will require the *cumulative* PR #44 targeted to protected `main`, verified exact-head Linux/Windows/`sf07-acceptance` and its separate GitHub `merge_group`; on successful incorporation, close the lower superseded PRs as incorporated. Do not bypass rules, direct-merge, or rerun unchanged checks. The merge-queue operator must preserve the required SQUASH method.
+These were **development candidate** PRs. The user-selected merge checkpoint **PR #44** was completed by a protected squash merge on 9 October 2026 at commit `5d042208a148f9b75a429b11c8fe63f1ccef65d0` (tree `c595fe547147edfd0d0bd7ef158778d4d680ff53`). The lower stacked PRs were closed as incorporated and not separately merged. The cumulative PR #44 was targeted to protected `main` and integrated only after required hosted checks and separate GitHub `merge_group` validation; the lower superseded PRs were subsequently closed as incorporated. Do not bypass rules, direct-merge, or rerun unchanged checks. The merge-queue operator must preserve the required SQUASH method.
 
 A completed local dossier, local signed-byte *checksum*, process-death test or local SQLite hash chain **never authenticates producer authority**. Genuine provider-issued attestations, independently protected release grant and policy, durable replay/revocation custody, an authorized running Linux reference target, migration/health/compensation and operator-confirmed live incidents remain PQ-07 mandatory **NOT QUALIFIED**. PQ-08 publication and adopter pilot remain **NOT STARTED/BLOCKED**. No new paid service, worker fleet, reviewer requirement or production VPS use is authorized. SF-R10 remains **UNMET overall** until independently implemented and qualified in SF-18 or equivalent.
+
+## 12. Protected PR #44 source merge and PQ-07G–L no-go preparation (PRs #45–#50)
+
+[PR #44](https://github.com/spsoftwarefc/s-f/pull/44) protected-integrated PQ-07A–F source on **9 October 2026** as `5d042208a148f9b75a429b11c8fe63f1ccef65d0` (tree `c595fe547147edfd0d0bd7ef158778d4d680ff53`). Protected incorporation is development-source integration, **not** externally authenticated PQ-07 production acceptance.
+
+The user-set next protected merge checkpoint is **PR #50**, with bounded draft stack work orders and source-only outputs:
+
+| PR | Work order | New source-only capability |
+| --- | --- | --- |
+| [#45](https://github.com/spsoftwarefc/s-f/pull/45) | [PQ-07G](work-orders/PQ-07G.json) | Exact-candidate, operator-digest-pinned raw positive/negative proof-byte gap intake |
+| [#46](https://github.com/spsoftwarefc/s-f/pull/46) | [PQ-07H](work-orders/PQ-07H.json) | Strict PQ-07G/PQ-07F cross-evidence no-go preflight join |
+| [#47](https://github.com/spsoftwarefc/s-f/pull/47) | [PQ-07I](work-orders/PQ-07I.json) | Read-only operator CLI for evidence inventory |
+| [#48](https://github.com/spsoftwarefc/s-f/pull/48) | [PQ-07J](work-orders/PQ-07J.json) | Eight distinct external trust/deployment/operational custody decisions, declarations only |
+| [#49](https://github.com/spsoftwarefc/s-f/pull/49) | [PQ-07K](work-orders/PQ-07K.json) | Combined adversarial false-green campaign regression |
+| [#50](https://github.com/spsoftwarefc/s-f/pull/50) | [PQ-07L](work-orders/PQ-07L.json) | Cumulative source-only documentation/reconciliation and protected integration checkpoint |
+
+PRs #45–#49 are not individually mergeable integration targets: cumulative PR #50 must pass exact-head hosted Linux/Windows/`sf07-acceptance` and separate protected `merge_group` checks before merge. No reviewer request or paid infrastructure is introduced.
+
+**Unchanged release boundary:** no candidate-supplied manifest, issuer label, local SQLite chain, locally rehashed bytes, fully declared custody inventory or successful source test can authenticate an independent publisher, provider, policy custodian, effect grant/revocation, retained immutable build or real fenced target. The **independently authenticated live PQ-07 campaign has not been conducted**. Operator-supplied verified trust/verifier roots, actual signed provenance and CI/effect evidence, approved disposable Linux service with remote fence/recovery, live telemetry and human-owned incident evidence remain **required before PQ-07 is eligible for external acceptance**. PQ-08 publication/pilot remains separately authorized and **NOT STARTED**; SF-R10 overall **UNMET**.
+
+Any actual live campaign must be initiated under a separate bounded operator work order naming the independent custodians, validated artifact/policy, exact runner/attempt/environment and authorized external effects. This source integration authorizes none of them.
