@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07G",
+  "baseline": {
+    "commit": "5d042208a148f9b75a429b11c8fe63f1ccef65d0",
+    "tree": "c595fe547147edfd0d0bd7ef158778d4d680ff53"
+  },
+  "objective": "Collect an exact-candidate, digest-pinned raw-evidence inventory for the independently authenticated PQ-07 campaign. Verify local input bytes without upgrading supplier identity or release authority. Preserve production NO-GO until externally provisioned trust and live operations are qualified.",
+  "nonGoals": [
+    "No candidate-controlled manifest authenticates its issuer; out-of-band digest alone is integrity, not authority",
+    "No network request, grant issuance, deploy, publication or pilot",
+    "No edit to protected checks or synthetic fixtures and no claim that actual external sources have been qualified"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07G.json",
+    "src/sf/campaign_intake.py",
+    "tests/test_campaign_intake.py",
+    "docs/factory/evidence/PQ-07G.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-00",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "decisions": [
+    "Require explicit operator-origin expected manifest/source/tree/artifact/policy; never trust manifest self-pins",
+    "Reject malformed, duplicate, aliased, changed or oversized raw evidence; treat absent evidence as not-yet-observed",
+    "Report each claim's raw positive/negative presence and independently authenticated authority as distinct, never producing release authorization"
+  ],
+  "obligations": [
+    {
+      "id": "bound",
+      "description": "Exact candidate/policy/profile and manifest source identity, canonical JSON, strict schema",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "custody",
+      "description": "Reject symlink, hard-link alias, missing evidence, digest substitution, wrong negative file or invalid file sizes",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "no-self-cert",
+      "description": "Complete raw evidence is never accepted authority or production qualification",
+      "proofKinds": [
+        "preservation-review",
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07F",
+      "kind": "protected-main",
+      "revision": "5d042208a148f9b75a429b11c8fe63f1ccef65d0",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/campaign_intake.py offline bounded raw proof intake",
+    "tests/test_campaign_intake.py fault and false-authority regression",
+    "docs/factory/evidence/PQ-07G.md scope and limitations"
+  ],
+  "impact": [
+    "New opt-in read-only code only; no changes to existing callers, CI, deployment, grants or release states"
+  ],
+  "budget": {
+    "hostedRuns": "defer until stable PR candidate",
+    "execution": "local targeted tests followed by one hosted PR-stage run when possible",
+    "network": "GitHub source PR only"
+  },
+  "externalEffects": [
+    "Branch and draft stacked PR #45 only; protected integration reserved for PR #50",
+    "No live target, adopter, credentials, publication or paid resources"
+  ],
+  "proofs": {},
+  "amendments": []
+}
