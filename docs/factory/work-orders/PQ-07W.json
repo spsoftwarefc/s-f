@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07W",
+  "baseline": {
+    "commit": "333d6a4e04debe15e3266acb151db8db144aacd9",
+    "tree": "7d6e25df2e809beccca8d25d7f4e08c24e5c5910"
+  },
+  "objective": "Cross-check declared operations, local recovery and all PQ-07 positive/negative claims without allowing source reports to qualify live operations or auto-close incidents.",
+  "nonGoals": [
+    "No real remote observation or remote deployment",
+    "No incident closure, incident key custody, release authority or PQ-08 pilot",
+    "No required CI workflow modifications"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07W.json",
+    "src/sf/live_campaign_review.py",
+    "tests/test_live_campaign_review.py",
+    "docs/factory/evidence/PQ-07W.md"
+  ],
+  "requirements": [
+    "PQ-06",
+    "PQ-07",
+    "PQ-08",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10"
+  ],
+  "obligations": [
+    {
+      "id": "negative-oracle",
+      "description": "Validate all mandatory campaign claims with distinct positive and negative unverified evidence states; reject candidate approvals and missing identities.",
+      "proofKinds": [
+        "negative-test",
+        "cross-boundary-test"
+      ]
+    },
+    {
+      "id": "live-ops-no-go",
+      "description": "Preserve unresolved incident identity and prove source-local recovery cannot be relabeled as authenticated external deployment or operations.",
+      "proofKinds": [
+        "negative-test",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07V",
+      "kind": "stacked-head",
+      "revision": "333d6a4e04debe15e3266acb151db8db144aacd9"
+    }
+  ],
+  "structure": [
+    "src/sf/live_campaign_review.py",
+    "src/sf/live_journal.py",
+    "src/sf/reference_campaign.py",
+    "src/sf/production_dossier.py"
+  ],
+  "impact": [
+    "Pure offline cross-boundary report"
+  ],
+  "budget": {
+    "hostedRuns": "Required PR CI only",
+    "externalCosts": "none"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}

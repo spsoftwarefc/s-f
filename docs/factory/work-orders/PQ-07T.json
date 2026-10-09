@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07T",
+  "baseline": {
+    "commit": "299d843a7a2289eaaa3f38e501b0d3718497a1fa",
+    "tree": "27b8f9dbeab9dae356a10509d70bea1356c50cd3"
+  },
+  "objective": "Implement strict operator-pinned, read-only live qualification session intake and falsification tests; no self-authority.",
+  "nonGoals": [
+    "No live approval, signing, grant, credential, deployment, publication or target changes",
+    "No CI workflow or acceptance predicate changes",
+    "No claims of independent custody or genuine provider results"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07T.json",
+    "src/sf/live_campaign_intake.py",
+    "tests/test_live_campaign_intake.py",
+    "docs/factory/evidence/PQ-07T.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "SF-R06",
+    "SF-R07",
+    "SF-R11"
+  ],
+  "obligations": [
+    {
+      "id": "operator-pin",
+      "description": "Reject manifest substitution, wrong source/artifact/policy, expiration, unsupported profile and duplicate JSON keys.",
+      "proofKinds": [
+        "independent-input",
+        "negative-test"
+      ]
+    },
+    {
+      "id": "authority-separation",
+      "description": "No candidate-supplied true/approval flags and all output effect/qualification booleans remain false.",
+      "proofKinds": [
+        "negative-test",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07S",
+      "kind": "stacked-head",
+      "revision": "299d843a7a2289eaaa3f38e501b0d3718497a1fa"
+    }
+  ],
+  "structure": [
+    "src/sf/live_campaign_intake.py",
+    "tests/test_live_campaign_intake.py"
+  ],
+  "impact": [
+    "Pure source-side intake, read-only"
+  ],
+  "budget": {
+    "hostedRuns": "Mandatory PR CI only; no preview or release dispatch",
+    "externalCosts": "None"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07V",
+  "baseline": {
+    "commit": "9edf08dd6968936176c39e8bbbbbb4ad41cc2cad",
+    "tree": "289cd888a2a4190e223eb820bacfe357533a6a00"
+  },
+  "objective": "Enforce a bounded disposable Linux reference-target capability and recovery-scenario contract before any separately authorized live target action.",
+  "nonGoals": [
+    "No production VPS, network dispatch, credential handling or real deployment",
+    "No applicant-supplied authorization or remote CAS proof",
+    "No approval of rollback, migration or hardware power-loss claims by a local manifest"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07V.json",
+    "src/sf/reference_target_contract.py",
+    "tests/test_reference_target_contract.py",
+    "docs/factory/evidence/PQ-07V.md"
+  ],
+  "requirements": [
+    "PQ-04",
+    "PQ-05",
+    "PQ-07",
+    "SF-R06",
+    "SF-R11"
+  ],
+  "obligations": [
+    {
+      "id": "target-scope",
+      "description": "Reject production targets, unsupported backends, absent destination-side atomic CAS/idempotency/status and excessive resource bounds.",
+      "proofKinds": [
+        "contract-test",
+        "negative-test"
+      ]
+    },
+    {
+      "id": "fault-oracle",
+      "description": "Require complete distinct live recovery/fencing fault cases, but never infer their successful execution from declarations.",
+      "proofKinds": [
+        "negative-test",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07U",
+      "kind": "stacked-head",
+      "revision": "9edf08dd6968936176c39e8bbbbbb4ad41cc2cad"
+    }
+  ],
+  "structure": [
+    "src/sf/reference_target.py",
+    "src/sf/reference_target_contract.py",
+    "docs/factory/PQ07_REFERENCE_RUNBOOK.md"
+  ],
+  "impact": [
+    "Read-only target capability assessment; zero real effects"
+  ],
+  "budget": {
+    "hostedRuns": "PR checks only",
+    "externalCosts": "none"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}
