@@ -30,8 +30,13 @@ Following the source-only protected merge of PQ-01B–PQ-06, PQ-07 now has six i
 
 [PR #44](https://github.com/spsoftwarefc/s-f/pull/44) subsequently completed the protected source-only integration on 9 October 2026 at `5d042208a148f9b75a429b11c8fe63f1ccef65d0`. PRs #39–#43 were closed as incorporated, not individually merged. The required Linux/Windows/acceptance and separate protected merge-group controls stay in force. **Production qualification and PQ-08 publication/adopter pilot are still blocked.**
 
-## PQ-07G–L follow-on source work — next protected merge PR #50
+## PQ-07G–L source work — protected merge PR #50 completed
 
 PRs [#45](https://github.com/spsoftwarefc/s-f/pull/45)–[#49](https://github.com/spsoftwarefc/s-f/pull/49) add offline operator-pinned raw campaign evidence intake, bounded read-only CLI, cross-evidence preflight, external custody-decision gap reporting and adversarial false-green tests. [PR #50](https://github.com/spsoftwarefc/s-f/pull/50) is the sole cumulative protected integration checkpoint, not a public release. The lower draft PRs must not be individually merged.
 
 Even complete local proof bytes and fully declared owner names are *not* authenticated producer, CI, grant, immutable storage, live target or operational evidence. The independently authenticated PQ-07 live campaign remains unperformed. PQ-08 requires separate independent publication and adopter authorization. SF-R10 remains unmet overall. See the [production qualification plan](docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md) and new work orders PQ-07G–L.
+
+
+## PQ-07M–R production qualification preparation (PRs #51–#56)
+
+[PR #50](https://github.com/spsoftwarefc/s-f/pull/50) integrated PQ-07G–L source via protected queue as `0a59eb0078826530493db0c2a0211470d9368a8d` on 9 October 2026; [merge-group 37908722988](https://github.com/spsoftwarefc/s-f/actions/runs/37908722988) passed. The next merge checkpoint is PR #56, with separate work orders and one active stacked PR at a time. See [external activation prerequisite contract](docs/factory/PQ07_EXTERNAL_ACTIVATION.md). The publisher/CI/grant/artifact/target/operator proof is **not** independently accepted, and no live qualification, public publication or adopter pilot has been authorized. `productionQualified=false`; SF-R10 remains unmet overall.

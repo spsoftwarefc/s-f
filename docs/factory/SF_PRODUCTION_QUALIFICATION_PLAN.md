@@ -1,6 +1,6 @@
 # Software Factory — Production Qualification Implementation Plan
 
-**Programme:** PQ-00 → PQ-08 · **Status:** PQ-07A–F source protected-integrated via PR #44; PQ-07G–L source-only candidate stack toward PR #50; live PQ-07/PQ-08 **BLOCKED** · **Date:** 9 October 2026 (EAT)  
+**Programme:** PQ-00 → PQ-08 · **Status:** PQ-07A–L source protected-integrated via PR #50; PQ-07M–R source qualification preparation through PR #56; live PQ-07/PQ-08 **BLOCKED** · **Date:** 9 October 2026 (EAT)  
 **Repository:** `spsoftwarefc/s-f` · **Frozen starting baseline:** `45a1d78197667efeedf5f2e60ca07f1ff070a6f6` · **Tree:** `c498695eb49d6ca4af2859fa2164a85881020837`
 
 This is the forward-looking implementation plan derived from the 9 October 2026 production qualification assessment. PQ package IDs are **not PR numbers**. Every package starts with a separately committed work order and is delivered as **one active PR at a time**. Each completed package must update its status using exact evidence. A PR being open or CI being green does not mean that its package has been accepted, merged, released or deployed.
@@ -149,3 +149,11 @@ PRs #45–#49 are not individually mergeable integration targets: cumulative PR 
 **Unchanged release boundary:** no candidate-supplied manifest, issuer label, local SQLite chain, locally rehashed bytes, fully declared custody inventory or successful source test can authenticate an independent publisher, provider, policy custodian, effect grant/revocation, retained immutable build or real fenced target. The **independently authenticated live PQ-07 campaign has not been conducted**. Operator-supplied verified trust/verifier roots, actual signed provenance and CI/effect evidence, approved disposable Linux service with remote fence/recovery, live telemetry and human-owned incident evidence remain **required before PQ-07 is eligible for external acceptance**. PQ-08 publication/pilot remains separately authorized and **NOT STARTED**; SF-R10 overall **UNMET**.
 
 Any actual live campaign must be initiated under a separate bounded operator work order naming the independent custodians, validated artifact/policy, exact runner/attempt/environment and authorized external effects. This source integration authorizes none of them.
+
+## 13. Protected PR #50 integration and independently owned live qualification handoff
+
+[PR #50](https://github.com/spsoftwarefc/s-f/pull/50) was protected squash-merged on **9 October 2026 at 09:05:58 UTC** as `0a59eb0078826530493db0c2a0211470d9368a8d` (tree `b36a0b92793c754dc55dd102441461b3accdee22`). Required [merge-group run 37908722988](https://github.com/spsoftwarefc/s-f/actions/runs/37908722988) passed Linux, Windows and `sf07-acceptance`. PRs #45–49 were closed as incorporated (not individually merged). Source readiness PQ-07A–L does **not** establish an independent signer, grant, retained build, live target, or authenticated operator.
+
+The next user-selected protected source integration checkpoint is **PR #56**. PRs #51–55 are sequential source work and must not be individually merged. The active handoff is [PQ-07M external activation contract](PQ07_EXTERNAL_ACTIVATION.md) and its work order. The next packages prepare a **manual-only** publisher attestation workflow, independently pinned provider/grant review, exact-byte retained-artifact consumption, and reference qualification procedures. All external effect execution remains independently blocked until the activation contract is met.
+
+**Release disposition stays NO-GO:** real authenticated PQ-07 not conducted; PQ-08 publication/adopter pilot not started; SF-R10 remains unmet overall. A green PR or merge-group is necessary source validation, never a substitute for independent live acceptance. No hosted qualification workflow may automatically publish or deploy.
