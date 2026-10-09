@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-01A",
+  "baseline": {
+    "commit": "09d5346c628560e7e33f947a8b08b44960cef14f",
+    "tree": "da32ea87b5c675d88436ffc517e51e78b34be609"
+  },
+  "objective": "Implement the first bounded read-only GitHub public-publisher attestation verifier adapter, using an externally pinned gh executable and trusted root, an exact independently supplied policy digest, artifact/release-pin byte checks, and fail-closed negative tests. This is phase A of PQ-01, not publication, installer enforcement or final production qualification.",
+  "nonGoals": [
+    "No attestation publishing/signing workflow, release, actual adopter install or deployment; no GitHub release/target writes or changes to existing locked installer behavior",
+    "No assertion that test/mock CLI output proves real GitHub publisher authenticity; real signature and independently provisioned policy custody require separate PQ-01B live qualification",
+    "No verification based only on candidate-authored attestation JSON, signer labels, tool statuses or a release pin; no mandatory second reviewer",
+    "No new dependency in the standard factory runtime or private repository entitlement assumptions; no unnecessary CI reruns"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-01A.json",
+    "src/sf/publisher.py",
+    "src/sf/cli.py",
+    "tests/test_publisher.py",
+    "docs/factory/PQ01_PUBLISHER.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "docs/factory/evidence/PQ-01A.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R07",
+    "SF-R11",
+    "SF-R12",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use a verified external GitHub CLI attestation verifier instead of embedding a new handwritten Sigstore cryptographic verifier in the Python runtime; switch only if offline/private requirements invalidate CLI support",
+    "Require independently supplied SHA-256 of a strict, versioned policy; policy binds expected public repo, exact signer workflow and digest, source ref/digest, release artifact digest, verifier binary digest, Sigstore trusted-root bytes/digest, signed-evidence freshness",
+    "Verifier runs without inheriting GitHub auth tokens, shell, or caller home, against copied immutable inputs under a private temporary directory, with bounded I/O/time and no target writes",
+    "Continue existing SF-13 externally pinned preview API unchanged and unqualified; PQ-01B must integrate effect-boundary installer verification before any production installation claim",
+    "Use fixture subprocess/verifier mocks for adapter failure cases; reserve genuine signed attestation acceptance for authorized live qualification"
+  ],
+  "obligations": [
+    {
+      "id": "trust-bootstrap",
+      "description": "Validate strict policy + release-pin and artifact identity; compare policy SHA to independently supplied expected digest, and verify binary/trusted-root hashes; reject expiry and unsafe symlink/paths.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "identity-enforcement",
+      "description": "Call verified GitHub CLI with pinned repo, signer workflow/digest, source ref/digest, bundle and trusted root in offline mode; parse bounded verification output and bind subject SHA.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "negative-campaign",
+      "description": "Reject missing/wrong signer, source, digest, policy, tool/root mismatch, malformed/expired policy, malformed output and execution unavailable/failed; no authentication from fixture strings.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "scope-honesty",
+      "description": "CLI returns read-only cryptographic verifier outcome but no production release/installation authority. Mark live signer/key custody and installer boundary as PQ-01B pending; no legacy fake acceptance.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "resource-gate",
+      "description": "Verify only declared changed paths, local targeted tests and mandatory exact PR/merge group CI as appropriate; no ad hoc new workflows.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-00",
+      "kind": "protected-main",
+      "revision": "09d5346c628560e7e33f947a8b08b44960cef14f",
+      "scope": "specified"
+    }
+  ],
+  "structure": [
+    "src/sf/publisher.py: fail-closed input/policy/attestation CLI verification boundary, no signer/publisher authority creation",
+    "src/sf/cli.py: sf distribution authenticate read-only command, retaining existing build/verify paths",
+    "tests/test_publisher.py: independent fake external verifier and negative-case tests with no live network",
+    "docs/factory/PQ01_PUBLISHER.md: implementation, trust custody/versions, unqualified live/install boundary",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md: PQ-01 in-progress stage A/B subpackage",
+    "docs/factory/evidence/PQ-01A.md: tests and exact source/gate identity when observed"
+  ],
+  "impact": [
+    "New separately invoked read-only authenticity adapter; legacy archive/lock and install fixtures untouched",
+    "Output is conditional on separately authenticated operator policy and pinned tool/root, and never issues an installation/release grant"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "GitHub current repository operations only; verifier uses offline retained bundle, no external network or credentials",
+    "execution": "Local focused tests, one native PR run on stable candidate, no repeat unchanged checks; protected queue on separately authorized integration."
+  },
+  "externalEffects": [
+    "No release signing, publication, live attestation verification, target install, production credentials or deployments",
+    "Only new task branch/PR in spsoftwarefc/s-f; protect main via normal required checks and queue, no direct merge"
+  ],
+  "proofs": {},
+  "amendments": []
+}
