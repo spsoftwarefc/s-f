@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07D",
+  "baseline": {
+    "commit": "9764c2247fb8bda87f06040213816a104cea4808",
+    "tree": "0f760d18a2a82ade5429c548af11bb89c1632f9c"
+  },
+  "objective": "Verify exact already-retained bundle and separately supplied SBOM/provenance/build lock bytes against the frozen retained manifest and out-of-band manifest digest, without generating or publishing artifacts.",
+  "nonGoals": [
+    "No signed SLSA provenance verification or SBOM contents parsing",
+    "No rebuild during promotion, live release or immutable remote custody claim",
+    "No installer, deployment, repository workflow or settings changes"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07D.json",
+    "src/sf/artifact_audit.py",
+    "tests/test_artifact_audit.py",
+    "docs/factory/evidence/PQ-07D.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "PQ-03",
+    "PQ-07"
+  ],
+  "decisions": [
+    "Retrieve existing content-addressed release bytes and independently rehash the declared build-manifest/SBOM/provenance/toolchain files.",
+    "Report byte binding only; a locally supplied SBOM/provenance with matching hashes is unauthenticated and cannot satisfy production release policy."
+  ],
+  "obligations": [
+    {
+      "id": "exact-proof-bytes",
+      "description": "Reject replaced SBOM/provenance/toolchain bytes, missing file, stale manifest or changed retained archive",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "anti-substitution",
+      "description": "Verify out-of-band manifest hash before trusting metadata; reject unsafe alias and symlinked input",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "claims",
+      "description": "No production or signing claim without real provider and independently held release policy",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07C",
+      "kind": "stacked-head",
+      "revision": "9764c2247fb8bda87f06040213816a104cea4808",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/artifact_audit.py opt-in byte-level evidence verification",
+    "tests/test_artifact_audit.py changed bytes and policy negative cases",
+    "docs/factory/evidence/PQ-07D.md explicit qualification limits"
+  ],
+  "impact": [
+    "Independent read-only API over caller-owned local retention store"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "No external artifact APIs, repository writes only",
+    "execution": "Run normal PR CI once on stable head"
+  },
+  "externalEffects": [
+    "No publication or mutable adopter target; only stacked PR",
+    "No protected merge until PR #44"
+  ],
+  "proofs": {},
+  "amendments": []
+}

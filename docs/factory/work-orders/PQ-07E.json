@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07E",
+  "baseline": {
+    "commit": "6e30d4cd446bce02c48fab1dcb469191562cfa73",
+    "tree": "c7a743d19298ebb29f13fe1063067e05b33f68c4"
+  },
+  "objective": "Add a durable local, tamper-evident evidence registry keyed by exact candidate/artifact and required qualification claim with scenario records, while explicitly retaining independent custody and certification as external requirements.",
+  "nonGoals": [
+    "No real publisher/CI/provider evidence creation or external operator attestation",
+    "No treating candidate-supplied evidence bytes and SHA as authenticated truth",
+    "No paid immutable store or production deployment/release"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07E.json",
+    "src/sf/evidence_registry.py",
+    "tests/test_evidence_registry.py",
+    "docs/factory/evidence/PQ-07E.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "PQ-07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use local single-host SQLite FULL/WAL, immutable event ID and SHA-256 chain over typed record metadata and bytes.",
+    "Verify local history before coverage; record positive and negative reference-case bytes without calling them authenticated or independently retained."
+  ],
+  "obligations": [
+    {
+      "id": "append-and-replay",
+      "description": "Atomic event append; exact replay permitted, conflicting event mutation rejected; detect changed stored bytes and hash chain.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "qualification-coverage",
+      "description": "Bind evidence to exact source commit and artifact and require each claim with both positive and negative case records; missing cases explicit.",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "truth-boundary",
+      "description": "Local chain/checksum is not independently authenticated immutable custody; prevent positive production acceptance",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07D",
+      "kind": "stacked-head",
+      "revision": "6e30d4cd446bce02c48fab1dcb469191562cfa73",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/evidence_registry.py append-only local reference evidence journal",
+    "tests/test_evidence_registry.py tamper, replay, restart, scope, coverage",
+    "docs/factory/evidence/PQ-07E.md external trust limits"
+  ],
+  "impact": [
+    "New offline opt-in single-host local persistence; no changes to protected or previous production gates"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "No external provider; GitHub PR only",
+    "execution": "Local SQLite tests and required once-only hosted check"
+  },
+  "externalEffects": [
+    "Only isolated local fixture DB and stacked branch",
+    "No merge until cumulative PR #44"
+  ],
+  "proofs": {},
+  "amendments": []
+}
