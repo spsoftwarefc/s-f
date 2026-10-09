@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07L",
+  "baseline": {
+    "commit": "3ef4b770a004ac7701aa6fb7a6a20f6de54f93c4",
+    "tree": "71b232f0ec53639975a3813a1c2a7fe01b3256f7"
+  },
+  "objective": "Reconcile the complete PQ-07G–K source-only stack against protected PR #44 baseline and submit one cumulative PR #50 for protected merge-queue validation; document that live PQ-07 and PQ-08 remain externally blocked.",
+  "nonGoals": [
+    "No production/publisher/CI/remote-deployment acceptance from passing source tests",
+    "No effect grant, public release, installation into other projects, paid service or adopter pilot",
+    "No change to required CI contexts, workflow, reviewer policy or branch/ruleset bypass"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07L.json",
+    "docs/factory/evidence/PQ-07L.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-08",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "decisions": [
+    "Five lower PRs #45–49 remain stacked and must not merge separately; only PR #50 targets protected main",
+    "Plan and README must separate accepted-source if protected merged from externally authenticated product qualification",
+    "Retain explicit raw/operator self-assertion denial and require real custody, artifact, provider, target and operations evidence before PQ-07 live acceptance"
+  ],
+  "obligations": [
+    {
+      "id": "reconcile",
+      "description": "Accurate PR #44 source baseline, new work order mapping, open external blockers, next merge PR #50",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "preserve-gates",
+      "description": "No false PQ-07/PQ-08 acceptance, no weakening of source/CI or policy controls",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07K",
+      "kind": "stacked-head",
+      "revision": "3ef4b770a004ac7701aa6fb7a6a20f6de54f93c4",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md current source-only section",
+    "README.md qualification boundary",
+    "docs/factory/evidence/PQ-07L.md source integration and limitations"
+  ],
+  "impact": [
+    "Documentation and work-order only; no new live code, no target projects touched"
+  ],
+  "budget": {
+    "hostedRuns": "one exact-head PR #50 CI and separate mandatory merge_group only",
+    "network": "GitHub source/CI only",
+    "execution": "No reruns of unchanged candidates"
+  },
+  "externalEffects": [
+    "One cumulative protected PR #50 may be merged only via ruleset required checks/merge queue",
+    "No production publication, credentials, target/pilot work"
+  ],
+  "proofs": {},
+  "amendments": []
+}
