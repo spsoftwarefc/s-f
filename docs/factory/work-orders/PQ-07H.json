@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07H",
+  "baseline": {
+    "commit": "ef3b66e89ed7eeeb271f386f8ca2447ae5571657",
+    "tree": "c659e425201ea4ea7fd05fcf31050c50bfee6db5"
+  },
+  "objective": "Bind PQ-07G raw-case gap inventory to PQ-07F source-only preflight without interpreting untrusted presence as external qualification.",
+  "nonGoals": [
+    "No acceptance of candidate-self-certified evidence, publisher or CI authority",
+    "No release, reference target mutation, publication or adopter pilot",
+    "No weakening of existing qualification preflight or historic fixture gates"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07H.json",
+    "src/sf/qualification_preflight.py",
+    "tests/test_qualification_preflight.py",
+    "docs/factory/evidence/PQ-07H.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "PQ-00"
+  ],
+  "decisions": [
+    "Optional raw campaign report is required only for reporting local source coverage; absent means incomplete",
+    "Enforce exact source/tree/artifact/policy, manifest digest and all claim states, including dual positive/negative cases",
+    "Every external trust and release flag must remain false, including complete local evidence"
+  ],
+  "obligations": [
+    {
+      "id": "join",
+      "description": "Reject corrupted, aliased, foreign candidate/policy or inconsistent raw campaign summaries",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "no-go",
+      "description": "Complete local evidence may improve raw-case coverage but never promotes production or effect authority",
+      "proofKinds": [
+        "preservation-review",
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07G",
+      "kind": "stacked-head",
+      "revision": "ef3b66e89ed7eeeb271f386f8ca2447ae5571657",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/qualification_preflight.py read-only join",
+    "tests/test_qualification_preflight.py independent false green tests"
+  ],
+  "impact": [
+    "Extends opt-in preflight keyword interface, no existing behavior changed without new input"
+  ],
+  "budget": {
+    "hostedRuns": "one stable draft PR-stage run if triggered",
+    "network": "GitHub source only",
+    "execution": "No live campaign"
+  },
+  "externalEffects": [
+    "Draft PR #46 stacked on PR #45; only cumulative PR #50 may integrate protected main",
+    "No external target or publication"
+  ],
+  "proofs": {},
+  "amendments": []
+}
