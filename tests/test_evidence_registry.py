@@ -1,5 +1,6 @@
 """PQ-07E local evidence byte and hash-chain preservation tests."""
 import sqlite3
+from contextlib import closing
 import tempfile
 import unittest
 from pathlib import Path
@@ -49,8 +50,9 @@ class EvidenceRegistryTests(unittest.TestCase):
     def test_modified_raw_payload_detected(self):
         with EvidenceRegistry(self.path) as db:
             self.put(db)
-        with sqlite3.connect(self.path) as raw:
+        with closing(sqlite3.connect(self.path)) as raw:
             raw.execute("UPDATE events SET body=? WHERE event_id='event1'", (b"tampered",))
+            raw.commit()
         with EvidenceRegistry(self.path) as db:
             with self.assertRaises(EvidenceRegistryError):
                 db.verify_chain()
