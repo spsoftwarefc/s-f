@@ -54,11 +54,61 @@ def _states(rows: object, label: str) -> bool:
     return all(r["state"] == "present-unverified" for r in rows)
 
 
+
+RAW_CAMPAIGN_FIELDS = {
+    "schemaVersion", "kind", "sourceCommit", "sourceTree",
+    "artifactSha256", "policySha256", "manifestSha256", "rawCasesPresent",
+    "claimCases", "candidateIssuerLabelsAuthenticated",
+    "independentPolicyCustodyVerified", "externalEvidenceAuthenticated",
+    "releaseAuthorized", "publishAuthorized", "adopterPilotAuthorized",
+    "productionQualified", "status",
+}
+
+
+def _raw_campaign(data: dict | None, source: str, tree: str,
+                  artifact: str, policy: str) -> bool:
+    if data is None:
+        return False
+    if type(data) is not dict or set(data) != RAW_CAMPAIGN_FIELDS:
+        raise PreflightError("invalid raw campaign report schema")
+    _kind(data, "sf-pq07g-raw-evidence-gap-report")
+    _flag_false(data, "candidateIssuerLabelsAuthenticated",
+                "independentPolicyCustodyVerified",
+                "externalEvidenceAuthenticated", "releaseAuthorized",
+                "publishAuthorized", "adopterPilotAuthorized",
+                "productionQualified")
+    if (data["sourceCommit"], data["sourceTree"], data["artifactSha256"],
+            data["policySha256"]) != (source, tree, artifact, policy):
+        raise PreflightError("raw campaign candidate or policy mismatch")
+    if (type(data["manifestSha256"]) is not str
+            or SHA64.fullmatch(data["manifestSha256"]) is None):
+        raise PreflightError("invalid raw campaign manifest SHA")
+    if data["status"] != "BLOCKED-external-qualification":
+        raise PreflightError("raw report asserts unsafe qualification status")
+    cases = data["claimCases"]
+    if type(cases) is not list or len(cases) != len(REQUIRED_CLAIMS):
+        raise PreflightError("incomplete raw case oracle")
+    full = True
+    for case, expected in zip(cases, REQUIRED_CLAIMS):
+        if type(case) is not dict or set(case) != {"claim", "positive", "negative"} or (
+                case["claim"] != expected):
+            raise PreflightError("invalid raw case")
+        for side in ("positive", "negative"):
+            if type(case[side]) is not str or case[side] not in (
+                    "present-unverified", "missing"):
+                raise PreflightError("unexpected raw proof disposition")
+            if case[side] != "present-unverified":
+                full = False
+    if type(data["rawCasesPresent"]) is not bool or data["rawCasesPresent"] != full:
+        raise PreflightError("raw case summary contradicts rows")
+    return full
+
 def assess_preflight(
     dossier: dict, policy: dict, audit: dict, registry: dict,
     recovery: dict, *, expected_source_commit: str,
     expected_source_tree: str, expected_artifact_sha256: str,
     expected_policy_sha256: str,
+    raw_campaign: dict | None = None,
 ) -> dict:
     for name, value, pattern in (
         ("source commit", expected_source_commit, SHA40),
@@ -107,6 +157,9 @@ def assess_preflight(
         raise PreflightError("contradictory or unsupported recovery result")
     dossier_complete = _states(dossier.get("claimStates"), "dossier")
     registry_complete = _states(registry.get("claimStates"), "registry")
+    raw_complete = _raw_campaign(raw_campaign, expected_source_commit,
+                                 expected_source_tree, expected_artifact_sha256,
+                                 expected_policy_sha256)
     return {
         "schemaVersion": 1,
         "kind": "sf-pq07f-production-preflight-no-go",
@@ -115,6 +168,7 @@ def assess_preflight(
         "artifactSha256": expected_artifact_sha256,
         "policySha256": expected_policy_sha256,
         "referenceLocalRecordsPresent": dossier_complete and registry_complete,
+        "rawCampaignCasesPresent": raw_complete,
         "externalQualificationBlockers": list(EXTERNAL_BLOCKERS),
         "publisherAuthenticated": False,
         "deploymentQualified": False,
