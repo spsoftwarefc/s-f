@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07F",
+  "baseline": {
+    "commit": "bf90caf970a413430c301ee785f0f7fd260ad64f",
+    "tree": "223694566781972f216476c1ed236cbe9ef2ad1e"
+  },
+  "objective": "Compose all PQ-07A–E offline reference observations into an exact-candidate scoped, deny-by-default qualification preflight; close out documentation for stacked source phase and prepare one cumulative protected merge at PR #44 without claiming live production acceptance.",
+  "nonGoals": [
+    "No effect grant issuance, publication or pilot activation; PQ-08 remains separate and blocked",
+    "No acceptance based on candidate-authored receipts, local hash chains, modeled target marker or mocked publisher",
+    "No alteration of existing SF fixture false-authority claims, protected CI workflow or rulesets"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07F.json",
+    "src/sf/qualification_preflight.py",
+    "tests/test_qualification_preflight.py",
+    "docs/factory/evidence/PQ-07F.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12",
+    "PQ-07",
+    "PQ-08",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Bind exact candidate source/tree/artifact and operator policy digest across dossier/policy/artifact/registry/recovery evidence; contradictions fail closed.",
+    "Distinguish structurally complete local coverage from externally authenticated live qualification; every output retains release/publish/pilot permissions false.",
+    "One cumulative PR #44 may be protected-integrated after exact-head checks and separate merge_group pass; production remains blocked."
+  ],
+  "obligations": [
+    {
+      "id": "cross-evidence",
+      "description": "Reject conflicting source/artifact/policy identities across offline qualification outputs, unsupported profile, contradicted local recovery",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "explicit-no-go",
+      "description": "Emit stable missing/deferred production qualification blockers even when all local reference observations structurally pass",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "plan-reconciliation",
+      "description": "Document PQ-07A–F candidate source status, no publication and persistent SF-R10 unmet, with exact preceding protected baseline",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07E",
+      "kind": "stacked-head",
+      "revision": "bf90caf970a413430c301ee785f0f7fd260ad64f",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/qualification_preflight.py exact identity join across source observations",
+    "tests/test_qualification_preflight.py failure/false green guards",
+    "docs/factory/evidence/PQ-07F.md scope and verification",
+    "production plan and README candidate reconciliation"
+  ],
+  "impact": [
+    "Read-only offline preflight only; no default CLI changes or external effects"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "GitHub repo only",
+    "execution": "Single stable PR-stage acceptance and separate protected merge_group after authorization"
+  },
+  "externalEffects": [
+    "Only bounded source/doc changes, cumulative PR #44 in this repository",
+    "No publication, credentials, live target, adopter project or paid infrastructure"
+  ],
+  "proofs": {},
+  "amendments": []
+}
