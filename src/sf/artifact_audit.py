@@ -9,7 +9,7 @@ import hmac
 import re
 from pathlib import Path
 
-from .publisher import _read_regular
+from .publisher import PublisherError, _read_regular
 from .retained_artifact import read_retained, RetentionError
 
 SHA = re.compile(r"[0-9a-f]{64}\Z")
@@ -48,7 +48,7 @@ def audit_retained_inputs(
             raw = _read_regular(path, MAX_PROOF_BYTES, label)
             if not hmac.compare_digest(hashlib.sha256(raw).hexdigest(), manifest[field]):
                 raise ArtifactAuditError("retained " + label + " does not match declared bytes")
-    except RetentionError as exc:
+    except (RetentionError, PublisherError) as exc:
         raise ArtifactAuditError("retention bytes unavailable") from exc
     return {
         "schemaVersion": 1, "kind": "sf-pq07d-retained-byte-audit",
