@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07X",
+  "baseline": {
+    "commit": "c4a33ecd98a7dc4afc91aeef807dc705409e7654",
+    "tree": "bbe6331afd1f646e909fe898680907d63aaad53f"
+  },
+  "objective": "Review and integrate PQ-07S–W source across draft PRs #57–61 into protected main via cumulative PR #62 while maintaining production NO-GO.",
+  "nonGoals": [
+    "No preview-signing workflow dispatch, external release approval, target deployment, credential provisioning, publication or adopter pilot",
+    "No direct merge or branch protection bypass",
+    "No changes to required CI and no arbitrary self-declared live evidence"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07X.json",
+    "docs/factory/evidence/PQ-07X.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-08",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "obligations": [
+    {
+      "id": "integration",
+      "description": "Review exact cumulative main-to-PR62 diff, source tests and required Linux, Windows and sf07-acceptance; then separate protected merge_group on exact SHA.",
+      "proofKinds": [
+        "diff-review",
+        "hosted-check",
+        "provider-evidence"
+      ]
+    },
+    {
+      "id": "no-go",
+      "description": "Retain explicit external custodian, authenticated target and operations blockers and no publication or adopter rights.",
+      "proofKinds": [
+        "preservation-review",
+        "negative-case-oracle"
+      ]
+    },
+    {
+      "id": "cleanup",
+      "description": "Only after actual protected merge, close incorporated lower drafts as not independently merged and verify final main.",
+      "proofKinds": [
+        "provider-evidence"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07W",
+      "kind": "stacked-head",
+      "revision": "c4a33ecd98a7dc4afc91aeef807dc705409e7654"
+    }
+  ],
+  "structure": [
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md",
+    "docs/factory/evidence/PQ-07X.md"
+  ],
+  "impact": [
+    "Cumulative source-only protected integration"
+  ],
+  "budget": {
+    "hostedRuns": "Final PR #62 and required protected merge_group only; no duplicate reruns",
+    "externalCosts": "none"
+  },
+  "externalEffects": [
+    "Protected source merge only, gated by GitHub"
+  ],
+  "proofs": {},
+  "amendments": []
+}
