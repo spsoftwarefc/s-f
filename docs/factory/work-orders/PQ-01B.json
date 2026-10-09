@@ -3,7 +3,7 @@
   "id": "PQ-01B",
   "baseline": {
     "commit": "86e1f72313f4acfff0fb98a307cad61bec7fb282",
-    "tree": "86e1f72313f4acfff0fb98a307cad61bec7fb282"
+    "tree": "0bdc5500ea564d0c975730e0894ec433e41675d2"
   },
   "objective": "Bind PQ-01A operator-pinned publisher attestation to the exact artifact bytes consumed by an explicit, opt-in pinned installation/upgrade effect. Preserve all preview paths as unqualified. Real attestation and independent trust custody remain external activation gates.",
   "nonGoals": [
@@ -81,5 +81,10 @@
     "No target deployments, publishing or changes to adopter repositories"
   ],
   "proofs": {},
-  "amendments": []
+  "amendments": [
+    {
+      "reason": "Correct tree identity from commit SHA to actual protected main tree; source baseline commit unchanged.",
+      "stage": "before implementation"
+    }
+  ]
 }
