@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07R",
+  "baseline": {
+    "commit": "2aa8c3e2618f04f20450ae0c6dbe4630309371d0",
+    "tree": "d2ecf1c38e9525fdb2dc62723a3d93dee43a21d6"
+  },
+  "objective": "Review and integrate PRs #51–55 as one protected PR #56, reconcile plan and README and preserve external qualification no-go.",
+  "nonGoals": [
+    "No live signing workflow dispatch, publication or adopter pilot",
+    "No effect grants, credentials or remote deployment",
+    "No weakening protected PR-stage and merge-group CI"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07R.json",
+    "docs/factory/evidence/PQ-07R.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "PQ-07",
+    "PQ-08",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "obligations": [
+    {
+      "id": "cumulative-review",
+      "description": "Review full main-to-head diff and local/hosted Linux/Windows/acceptance checks on exact PR #56 SHA",
+      "proofKinds": [
+        "diff-review",
+        "hosted-check"
+      ]
+    },
+    {
+      "id": "protected-merge",
+      "description": "Require independent protected GitHub SQUASH merge_group validation before integration; record final actual SHA after",
+      "proofKinds": [
+        "provider-evidence"
+      ]
+    },
+    {
+      "id": "no-go",
+      "description": "Retain live external PQ-07/PQ-08 blockers and unmet SF-R10, no false production claims",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07Q",
+      "kind": "stacked-head",
+      "revision": "2aa8c3e2618f04f20450ae0c6dbe4630309371d0"
+    }
+  ],
+  "budget": {
+    "hostedRuns": "Exact-head PR #56 and mandatory merge_group only; no unnecessary re-runs"
+  },
+  "externalEffects": [
+    "Protected main merge after required GitHub checks only",
+    "No signing dispatch, publication, credentials or target project modifications"
+  ],
+  "proofs": {},
+  "amendments": []
+}

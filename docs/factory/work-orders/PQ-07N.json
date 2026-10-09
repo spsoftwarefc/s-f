@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07N",
+  "baseline": {
+    "commit": "eb3c133e4125ca6334cf7476258be968252a1504",
+    "tree": "b28a2a4e3cd7c3ced3cdd8d4648c6d34b4514bd4"
+  },
+  "objective": "Add manual-only preview provenance workflow with source tests; no runs or qualification.",
+  "nonGoals": [
+    "No workflow execution",
+    "No release or deployment",
+    "Do not modify required CI"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07N.json",
+    "docs/factory/evidence/PQ-07N.md",
+    ".github/workflows/pq07-preview-attestation.yml",
+    "tests/test_preview_attestation_workflow.py"
+  ],
+  "requirements": [
+    "PQ-01",
+    "PQ-03",
+    "PQ-07",
+    "SF-R05"
+  ],
+  "obligations": [
+    {
+      "id": "manual-only",
+      "description": "Preview workflow never runs on PR or push events",
+      "proofKinds": [
+        "source-test"
+      ]
+    },
+    {
+      "id": "provenance",
+      "description": "Pinned action revisions and explicit preview-only signed build provenance",
+      "proofKinds": [
+        "source-test"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07M",
+      "kind": "stacked-head",
+      "revision": "eb3c133e4125ca6334cf7476258be968252a1504"
+    }
+  ],
+  "budget": {
+    "hostedRuns": "No manual invocation"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}

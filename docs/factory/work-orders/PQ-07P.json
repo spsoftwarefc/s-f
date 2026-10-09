@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07P",
+  "baseline": {
+    "commit": "3b3ea3687b5fa4db74b380d73bdf588d37ccf036",
+    "tree": "003443863227fa931abfbe083fcd853835a0f002"
+  },
+  "objective": "Bind exact retained artifact bytes to the existing operator-pinned publisher verifier before any later installer effect, without claiming independent retention custody.",
+  "nonGoals": [
+    "No automatic install/upgrade or release",
+    "No permission inferred from locally retained manifests",
+    "No locking claim for unverified build dependencies"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07P.json",
+    "docs/factory/evidence/PQ-07P.md",
+    "src/sf/retained_publisher.py",
+    "tests/test_retained_publisher.py"
+  ],
+  "requirements": [
+    "PQ-01",
+    "PQ-03",
+    "PQ-07",
+    "SF-R05",
+    "SF-R07"
+  ],
+  "obligations": [
+    {
+      "id": "bound-bytes",
+      "description": "Retained bytes independently hashed against manifest pin, exact private archive copy passed into publisher attestation verifier",
+      "proofKinds": [
+        "mutation-test",
+        "negative-test"
+      ]
+    },
+    {
+      "id": "no-authorization",
+      "description": "Auth observation cannot be a release grant, and source/store substitution is rejected",
+      "proofKinds": [
+        "negative-test"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07O",
+      "kind": "stacked-head",
+      "revision": "3b3ea3687b5fa4db74b380d73bdf588d37ccf036"
+    }
+  ],
+  "budget": {
+    "hostedRuns": "Normal PR acceptance only"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}

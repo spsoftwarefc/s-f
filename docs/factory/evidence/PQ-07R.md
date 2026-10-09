@@ -1,0 +1,9 @@
+# PQ-07R — cumulative protected PR #56 source acceptance dossier
+
+**Starting protected main:** `0a59eb0078826530493db0c2a0211470d9368a8d`, tree `b36a0b92793c754dc55dd102441461b3accdee22`. Work order committed first at `25ecc5104146db47c52f79d0e73484dc2102ed31`. Parent PQ-07Q head `2aa8c3e2618f04f20450ae0c6dbe4630309371d0`.
+
+Five stacked PRs #51–55 add: PQ-07M independent activation declarations; PQ-07N manual preview GitHub provenance workflow (NOT dispatched); PQ-07O read-only pinned CI provider audit; PQ-07P retained exact-byte publisher inspection; PQ-07Q isolated local child-process exit and CAS receipt recovery. Their work orders, positive and adversarial tests, bounded limitations and allowed paths are individually recorded. PR #56 adds this cumulative scope review and README/plan. No protected acceptance workflow or repository ruleset weakened.
+
+**Before PR #56 CI:** local tests not yet independently executable in this ChatGPT environment; hosted candidate results and any exact merge-group identities must be collected **after** the PR is opened. A source/work-order assertion must never be substituted for provider outcomes. Review complete cumulative main-to-head changes for any unsafe rights/host impacts. Check GitHub Actions Linux, Windows and `sf07-acceptance`; require merge queue `merge_group` separately.
+
+**Never claimed:** independent publisher root/verifier/policy custody; active signed release with approved grants; reproducible hash-locked build or independently immutable storage; authorized live disposable Linux remote deployment/migration/health; independent authenticated incident/operator evidence or adopter pilot. A manual `workflow_dispatch` definition does not sign any artifact until someone explicitly invokes it. PQ-07 live NO-GO, PQ-08 NOT STARTED, SF-R10 UNMET. No target project modifications, external secrets, public package publication or paid infrastructure.

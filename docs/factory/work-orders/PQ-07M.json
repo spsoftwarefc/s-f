@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07M",
+  "baseline": {
+    "commit": "0a59eb0078826530493db0c2a0211470d9368a8d",
+    "tree": "b36a0b92793c754dc55dd102441461b3accdee22"
+  },
+  "objective": "Reconcile protected PR #50 and define the independently owned PQ-07 live qualification activation contract before additional implementation; protect all external effects by default.",
+  "nonGoals": [
+    "No real trust-root provisioning or signing",
+    "No credentials, target deployment, publication, adopter pilot, or qualified release",
+    "No bypass or changes to required CI, merge queue, or reviewer controls"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07M.json",
+    "docs/factory/evidence/PQ-07M.md",
+    "docs/factory/PQ07_EXTERNAL_ACTIVATION.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "PQ-01",
+    "PQ-02",
+    "PQ-03",
+    "PQ-04",
+    "PQ-05",
+    "PQ-06",
+    "PQ-07",
+    "PQ-08",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12"
+  ],
+  "obligations": [
+    {
+      "id": "source-reconcile",
+      "description": "Record actual #50 merge SHA, required CI and no-go; historical sections retained",
+      "proofKinds": [
+        "source-review",
+        "preservation-review"
+      ]
+    },
+    {
+      "id": "external-contract",
+      "description": "Enumerate source/artifact/policy/CI/grant/target/operator custodian, positive and negative campaign proof, and non-authorized effects",
+      "proofKinds": [
+        "independent-policy-review",
+        "negative-case-oracle"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07L",
+      "kind": "protected-merged",
+      "revision": "0a59eb0078826530493db0c2a0211470d9368a8d"
+    }
+  ],
+  "structure": [
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "docs/factory/PQ07_EXTERNAL_ACTIVATION.md",
+    "README.md"
+  ],
+  "impact": [
+    "Documentation and future gate contract only"
+  ],
+  "budget": {
+    "hostedRuns": "No PR until final candidate, no release/signing execution",
+    "externalCosts": "None authorized"
+  },
+  "externalEffects": [
+    "None; GitHub PR source integration only"
+  ],
+  "proofs": {},
+  "amendments": []
+}
