@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 SHA = re.compile(r"[0-9a-f]{64}\Z")
@@ -34,12 +35,12 @@ def assess_local_recovery(
     # SQLite mode=ro avoids opening the normal ledger/target constructors,
     # whose WAL/schema initialization would mutate the evidence being inspected.
     try:
-        with sqlite3.connect(ledger_path.as_uri() + "?mode=ro", uri=True, timeout=2) as db:
+        with closing(sqlite3.connect(ledger_path.as_uri() + "?mode=ro", uri=True, timeout=2)) as db:
             row = db.execute(
                 "SELECT intent_sha, generation, state FROM operations WHERE operation_id=?",
                 (operation_id,),
             ).fetchone()
-        with sqlite3.connect(target_path.as_uri() + "?mode=ro", uri=True, timeout=2) as db:
+        with closing(sqlite3.connect(target_path.as_uri() + "?mode=ro", uri=True, timeout=2)) as db:
             target_row = db.execute(
                 "SELECT generation, requested_sha, status FROM receipts WHERE operation_id=?",
                 (operation_id,),
