@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-00",
+  "baseline": {
+    "commit": "45a1d78197667efeedf5f2e60ca07f1ff070a6f6",
+    "tree": "c498695eb49d6ca4af2859fa2164a85881020837"
+  },
+  "objective": "Freeze the bounded production-qualification programme, evidence/authority boundaries, requirement-to-package acceptance map and reference-profile limits before implementation of authentication, live release or durable deployment. Publish the reviewed plan and contracts on a separately declared, reviewable documentation PR.",
+  "nonGoals": [
+    "No publisher signature verification, hosted release verification, credential/grant issuance, artifact publication, real installation, deployment, migration, telemetry polling or incident mutation in PQ-00",
+    "No changes under src/, tests/, .github/ or repository/org settings, no production target contact and no edits to unrelated projects",
+    "Do not rewrite historical SF-13 through SF-19 fixture outputs, claim production readiness, add mandatory reviewers or turn SF-R10 into an implicit pass",
+    "Do not bypass protected main, merge or start a release solely because the PQ-00 documentation PR is ready"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-00.json",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "docs/factory/PQ00_CONTRACTS.md",
+    "docs/product/REQUIREMENTS.md",
+    "docs/product/THREAT_MODEL.md",
+    "docs/factory/PROJECT.md",
+    "docs/factory/evidence/PQ-00.md",
+    "README.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R08",
+    "SF-R09",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12",
+    "docs/product/REQUIREMENTS.md"
+  ],
+  "decisions": [
+    "Separate factory release from adopter deployment and distinguish source integration, scoped qualification, publication, installation and production activation",
+    "Use GitHub artifact attestations as first publisher adapter for public s-f only, with candidate-independent verifier and operator-controlled trust policy; private adopter support requires a separate declared capability",
+    "Use independently retrieved and evaluated provider CI/release facts and destination-specific, effect-scoped grant at the effect boundary; do not make a second human reviewer mandatory",
+    "Use SQLite WAL on local disk for serial single-host durable coordinator with target-enforced fencing or an equivalent atomic precondition; do not advertise a distributed lease",
+    "Use a disposable Linux reference service as the initial live deployment target only after explicit target/credential authorization",
+    "Preserve SF-14/15/16/SF-19 offline fixtures and their false production authorization flags; SF-17/18 deferred, SF-R10 overall unmet"
+  ],
+  "obligations": [
+    {
+      "id": "plan-sequence",
+      "description": "Record PQ-00..PQ-08 objectives, serial dependencies, risk-first acceptance, status, external activation blockers, no bypass/unauthorized effects and resource policy.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "requirements-matrix",
+      "description": "Map each outstanding SF requirement to individual production claims, scope, independent evidence and fail-closed/unavailable status; distinguish portable factory from reference adapter.",
+      "proofKinds": [
+        "independent-output",
+        "preservation-review"
+      ]
+    },
+    {
+      "id": "authority-contracts",
+      "description": "Specify future schemas and immutable identities for publisher policy/evidence, independent CI observations, artifact and grant/release, durable operation/fence, target receipts and durable incidents, with owner and failure behavior; no implementation claimed.",
+      "proofKinds": [
+        "independent-output",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "threat-review",
+      "description": "Capture replaced verifier/policy, wrong signer or workflow, revocation/downgrade, forged CI/approval, after-effect crash, stale worker, spoofed live observations and mixed trust domains.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    },
+    {
+      "id": "scope-preservation",
+      "description": "Confirm no runtime/CI/workflow change; preserve prior source/fixture claims as unqualified and no SF-R10 waiver or mandatory human reviewer.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "SF-R28",
+      "kind": "protected-main",
+      "revision": "45a1d78197667efeedf5f2e60ca07f1ff070a6f6",
+      "scope": "development"
+    },
+    {
+      "id": "PQ-01",
+      "kind": "follows-after-qualification-contract",
+      "revision": "not-started",
+      "scope": "future"
+    }
+  ],
+  "structure": [
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md: authoritative PQ execution sequence, stage gates, prerequisites, resource policy and scope",
+    "docs/factory/PQ00_CONTRACTS.md: declarative future authority/evidence identity, acceptance and negative-case contracts, not runtime schemas",
+    "docs/product/REQUIREMENTS.md: requirement/claim traceability and non-passing SF-R10 status",
+    "docs/product/THREAT_MODEL.md: additional authority boundary and recovery/observation threats",
+    "docs/factory/PROJECT.md and README.md: project route and visible current stage",
+    "docs/factory/evidence/PQ-00.md: source-bound design and preservation evidence"
+  ],
+  "impact": [
+    "Documentation-only contract freeze; no new runtime capability and no grant of release, install or deployment authority",
+    "Independent requirements and threat statements govern later code work; original fixture contracts remain unaffected"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "GitHub repository reads and branch/PR writes only; no release, destination or other-project calls",
+    "execution": "Use existing baseline evidence. One normal required PR-stage CI and, only after separately authorized merge, protected merge-group checks; no redundant action runs."
+  },
+  "externalEffects": [
+    "Create only one isolated branch and one PQ-00 PR in spsoftwarefc/s-f",
+    "No direct protected main write, merge, queue insertion, release, deploy, credential creation, target contact or repository setting change",
+    "No target-project modification and no reviewer requests solely for factory acceptance"
+  ],
+  "proofs": {},
+  "amendments": []
+}
