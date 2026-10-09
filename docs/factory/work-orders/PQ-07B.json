@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07B",
+  "baseline": {
+    "commit": "44bd8df9248a494d244ed513f4b41853c9708df0",
+    "tree": "b5492611dc737c75a2206ee282c640c0e8bdc39a"
+  },
+  "objective": "Add an out-of-band digest pinned qualification-policy parser that rejects candidate-selected acceptance scope, stale/rolled-back policy epochs and mismatched dossier identities. Never treat a matching digest as authenticated custody or release authority.",
+  "nonGoals": [
+    "No issuer signing, GitHub release or target deployment",
+    "No productionQualified=true based on candidate-authored policy, digest or claimed evidence",
+    "No changing prior source gates or CI settings"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07B.json",
+    "src/sf/qualification_policy.py",
+    "tests/test_qualification_policy.py",
+    "docs/factory/evidence/PQ-07B.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R11",
+    "SF-R12",
+    "PQ-07A",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use strict canonical UTF-8 JSON and SHA-256 pin supplied through separately owned operator channel; caller controls minimum epoch and date.",
+    "A policy digest only establishes byte agreement, not who authorized policy or whether offline root freshness remains valid."
+  ],
+  "obligations": [
+    {
+      "id": "protected-policy-input",
+      "description": "Reject invalid/duplicate fields, noncanonical policy, symlinks, policy digest substitution, expired epoch or downgrade",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "exact-scope",
+      "description": "Bind dossier candidate commit/tree/artifact and reference profile identity to expected operator policy",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "fail-closed",
+      "description": "Report match as developer observation with all release/qualification authority flags false",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07A",
+      "kind": "stacked-head",
+      "revision": "44bd8df9248a494d244ed513f4b41853c9708df0",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/qualification_policy.py strict operator-pinned policy and dossier scope match",
+    "tests/test_qualification_policy.py edge and substitution cases",
+    "docs/factory/evidence/PQ-07B.md scoped candidate limitations"
+  ],
+  "impact": [
+    "New read-only assessment API with no ambient network/credentials/target writes"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "None; GitHub PR only",
+    "execution": "One PR CI run after stable source, no redundant retry"
+  },
+  "externalEffects": [
+    "Only isolated GitHub branch/PR and source files",
+    "No merge before PR #44; no release or adopter mutation"
+  ],
+  "proofs": {},
+  "amendments": []
+}
