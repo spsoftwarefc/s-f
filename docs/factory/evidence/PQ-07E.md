@@ -1,0 +1,5 @@
+# PQ-07E — local qualification evidence registry
+
+The source package adds a bounded, single-host SQLite WAL/FULL registry for immutable event IDs, candidate/artifact-scoped positive and negative evidence bytes, a running local SHA-256 record chain and restart-safe verification. Replay of exactly identical event IDs is a no-op; changes under an existing ID or altered stored bytes fail closed. Coverage requires both a positive and a negative record for each frozen PQ-07A claim before classifying it `present-unverified`.
+
+**No authenticated external evidence is introduced.** The local hash chain has no externally held checkpoint, and a writer with file access could rewrite the entire database and its chain. Candidate-authored negative-case labels do not prove the test actually ran. The source never asserts an accepted release, qualified publisher or live recovery/operations. Real evidence custody, immutable off-host retention, signed attestations and authorized reference campaign remain external blockers. Local tests and hosted evidence are tracked separately.
