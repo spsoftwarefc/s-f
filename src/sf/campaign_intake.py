@@ -16,9 +16,9 @@ from pathlib import Path
 
 from .production_dossier import REQUIRED_CLAIMS
 
-GIT = re.compile(r"[0-9a-f]{40}\\Z")
-HASH = re.compile(r"[0-9a-f]{64}\\Z")
-IDENT = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,127}\\Z")
+GIT = re.compile(r"[0-9a-f]{40}\Z")
+HASH = re.compile(r"[0-9a-f]{64}\Z")
+IDENT = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,127}\Z")
 FIELDS = {"schemaVersion", "kind", "sourceCommit", "sourceTree", "artifactSha256",
           "policySha256", "profile", "cases"}
 PROFILE = {"scopeId", "platform", "adapter", "environment"}
@@ -53,7 +53,7 @@ def _unique(pairs):
 
 
 def _safe_path(raw: str) -> Path:
-    if type(raw) is not str or len(raw) > 4096 or "\\x00" in raw:
+    if type(raw) is not str or len(raw) > 4096 or "\x00" in raw:
         raise CampaignIntakeError("invalid evidence path")
     path = Path(raw)
     if not path.is_absolute() or ".." in path.parts:
