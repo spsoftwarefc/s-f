@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-04",
+  "baseline": {
+    "commit": "4beedd04790534e2d3f3f0e35b0ce31f41009d75",
+    "tree": "f5c31d390d2fe54cf72ecdeba9d4e6b701be4a61"
+  },
+  "objective": "Introduce single-host SQLite WAL/FULL transactional immutable operation intents, serialized generation reservation, pre-send UNKNOWN marking and deliberately blocked uncertain recovery. No remote fencing or exact-once claim.",
+  "nonGoals": [
+    "No distributed SQLite coordination, shared WAL over NFS, remote target effects, power-loss proof or unattended retry after unknown outcome",
+    "No automatic acknowledgement of an external effect based on an unauthenticated receipt",
+    "No changes to existing SF-15 simulated-memory fixture outputs"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-04.json",
+    "src/sf/durable_ledger.py",
+    "tests/test_durable_ledger.py",
+    "docs/factory/evidence/PQ-04.md"
+  ],
+  "requirements": [
+    "SF-R06",
+    "SF-R07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use sqlite3 stdlib BEGIN IMMEDIATE, WAL, synchronous FULL; reject unresolved reservation instead of expiry-based retry.",
+    "A generation is an internal allocation only. External fencing and authenticated receipt are PQ-05 responsibilities; evidence may remain UNKNOWN indefinitely."
+  ],
+  "obligations": [
+    {
+      "id": "immutable-intent",
+      "description": "Commit identity and immutable content digest before allowing dispatch reservation; reject same key with changed intent.",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "fenced-reservation",
+      "description": "Serialize contenders via SQLite write transaction; maintain monotonic generation; reject stale token/unknown state.",
+      "proofKinds": [
+        "event-trace"
+      ]
+    },
+    {
+      "id": "fail-closed-unknown",
+      "description": "Commit possible-send uncertainty before calling target; process restart cannot blindly retry unknown effect.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-03",
+      "kind": "stacked-head",
+      "revision": "4beedd04790534e2d3f3f0e35b0ce31f41009d75",
+      "scope": "source-candidate"
+    }
+  ],
+  "structure": [
+    "src/sf/durable_ledger.py: durable bounded transactional state and monotonic generations",
+    "tests/test_durable_ledger.py: restart, competing reservations, ambiguous dispatch, immutable key, stale generation",
+    "docs/factory/evidence/PQ-04.md: process/disk/power and remote fence limits"
+  ],
+  "impact": [
+    "New opt-in local persistence library; no external connector wired or installed"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "None for tests",
+    "execution": "Targeted local DB tests and one required hosted run on stable PR"
+  },
+  "externalEffects": [
+    "Only SQLite temporary test files in CI; no production data store or live destination effects",
+    "No merge before PR #38 checkpoint"
+  ],
+  "proofs": {},
+  "amendments": []
+}
