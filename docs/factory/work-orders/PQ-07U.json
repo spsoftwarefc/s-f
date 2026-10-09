@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07U",
+  "baseline": {
+    "commit": "1c4442f00fbb5a99c2c639dfbf99d2eb17b4cd1d",
+    "tree": "8e4f3b38fe3ecfa8ecf14d64d4efb9f77fce013b"
+  },
+  "objective": "Bind existing independent-pin intake, exact-byte retained-publisher review and GitHub provider observation to one fail-closed source-only handoff.",
+  "nonGoals": [
+    "No production publisher custody certification or effect-grant issuance",
+    "No live signer dispatch, external archive writes, deployment or publication",
+    "No rewriting baseline test or required CI controls"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07U.json",
+    "src/sf/supply_chain_handoff.py",
+    "tests/test_supply_chain_handoff.py",
+    "docs/factory/evidence/PQ-07U.md"
+  ],
+  "requirements": [
+    "PQ-01",
+    "PQ-02",
+    "PQ-03",
+    "PQ-07",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07"
+  ],
+  "obligations": [
+    {
+      "id": "bind-exact-candidate",
+      "description": "Reject mismatching source commit/tree, retained artifact and policy across intake, retained publisher and provider observations.",
+      "proofKinds": [
+        "cross-boundary-test",
+        "negative-case"
+      ]
+    },
+    {
+      "id": "deny-asserted-authority",
+      "description": "Reject any self-asserted external custody or release authorization; preserve separate external gates.",
+      "proofKinds": [
+        "negative-test",
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07T",
+      "kind": "stacked-head",
+      "revision": "1c4442f00fbb5a99c2c639dfbf99d2eb17b4cd1d"
+    }
+  ],
+  "structure": [
+    "src/sf/live_campaign_intake.py",
+    "src/sf/retained_publisher.py",
+    "src/sf/release_authority.py",
+    "src/sf/supply_chain_handoff.py"
+  ],
+  "impact": [
+    "Pure observer join, no effects"
+  ],
+  "budget": {
+    "hostedRuns": "Required PR CI only; never dispatch signing",
+    "externalCosts": "None"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}
