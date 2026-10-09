@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07A",
+  "baseline": {
+    "commit": "766509f380b901a8672d7ee7b2137ef28a234685",
+    "tree": "dad41cd34963d3b30a05338cb6ebd7798cc2725b"
+  },
+  "objective": "Start PQ-07 scoped qualification by implementing a bounded, read-only candidate-dossier and evidence-gap assessor. Reconcile protected PR #38 source integration precisely; never promote candidate-provided evidence to independently authenticated production qualification.",
+  "nonGoals": [
+    "No public release, signing, API credentials, project adoption, live target operation, publication, migration or deployment",
+    "No assertion that local HMAC/mock/SQLite/source tests provide authenticated publisher, CI checkout, immutable remote retention or real production evidence",
+    "No change to existing SF-19 synthetic fixture acceptance or weakening of protected CI controls",
+    "No merge to main before separate explicit next merge cadence and protected queue checks"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07A.json",
+    "src/sf/production_dossier.py",
+    "tests/test_production_dossier.py",
+    "docs/factory/evidence/PQ-07A.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "SF-R01",
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "SF-R08",
+    "SF-R09",
+    "SF-R10",
+    "SF-R11",
+    "SF-R12",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Define claim and evidence bindings based on the frozen PQ-00 oracle; rejected, missing and present-unverified never equal accepted.",
+    "Require external independently checked publisher, CI, effect grant, artifact custody, real crash/target/operations evidence before any positive production disposition.",
+    "Preserve existing portable SF-19 synthetic verifier and historical candidate evidence, and update plan/README from exact protected PR #38 integration."
+  ],
+  "obligations": [
+    {
+      "id": "strict-dossier",
+      "description": "Reject unknown/duplicated fields and inconsistent identifiers in candidate dossier; bind each claim observation to the exact commit, tree, artifact and reference profile.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "fail-closed-claims",
+      "description": "Distinguish omitted, mismatched and present-but-unauthenticated claims; no self-certified producer strings, fixture statuses or unsupported profiles can produce productionQualified true.",
+      "proofKinds": [
+        "regression-reproducer",
+        "preservation-review"
+      ]
+    },
+    {
+      "id": "protected-reconciliation",
+      "description": "Record protected PR #38 exact main SHA and merge_group run, with retained limitations and SF-R10 unmet; do not imply production approval.",
+      "proofKinds": [
+        "preservation-review",
+        "diff-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-01B-PQ-06",
+      "kind": "protected-main-partial-source",
+      "revision": "766509f380b901a8672d7ee7b2137ef28a234685",
+      "scope": "development-only"
+    }
+  ],
+  "structure": [
+    "src/sf/production_dossier.py: strict, bounded dossier structure and fail-closed status classifications",
+    "tests/test_production_dossier.py: missing, mismatched, malformed, self-claimed, unsupported and all-present unqualified cases",
+    "docs/factory/evidence/PQ-07A.md: exact source integration, missing external evidence and testing",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md and README.md: post-PR38 source status, not qualification"
+  ],
+  "impact": [
+    "Read-only offline assessor; no new external effect capability or dependency, existing CLI and fixture behavior unchanged",
+    "Immutable work-order-first and no mandatory human reviewer/CI policy changes"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "repairDiagnosticAfter": 2,
+    "network": "GitHub repository writes for branch/PR only; no external provider query",
+    "execution": "One normal PR-stage CI run on stable candidate, no extra reruns; merge not authorized in this package"
+  },
+  "externalEffects": [
+    "Create only PQ-07A branch and reviewable draft PR; no merge before user-defined next cadence",
+    "No production credentials, targets, adopter projects, releases or repository ruleset mutations"
+  ],
+  "proofs": {},
+  "amendments": []
+}
