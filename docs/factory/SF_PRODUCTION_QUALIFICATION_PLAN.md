@@ -157,3 +157,20 @@ Any actual live campaign must be initiated under a separate bounded operator wor
 The next user-selected protected source integration checkpoint is **PR #56**. PRs #51–55 are sequential source work and must not be individually merged. The active handoff is [PQ-07M external activation contract](PQ07_EXTERNAL_ACTIVATION.md) and its work order. The next packages prepare a **manual-only** publisher attestation workflow, independently pinned provider/grant review, exact-byte retained-artifact consumption, and reference qualification procedures. All external effect execution remains independently blocked until the activation contract is met.
 
 **Release disposition stays NO-GO:** real authenticated PQ-07 not conducted; PQ-08 publication/adopter pilot not started; SF-R10 remains unmet overall. A green PR or merge-group is necessary source validation, never a substitute for independent live acceptance. No hosted qualification workflow may automatically publish or deploy.
+
+## 14. PQ-07M–R source implementation: protected checkpoint PR #56
+
+User-approved sequence starts from [protected PR #50](https://github.com/spsoftwarefc/s-f/pull/50) integrated source identity `0a59eb0078826530493db0c2a0211470d9368a8d`. One development work order was committed **before** implementation for each package; the five lower PRs remain draft and must not be separately merged.
+
+| Draft PR | Package | Exact new source capability | Excluded external claims |
+| --- | --- | --- | --- |
+| [#51](https://github.com/spsoftwarefc/s-f/pull/51) | PQ-07M | Real PR50 reconciliation and [external activation contract](PQ07_EXTERNAL_ACTIVATION.md) | No independent policy/root/target approval |
+| [#52](https://github.com/spsoftwarefc/s-f/pull/52) | PQ-07N | **Manual-only** GitHub public preview wheel provenance workflow with commit-pinned actions and regression test | No workflow dispatched, no release or reproducible-build proof |
+| [#53](https://github.com/spsoftwarefc/s-f/pull/53) | PQ-07O | Read-only operator-pinned provider CI review command with fail-closed dispositions | Metadata observation is not a grant or checkout attestation |
+| [#54](https://github.com/spsoftwarefc/s-f/pull/54) | PQ-07P | Retained artifact exact-byte private copy checked by existing publisher verifier plus adversarial tests | Local store is not independent immutable custody |
+| [#55](https://github.com/spsoftwarefc/s-f/pull/55) | PQ-07Q | Isolated child process exit, reopened local SQLite target CAS/fencing and [live-reference runbook](PQ07_REFERENCE_RUNBOOK.md) | No real remote service, migrations, health or incidents |
+| [#56](https://github.com/spsoftwarefc/s-f/pull/56) | PQ-07R | This cumulative review, work-order and evidence reconciliation; solely protected merge candidate to `main` | No PQ-07 or PQ-08 product release acceptance |
+
+The required Linux and Windows jobs, dependent `sf07-acceptance` and **separate protected `merge_group` check** determine source integration. Record observed run/job IDs and final merge SHA only after GitHub confirms them. Do not bypass the protected queue or directly merge lower PRs. Close lower PRs administratively only after protected PR #56 incorporation.
+
+Even if the source stack is accepted: actual independent publisher/release trust, signed immutable provenance and artifact custody, authoritative CI/grant replay/revocation, real disposable Linux remote fencing/rollback and authenticated live incident evidence remain **unproven**. An opt-in preview signing workflow is not a production release; no workflow dispatch is authorized by source merge. Live PQ-07 **BLOCKED**, PQ-08 **NOT STARTED**, SF-R10 overall **UNMET**.

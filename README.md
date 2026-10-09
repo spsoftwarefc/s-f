@@ -40,3 +40,10 @@ Even complete local proof bytes and fully declared owner names are *not* authent
 ## PQ-07M–R production qualification preparation (PRs #51–#56)
 
 [PR #50](https://github.com/spsoftwarefc/s-f/pull/50) integrated PQ-07G–L source via protected queue as `0a59eb0078826530493db0c2a0211470d9368a8d` on 9 October 2026; [merge-group 37908722988](https://github.com/spsoftwarefc/s-f/actions/runs/37908722988) passed. The next merge checkpoint is PR #56, with separate work orders and one active stacked PR at a time. See [external activation prerequisite contract](docs/factory/PQ07_EXTERNAL_ACTIVATION.md). The publisher/CI/grant/artifact/target/operator proof is **not** independently accepted, and no live qualification, public publication or adopter pilot has been authorized. `productionQualified=false`; SF-R10 remains unmet overall.
+
+
+## PQ-07M–R source qualification implementation — cumulative PR #56
+
+PRs [#51](https://github.com/spsoftwarefc/s-f/pull/51)–[#55](https://github.com/spsoftwarefc/s-f/pull/55) form a sequential, work-order-first **source-only** stack: externally custodied activation contract, manual-only preview provenance workflow, operator-pinned provider read, retained-byte/publisher join, and isolated local process-death recovery plus a separate live runbook. Only [PR #56](https://github.com/spsoftwarefc/s-f/pull/56) is intended for protected `main` merge-queue consideration. The new preview workflow has **not been manually dispatched** and cannot be triggered by PR or push events.
+
+These are testable qualification-preparation mechanisms, not authenticated live production acceptance. Independent actual release signer, protected grant/revocation, immutable external artifact, remote target and authenticated incidents remain mandatory and unavailable. PQ-07 live remains **BLOCKED**, PQ-08 remains **NOT STARTED**, SF-R10 **UNMET overall**. See [external activation contract](docs/factory/PQ07_EXTERNAL_ACTIVATION.md) and [reference runbook](docs/factory/PQ07_REFERENCE_RUNBOOK.md).
