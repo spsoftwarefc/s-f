@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07O",
+  "baseline": {
+    "commit": "65108eed5b82109e7778f4ead637cff38bc5a592",
+    "tree": "26bac02b7bd0a28e4ad1b3835c4f08c7844b41f2"
+  },
+  "objective": "Add a bounded read-only operator tool for provider CI evidence using an externally pinned input policy.",
+  "nonGoals": [
+    "No real effects",
+    "No release authority",
+    "No CI changes"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07O.json",
+    "docs/factory/evidence/PQ-07O.md",
+    "tools/pq07_provider.py",
+    "tests/test_pq07_provider.py"
+  ],
+  "requirements": [
+    "PQ-02",
+    "PQ-07",
+    "SF-R06",
+    "SF-R07"
+  ],
+  "obligations": [
+    {
+      "id": "provider",
+      "description": "Validate separately supplied SHA256 pin before provider fetch",
+      "proofKinds": [
+        "negative-test"
+      ]
+    },
+    {
+      "id": "no-effect",
+      "description": "Exit and report do not grant release or deployment rights",
+      "proofKinds": [
+        "negative-test"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07N",
+      "kind": "stacked-head",
+      "revision": "65108eed5b82109e7778f4ead637cff38bc5a592"
+    }
+  ],
+  "budget": {
+    "hostedRuns": "Normal PR checks only"
+  },
+  "externalEffects": [],
+  "proofs": {},
+  "amendments": []
+}
