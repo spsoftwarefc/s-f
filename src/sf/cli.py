@@ -19,6 +19,7 @@ from .deployment import DeploymentError, qualify_deployment
 from .operations import OperationsError, assess_operations, read_document as read_operations_document
 from .qualification import QualificationError, qualify_factory
 from .distribution import DistributionError, build_bundle, verify_bundle
+from .publisher import PublisherError, authenticate_publisher
 from .adapters import declared_check_plan
 from .execution import ExecutionError, execute_check
 from .inventory import InventoryError, inventory
@@ -104,6 +105,13 @@ def main(argv: list[str] | None = None) -> int:
     release_verify.add_argument("--bundle", type=Path, required=True)
     release_verify.add_argument("--trust", type=Path, required=True)
     release_verify.add_argument("--lock-out", type=Path, default=None)
+    auth = dist_ops.add_parser("authenticate", help="read-only offline attestation using operator-pinned verifier")
+    for flag in ("artifact", "release-pin", "policy", "attestation", "verifier", "trusted-root"):
+        auth.add_argument("--" + flag, type=Path, required=True)
+    auth.add_argument("--policy-sha256", required=True,
+                      help="independently provisioned policy digest (not from candidate)")
+    auth.add_argument("--minimum-release-epoch", type=int, required=True,
+                      help="independently provisioned minimum accepted release epoch")
     release = sub.add_parser("release", help="read-only artifact/release plans; no deployment")
     release_ops = release.add_subparsers(dest="operation", required=True)
     release_plan = release_ops.add_parser("plan", help="bind source, artifact, CI, destination and recovery")
@@ -169,8 +177,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "distribution":
             if args.operation == "build":
                 result = build_bundle(args.root, args.output, publisher=args.publisher, release_id=args.release_id)
-            else:
+            elif args.operation == "verify":
                 result = verify_bundle(args.bundle, args.trust, lock_out=args.lock_out)
+            else:
+                result = authenticate_publisher(
+                    args.artifact, args.release_pin, args.policy,
+                    args.policy_sha256, args.attestation, args.verifier,
+                    args.trusted_root, minimum_release_epoch=args.minimum_release_epoch)
             print(json.dumps(result, ensure_ascii=False, sort_keys=True))
             return 0
         if args.command == "security":
@@ -271,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"schemaVersion": 1, "status": "unknown", "providerMetadataVerified": False,
                           "accepted": False, "reason": "provider-unavailable-or-incomplete"}, sort_keys=True))
         return 2
-    except (QualificationError, OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
+    except (PublisherError, QualificationError, OperationsError, DeploymentError, ReleasePlanError, DistributionError, SecurityError, AssuranceError, EvidenceError, ExecutionError, WorkError, ProfileError, InventoryError,
             IntegrationError, OSError, RecursionError) as exc:
         print(f"sf: {exc}", file=sys.stderr)
         return 2
