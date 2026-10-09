@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-05",
+  "baseline": {
+    "commit": "936f3078d76ba366dcfe7a628390ef9c96a91bdd",
+    "tree": "dff19fbce87acea8667961ebe4753641a03a10f5"
+  },
+  "objective": "Build a disposable reference target core with target-side atomic generation/CAS and durable operation receipts, without contacting an actual production or adopter destination. Live reference deployment remains blocked until explicitly authorized environment and credential are provided.",
+  "nonGoals": [
+    "No running network listeners by default, no deployment to an adopter, VPS, or production service",
+    "No claim that local SQLite marker changes prove health, migration, compensation or authenticated remote receipt",
+    "No unattended use unless destination policy/credential authorization and recovery are separately qualified"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-05.json",
+    "src/sf/reference_target.py",
+    "tests/test_reference_target.py",
+    "docs/factory/evidence/PQ-05.md"
+  ],
+  "requirements": [
+    "SF-R06",
+    "SF-R07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use single-database transactional target-side compare-and-swap with monotonic generation, stable operation key and durable outcome.",
+    "Treat local reference effect and receipt as a testable authority boundary, not as a production deployment or service-health proof."
+  ],
+  "obligations": [
+    {
+      "id": "target-fencing",
+      "description": "Reject stale generation and wrong compare-and-swap expectation even from an otherwise valid caller.",
+      "proofKinds": [
+        "event-trace",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "idempotent-receipt",
+      "description": "Record durable receipt atomically with target effect, permit same-key replay only for exact same parameters.",
+      "proofKinds": [
+        "event-trace"
+      ]
+    },
+    {
+      "id": "limitations",
+      "description": "No service credentials, migration/compensation or authenticated destination verification; explicitly not real deployment qualified.",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-04",
+      "kind": "stacked-head",
+      "revision": "936f3078d76ba366dcfe7a628390ef9c96a91bdd",
+      "scope": "source-candidate"
+    }
+  ],
+  "structure": [
+    "src/sf/reference_target.py: independent transactional target-side fence/CAS and receipt",
+    "tests/test_reference_target.py: conflicting operations, stale generations, lost reply, restart",
+    "docs/factory/evidence/PQ-05.md: local target-only evidence and live blockers"
+  ],
+  "impact": [
+    "Standalone reference target model; existing fake target and project adapter untouched"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "None for tests; no live target",
+    "execution": "SQLite fixture checks and normal PR checks only"
+  },
+  "externalEffects": [
+    "Only temporary SQLite test files and this repository branch; no release grant use, live service, or external project writes",
+    "No merge before PR #38 checkpoint"
+  ],
+  "proofs": {},
+  "amendments": []
+}
