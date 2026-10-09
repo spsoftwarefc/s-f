@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07C",
+  "baseline": {
+    "commit": "5b42e381da6e9fbcf29850486307a701c8d72bcd",
+    "tree": "25a6692093164dee8f4cb2448c1bfbdbfe30bfb3"
+  },
+  "objective": "Qualify narrowly scoped local process-death recovery behavior with a real terminated Python subprocess using PQ-04 SQLite and PQ-05 reference-target CAS; add read-only crash reconciliation that never retries uncertain external effects automatically.",
+  "nonGoals": [
+    "No true power-cut/fsync storage guarantee or NFS/fleet coordinator",
+    "No remote or authenticated service status or actual deployment",
+    "No mutation/retry of an UNKNOWN effect simply because receipt appears locally"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07C.json",
+    "src/sf/recovery_assessment.py",
+    "tests/test_recovery_assessment.py",
+    "docs/factory/evidence/PQ-07C.md"
+  ],
+  "requirements": [
+    "SF-R06",
+    "PQ-04",
+    "PQ-05",
+    "PQ-07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Test actual process termination with os._exit inside isolated child; report this as process death, not host power loss.",
+    "Reopen two distinct local SQLite stores after child death to classify possible dispatch and destination records; any receipt remains reference-local and unauthenticated."
+  ],
+  "obligations": [
+    {
+      "id": "durability",
+      "description": "Observe persisted intent, reservation/possible-send and target effect after abruptly terminated child without in-memory test double",
+      "proofKinds": [
+        "event-trace"
+      ]
+    },
+    {
+      "id": "uncertain-retry",
+      "description": "UNKNOWN and unavailable target receipt never authorize retransmission; reported contradiction fails closed",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "scope",
+      "description": "Retain remote fencing, restore anti-rollback and authenticated target limitations",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07B",
+      "kind": "stacked-head",
+      "revision": "5b42e381da6e9fbcf29850486307a701c8d72bcd",
+      "scope": "source-only"
+    }
+  ],
+  "structure": [
+    "src/sf/recovery_assessment.py read-only local cross-store classifier",
+    "tests/test_recovery_assessment.py real subprocess process-death scenarios",
+    "docs/factory/evidence/PQ-07C.md limitations and no-go"
+  ],
+  "impact": [
+    "Read-only assessment and process-death local tests; no mutation of previous fixture outputs"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "execution": "One stable PR suite, three bounded subprocess cases, no unnecessary CI reruns",
+    "network": "No outbound network"
+  },
+  "externalEffects": [
+    "Local temp SQLite only; GitHub stack PR, no production or adopter effects",
+    "No merge before PR #44"
+  ],
+  "proofs": {},
+  "amendments": []
+}
