@@ -33,3 +33,20 @@ Status as of 8 October 2026: **protected cumulative PR #28 merged** into `main` 
 | SF-R11–SF-R12 | Explicit all-false production release/authority flags and qualified-vs-unknown distinctions | BLOCKED unless external deployment/host controls are verified |
 
 `developmentFixturePassed` or a protected GitHub merge **must not** be construed as `releaseQualified` or `deploymentAuthorized`.
+
+## PQ-00 production-qualification trace (9 October 2026; proposal)
+
+The **current integration baseline** for production qualification is protected PR #30 on `main` at `45a1d78197667efeedf5f2e60ca07f1ff070a6f6`. Earlier PR #28 integration is historical evidence. PQ programme work is specified in [SF_PRODUCTION_QUALIFICATION_PLAN.md](../factory/SF_PRODUCTION_QUALIFICATION_PLAN.md) and [PQ00_CONTRACTS.md](../factory/PQ00_CONTRACTS.md). The following are open **release claims**, not newly satisfied requirements:
+
+| SF requirement | Acceptance-bearing future packages | Blocked fact / independent proof required |
+| --- | --- | --- |
+| SF-R01–R04 | PQ-01, PQ-07; adopter-specific PQ-08 | Authentic installer release; byte/foreign-control preserving install/upgrade/removal verified on selected target profiles |
+| SF-R05 | PQ-01, PQ-03, PQ-07 | Signature/attestation checked against separately custodied issuer/workflow policy; retained exact build bytes |
+| SF-R06 | PQ-02–PQ-07 | Authenticated release grant and artifact; real deployment adapter, transactional recovery, target fencing, live health and incident audit |
+| SF-R07 | PQ-02, PQ-03, PQ-06, PQ-07 | Provider-fetched CI/artifact/grant/observation facts with independently protected expectations |
+| SF-R08 | PQ-00 and each package | **Zero mandatory approving reviewers** retained; substantive self/agent review and platform checks still apply |
+| SF-R09 | PQ-00 and each package | Block unauthorized external effect but continue authorized independent source tasks |
+| SF-R10 | SF-18 deferred; PQ-00 manual profile | Overall **UNMET** for shared agent-budget/concurrency/lease controls. Bounded manual-serial reference scope cannot mark it passed |
+| SF-R11–R12 | PQ-00, PQ-07–PQ-08 | Installation, source merge and isolated reference qualification never imply unsupported production/host capabilities |
+
+All existing SF-13–SF-19 fixture success fields and false publisher/release/deployment flags retain their prior meaning. Production claims become accepted only after actual source-/artifact-/policy-/destination-bound, independently verifiable evidence; no new status is conferred by this planning update. Public factory-publisher GitHub attestations are a **planned adapter**, not universal support for private adopter repositories.
