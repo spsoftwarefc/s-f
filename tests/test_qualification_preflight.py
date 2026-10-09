@@ -112,5 +112,67 @@ class PreflightTests(unittest.TestCase):
             self.call()
 
 
+    def raw_campaign(self):
+        return {
+            "schemaVersion": 1, "kind": "sf-pq07g-raw-evidence-gap-report",
+            "sourceCommit": SHA, "sourceTree": TREE, "artifactSha256": ART,
+            "policySha256": POL, "manifestSha256": "1" * 64,
+            "rawCasesPresent": True,
+            "claimCases": [
+                {"claim": claim, "positive": "present-unverified",
+                 "negative": "present-unverified"} for claim in REQUIRED_CLAIMS
+            ],
+            "candidateIssuerLabelsAuthenticated": False,
+            "independentPolicyCustodyVerified": False,
+            "externalEvidenceAuthenticated": False, "releaseAuthorized": False,
+            "publishAuthorized": False, "adopterPilotAuthorized": False,
+            "productionQualified": False, "status": "BLOCKED-external-qualification",
+        }
+
+    def test_campaign_absent_is_not_falsely_complete(self):
+        self.assertFalse(self.call()["rawCampaignCasesPresent"])
+
+    def test_complete_raw_report_is_not_external_authority(self):
+        value = self.call(raw_campaign=self.raw_campaign())
+        self.assertTrue(value["rawCampaignCasesPresent"])
+        self.assertFalse(value["productionQualified"])
+        self.assertFalse(value["publishAuthorized"])
+        self.assertFalse(value["adopterPilotAuthorized"])
+
+    def test_campaign_wrong_artifact_or_policy_rejected(self):
+        raw = self.raw_campaign()
+        raw["policySha256"] = "a" * 64
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+        raw = self.raw_campaign()
+        raw["sourceTree"] = "0" * 40
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+
+    def test_campaign_forged_summary_or_claim_qualification_rejected(self):
+        raw = self.raw_campaign()
+        raw["claimCases"][0]["negative"] = "missing"
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+        raw["rawCasesPresent"] = False
+        result = self.call(raw_campaign=raw)
+        self.assertFalse(result["rawCampaignCasesPresent"])
+        self.assertFalse(result["productionQualified"])
+        raw["externalEvidenceAuthenticated"] = True
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+
+    def test_campaign_schema_duplicate_claim_and_fake_authority_rejected(self):
+        raw = self.raw_campaign()
+        raw["claimCases"][1] = raw["claimCases"][0]
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+        raw = self.raw_campaign()
+        raw["accepted"] = True
+        with self.assertRaises(PreflightError):
+            self.call(raw_campaign=raw)
+
+
+
 if __name__ == "__main__":
     unittest.main()
