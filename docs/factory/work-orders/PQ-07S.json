@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-07S",
+  "baseline": {
+    "commit": "a462d5306c731341c4c915797693edb8e1c71615",
+    "tree": "1ac77ead7a202eb46eaea96a6f052505297ba724"
+  },
+  "objective": "Reconcile the protected PR #56 integration and prepare a decision-ready, independently owned live PQ-07 campaign intake and PR #57–62 dependency sequence without authorizing live effects.",
+  "nonGoals": [
+    "Do not dispatch the manual preview workflow or produce a release signature",
+    "Do not claim external publisher/grant/target/incident custody, or generate acceptance from candidate-supplied data",
+    "Do not create credentials, spend money, deploy to a VPS, edit target projects, publish artifacts or begin PQ-08",
+    "Do not alter required CI, branch rules, acceptance fixtures or merge-queue behavior",
+    "Do not merge PRs #57–61 independently; PR #62 is the sole next integration checkpoint"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-07S.json",
+    "docs/factory/evidence/PQ-07S.md",
+    "docs/factory/PQ07_LIVE_CAMPAIGN_HANDOFF.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "README.md"
+  ],
+  "requirements": [
+    "PQ-01", "PQ-02", "PQ-03", "PQ-04", "PQ-05", "PQ-06",
+    "PQ-07", "PQ-08", "SF-R05", "SF-R06", "SF-R07",
+    "SF-R10", "SF-R11", "SF-R12"
+  ],
+  "obligations": [
+    {
+      "id": "protected-56-reconcile",
+      "description": "Record genuine PR #56 protected squash incorporation, exact main SHA/tree and provider merge_group run without promoting development evidence to production.",
+      "proofKinds": ["provider-evidence", "preservation-review"]
+    },
+    {
+      "id": "independent-decision-docket",
+      "description": "Specify out-of-band custodians and evidence identifiers for publisher trust, provider CI, grants, retained artifacts, disposable target, operations and separate PQ-08; never prefill approval.",
+      "proofKinds": ["contract-review", "negative-case-oracle"]
+    },
+    {
+      "id": "pr62-boundary",
+      "description": "Declare bounded sequential work for PRs #57–61 and the protected-only cumulative #62; distinguish safely preparable source work from externally blocked execution.",
+      "proofKinds": ["dependency-review", "preservation-review"]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-07R",
+      "kind": "protected-merged",
+      "revision": "a462d5306c731341c4c915797693edb8e1c71615"
+    }
+  ],
+  "structure": [
+    "docs/factory/PQ07_EXTERNAL_ACTIVATION.md",
+    "docs/factory/PQ07_REFERENCE_RUNBOOK.md",
+    "docs/factory/SF_PRODUCTION_QUALIFICATION_PLAN.md",
+    "docs/factory/PQ07_LIVE_CAMPAIGN_HANDOFF.md"
+  ],
+  "impact": [
+    "Source-only campaign handoff and next protected-merge plan",
+    "No runtime changes, deployment authority or target-side effect"
+  ],
+  "budget": {
+    "hostedRuns": "No release workflow dispatch; only required PR-stage and later PR #62 merge-group checks; do not rerun unchanged green jobs",
+    "externalCosts": "None authorized"
+  },
+  "externalEffects": [
+    "Draft GitHub PR and source commits only; no protected merge or remote service effects"
+  ],
+  "proofs": {},
+  "amendments": []
+}
