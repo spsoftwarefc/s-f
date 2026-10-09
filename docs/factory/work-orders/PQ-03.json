@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-03",
+  "baseline": {
+    "commit": "3b977264c56631c61fac61e3276984c99f263405",
+    "tree": "30b310a13ac51f75e0f3730e2ebd95dbdc3f918c"
+  },
+  "objective": "Implement exact-byte retained artifact staging and independent later rehash, with a strict manifest declaring build inputs and retention identity. Do not assume reproducible build, provenance signature, or remote immutable store until separately evidenced.",
+  "nonGoals": [
+    "No rebuild-on-promotion, no publishing, no production deployment",
+    "No new default hosted workflow or unsigned provenance presented as signed attestation",
+    "No write outside the explicit caller-provided local retention directory"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-03.json",
+    "src/sf/retained_artifact.py",
+    "tests/test_retained_artifact.py",
+    "docs/factory/evidence/PQ-03.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R06",
+    "SF-R07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Content-addressed filenames and no replace/overwrite for retained bytes; later consumers must read the original and rehash.",
+    "Store manifest and bytes in a caller-owned directory; future externally controlled immutable retention and signed provenance must independently qualify."
+  ],
+  "obligations": [
+    {
+      "id": "retain-exact",
+      "description": "Reject symlink/oversize/tampered/archive substitutions and duplicate conflicting store identities.",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "promote-no-rebuild",
+      "description": "Return only retained existing bytes after verifying SHA and identity; never execute a build on promotion.",
+      "proofKinds": [
+        "independent-output"
+      ]
+    },
+    {
+      "id": "unqualified-provenance",
+      "description": "A valid local manifest does not authenticate SLSA builder, toolchain, action pins or independent retention custody.",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-02",
+      "kind": "stacked-head",
+      "revision": "3b977264c56631c61fac61e3276984c99f263405",
+      "scope": "source-candidate"
+    }
+  ],
+  "structure": [
+    "src/sf/retained_artifact.py: local byte-addressed stage/open with fsync and no overwrite",
+    "tests/test_retained_artifact.py: idempotency, mutation and retention error cases",
+    "docs/factory/evidence/PQ-03.md: scoped retention limitations"
+  ],
+  "impact": [
+    "Independent local candidate artifact store module; no effect on previous preview interfaces"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "No external publisher or artifact server",
+    "execution": "Stable candidate once; no redundant CI"
+  },
+  "externalEffects": [
+    "Only local test filesystem writes and stacked branch changes; no production store modification or publication",
+    "Hold all merges until PR #38 checkpoint"
+  ],
+  "proofs": {},
+  "amendments": []
+}
