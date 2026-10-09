@@ -6,10 +6,8 @@ No ambiguous state authorizes an unattended retry.
 from __future__ import annotations
 
 import re
+import sqlite3
 from pathlib import Path
-
-from .durable_ledger import DurableLedger
-from .reference_target import ReferenceTarget
 
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 IDENT = re.compile(r"[A-Za-z][A-Za-z0-9_.-]{0,127}\Z")
@@ -33,9 +31,27 @@ def assess_local_recovery(
         if (not path.is_absolute() or path.is_symlink()
                 or not path.is_file()):
             raise RecoveryAssessmentError("missing or unsafe existing local store")
-    with DurableLedger(ledger_path) as ledger, ReferenceTarget(target_path) as target:
-        intent = ledger.get(operation_id)
-        receipt = target.status(operation_id)
+    # SQLite mode=ro avoids opening the normal ledger/target constructors,
+    # whose WAL/schema initialization would mutate the evidence being inspected.
+    try:
+        with sqlite3.connect(ledger_path.as_uri() + "?mode=ro", uri=True, timeout=2) as db:
+            row = db.execute(
+                "SELECT intent_sha, generation, state FROM operations WHERE operation_id=?",
+                (operation_id,),
+            ).fetchone()
+        with sqlite3.connect(target_path.as_uri() + "?mode=ro", uri=True, timeout=2) as db:
+            target_row = db.execute(
+                "SELECT generation, requested_sha, status FROM receipts WHERE operation_id=?",
+                (operation_id,),
+            ).fetchone()
+    except sqlite3.Error as exc:
+        raise RecoveryAssessmentError("unavailable or malformed local reference evidence") from exc
+    intent = None if row is None else {
+        "intentSha256": row[0], "generation": row[1], "state": row[2],
+    }
+    receipt = None if target_row is None else {
+        "generation": target_row[0], "artifactSha256": target_row[1], "state": target_row[2],
+    }
     if intent is None:
         raise RecoveryAssessmentError("no durable immutable intent")
     if intent["intentSha256"] != expected_intent_sha256:
