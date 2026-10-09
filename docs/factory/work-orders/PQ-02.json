@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-02",
+  "baseline": {
+    "commit": "24f9b41a3d5c28d873cd5df9a257dadcc8f10c1e",
+    "tree": "ea82a170c741313c841b31eb6481edd2b5233ef9"
+  },
+  "objective": "Implement candidate-independent, digest-pinned GitHub provider policy evaluation and a bounded authenticated single-operator grant verifier for offline reference flows. Keep effect authorization blocked until durable replay/revocation and target enforcement exist.",
+  "nonGoals": [
+    "No independent release signing/publication, no credential generation, no destination writes",
+    "No granting an effect merely because CI is green, a grant MAC matches, or a candidate supplies a policy digest",
+    "No assumption HMAC is fit for multi-operator/public verifier systems; no hardcoded production secret",
+    "No CI workflow/ruleset changes"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-02.json",
+    "src/sf/release_authority.py",
+    "tests/test_release_authority.py",
+    "docs/factory/evidence/PQ-02.md"
+  ],
+  "requirements": [
+    "SF-R06",
+    "SF-R07",
+    "SF-R08",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Reuse provider query/strict validation in sf.ci_evidence but take CI request only from a digest-pinned external policy, not the candidate.",
+    "Use standard-library HMAC-SHA256 as single-operator reference-grant authentication only. Public-key provider and durable replay store are pending; output must not imply release authority."
+  ],
+  "obligations": [
+    {
+      "id": "ci-trust",
+      "description": "Hash-pin canonical externally held CI request, reject substitutions and propagate provider missing/skipped/cancelled failures.",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "grant-identity",
+      "description": "Verify MAC over canonical strict grant, expiry, exact effect, target, artifact and policy bindings, with no effect rights.",
+      "proofKinds": [
+        "independent-output",
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "limitations",
+      "description": "No release/deployment effect claim until independently protected key and nonce ledger, real provider proof, target credential and effect checks.",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-01B",
+      "kind": "stacked-head",
+      "revision": "24f9b41a3d5c28d873cd5df9a257dadcc8f10c1e",
+      "scope": "source-candidate"
+    }
+  ],
+  "structure": [
+    "src/sf/release_authority.py: pinned CI authority observation and offline authenticated grant verifier",
+    "tests/test_release_authority.py: negative grant and policy tests",
+    "docs/factory/evidence/PQ-02.md: gaps and lack of live verification"
+  ],
+  "impact": [
+    "New opt-in pure APIs; no mutation of existing SF10 or SF14 semantics"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "No external provider queries from tests; real query only when caller supplies independently pinned request",
+    "execution": "One hosted stable-candidate run; no extra push triggers"
+  },
+  "externalEffects": [
+    "Stack only over PR #33; do not merge until PR #38 checkpoint",
+    "No credentials, live publication, or adopter mutations"
+  ],
+  "proofs": {},
+  "amendments": []
+}

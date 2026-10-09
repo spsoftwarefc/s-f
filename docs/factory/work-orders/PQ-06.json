@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-06",
+  "baseline": {
+    "commit": "c43787b9c57c74d7626f59626e857be94b4175a2",
+    "tree": "ad4b996aa15223f8e16b66eef67bd521f4987c94"
+  },
+  "objective": "Implement an opt-in durable incident journal that verifies canonical source/target/time/sequence-bound HMAC observations and preserves unresolved incidents across restart; require explicit independently MAC-authenticated manual resolution. No live collector or production qualification.",
+  "nonGoals": [
+    "No production telemetry ingestion, always-on collector, dashboard, paid vendor or external project access",
+    "No automatic closure of an anomaly after healthy telemetry, no unverified operator acknowledgement",
+    "No assumption that an HMAC reference secret authenticates a production device without independent key custody"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-06.json",
+    "src/sf/live_journal.py",
+    "tests/test_live_journal.py",
+    "docs/factory/evidence/PQ-06.md"
+  ],
+  "requirements": [
+    "SF-R06",
+    "SF-R07",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use single-host local SQLite event and incident store with MAC-bound telemetry and protected manual resolve path.",
+    "Per-target/domain strictly increasing sequence and freshness reject replay, while external transport/key lifecycle remains a separate adapter requirement."
+  ],
+  "obligations": [
+    {
+      "id": "authenticated-event",
+      "description": "Reject wrong source/target/environment, stale/future event, replays, malformed IDs, wrong MAC and out-of-order sequence.",
+      "proofKinds": [
+        "regression-reproducer",
+        "event-trace"
+      ]
+    },
+    {
+      "id": "durable-incident",
+      "description": "Create unresolved incident on nonhealthy event; maintain unresolved status through healthy follow-up and process restart.",
+      "proofKinds": [
+        "event-trace"
+      ]
+    },
+    {
+      "id": "explicit-resolve",
+      "description": "Require scoped authenticated operator and recovery evidence digest for manual close; no auto-close.",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-05",
+      "kind": "stacked-head",
+      "revision": "c43787b9c57c74d7626f59626e857be94b4175a2",
+      "scope": "source-candidate"
+    }
+  ],
+  "structure": [
+    "src/sf/live_journal.py: authenticated observation validation and SQLite incident history",
+    "tests/test_live_journal.py: persistence, replay, staleness, unresolved healthy follow-up",
+    "docs/factory/evidence/PQ-06.md: missing live/authenticated external inputs"
+  ],
+  "impact": [
+    "Standalone operations reference library; SF-16 unauthenticated fixture contract unaffected"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "No actual live services; temporary SQLite/HMAC-only unit tests",
+    "execution": "Stable-candidate PR checks only; no duplicate Actions triggers"
+  },
+  "externalEffects": [
+    "No actual telemetry connection, project deploy or provider credentials; only stacked PR changes",
+    "No merging before PR #38 checkpoint"
+  ],
+  "proofs": {},
+  "amendments": []
+}

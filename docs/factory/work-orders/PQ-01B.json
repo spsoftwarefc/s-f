@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "id": "PQ-01B",
+  "baseline": {
+    "commit": "86e1f72313f4acfff0fb98a307cad61bec7fb282",
+    "tree": "0bdc5500ea564d0c975730e0894ec433e41675d2"
+  },
+  "objective": "Bind PQ-01A operator-pinned publisher attestation to the exact artifact bytes consumed by an explicit, opt-in pinned installation/upgrade effect. Preserve all preview paths as unqualified. Real attestation and independent trust custody remain external activation gates.",
+  "nonGoals": [
+    "No release publication, issuance of signing credentials, trusted-root provisioning, or actual target deployment",
+    "No claiming that mocked subprocess verification establishes a genuine signed publisher",
+    "No unconditional qualification based on receipt strings, candidate-authored policies, or CI status",
+    "No change to protected workflow/ruleset or preexisting legacy installer semantics"
+  ],
+  "allowedPaths": [
+    "docs/factory/work-orders/PQ-01B.json",
+    "src/sf/publisher_effect.py",
+    "tests/test_publisher_effect.py",
+    "docs/factory/evidence/PQ-01B.md"
+  ],
+  "requirements": [
+    "SF-R05",
+    "SF-R07",
+    "SF-R11",
+    "SF-R12",
+    "docs/factory/PQ00_CONTRACTS.md"
+  ],
+  "decisions": [
+    "Use an isolated, byte-copied, hash-verified artifact for the actual effect boundary instead of re-reading a mutable untrusted artifact path.",
+    "Keep the opt-in verified-apply API separate from the legacy development preview; no backwards-incompatible command behavior.",
+    "Treat independent policy custody, persistent anti-rollback, genuine live attestation and per-platform verifier support as incomplete and blocked claims."
+  ],
+  "obligations": [
+    {
+      "id": "exact-consumption",
+      "description": "Reject substituted artifact between publisher verification and installation, passing only a private byte-matched copy to pinned apply.",
+      "proofKinds": [
+        "regression-reproducer",
+        "independent-output"
+      ]
+    },
+    {
+      "id": "effect-guard",
+      "description": "Reject incorrect mode, missing inputs, untrusted verifier result and mismatched hash before effect; leave errors observable.",
+      "proofKinds": [
+        "regression-reproducer"
+      ]
+    },
+    {
+      "id": "honest-status",
+      "description": "Keep release and production authorization flags false, mark external publisher custody and live proof unavailable.",
+      "proofKinds": [
+        "preservation-review"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "PQ-01A",
+      "kind": "protected-main",
+      "revision": "86e1f72313f4acfff0fb98a307cad61bec7fb282",
+      "scope": "development"
+    }
+  ],
+  "structure": [
+    "src/sf/publisher_effect.py: authenticated pre-effect bridge to existing pinned installer",
+    "tests/test_publisher_effect.py: mocked observation verifies exact-copy admission and negative cases",
+    "docs/factory/evidence/PQ-01B.md: capture tested scope and external blockers"
+  ],
+  "impact": [
+    "New opt-in Python verified-apply entrypoint; existing commands and fixtures unaffected",
+    "No automatic authorization from successful proof; live qualification still pending"
+  ],
+  "budget": {
+    "hostedRuns": 1,
+    "network": "GitHub repository writes only; no remote publisher request or deploy",
+    "execution": "Avoid creating PR or launching CI before stable head; run mandatory host checks once upon candidate PR open"
+  },
+  "externalEffects": [
+    "Only branch and PR preparation in spsoftwarefc/s-f; no merge before PR 38 checkpoint",
+    "No target deployments, publishing or changes to adopter repositories"
+  ],
+  "proofs": {},
+  "amendments": [
+    {
+      "reason": "Correct tree identity from commit SHA to actual protected main tree; source baseline commit unchanged.",
+      "stage": "before implementation"
+    }
+  ]
+}
